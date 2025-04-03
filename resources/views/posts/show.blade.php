@@ -92,12 +92,21 @@
                     <!-- Действия с постом -->
                     <div class="d-flex align-items-center justify-content-between mb-4">
                         <div class="d-flex align-items-center">
+                            @auth
                             <button class="btn btn-link text-dark p-0 me-4 like-button" data-post-id="{{ $post->id }}">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="{{ $post->likedBy(auth()->user()) ? 'currentColor' : 'none' }}">
                                     <path d="M12 21.35L10.55 20.03C5.4 15.36 2 12.28 2 8.5C2 5.42 4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.09C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.42 22 8.5C22 12.28 18.6 15.36 13.45 20.04L12 21.35Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
                                 <span class="ms-1 likes-count" style="pointer-events: none;">{{ $post->likes_count }}</span>
                             </button>
+                            @else
+                            <a href="{{ route('login') }}" class="btn btn-link text-dark p-0 me-4">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                    <path d="M12 21.35L10.55 20.03C5.4 15.36 2 12.28 2 8.5C2 5.42 4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.09C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.42 22 8.5C22 12.28 18.6 15.36 13.45 20.04L12 21.35Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <span class="ms-1">{{ $post->likes_count }}</span>
+                            </a>
+                            @endauth
 
                             <button class="btn btn-link text-dark p-0 me-4 comment-toggle">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -117,6 +126,7 @@
                             </button>
                         </div>
 
+                        @auth
                         <form action="{{ route('posts.bookmark', $post) }}" method="POST">
                             @csrf
                             <button type="submit" class="btn btn-link text-dark p-0">
@@ -125,6 +135,13 @@
                                 </svg>
                             </button>
                         </form>
+                        @else
+                        <a href="{{ route('login') }}" class="btn btn-link text-dark p-0">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <path d="M5 5C5 4.46957 5.21071 3.96086 5.58579 3.58579C5.96086 3.21071 6.46957 3 7 3H17C17.5304 3 18.0391 3.21071 18.4142 3.58579C18.7893 3.96086 19 4.46957 19 5V21L12 16L5 21V5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </a>
+                        @endauth
                     </div>
 
                     <!-- Комментарии -->
@@ -162,6 +179,7 @@
                                                         <a href="{{ route('users.show', $comment->user) }}" class="text-decoration-none text-dark fw-bold">{{ $comment->user->name }}</a>
                                                         <span class="text-muted ms-2">{{ $comment->created_at->diffForHumans() }}</span>
                                                     </div>
+                                                    @auth
                                                     <div class="dropdown">
                                                         <button class="btn btn-link text-dark p-0" type="button" data-bs-toggle="dropdown">
                                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
@@ -198,11 +216,13 @@
                                                             @endcannot
                                                         </ul>
                                                     </div>
+                                                    @endauth
                                                 </div>
                                                 <div class="comment-content mb-2">
                                                     {{ $comment->content }}
                                                 </div>
                                                 <div class="d-flex align-items-center">
+                                                    @auth
                                                     <button class="btn btn-link text-dark p-0 me-3 like-button" data-comment-id="{{ $comment->id }}">
                                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="{{ $comment->likedBy(auth()->user()) ? 'currentColor' : 'none' }}">
                                                             <path d="M12 21.35L10.55 20.03C5.4 15.36 2 12.28 2 8.5C2 5.42 4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.09C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.42 22 8.5C22 12.28 18.6 15.36 13.45 20.04L12 21.35Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -212,6 +232,17 @@
                                                     <button class="btn btn-link text-dark p-0 reply-button" data-comment-id="{{ $comment->id }}">
                                                         Ответить
                                                     </button>
+                                                    @else
+                                                    <a href="{{ route('login') }}" class="btn btn-link text-dark p-0 me-3">
+                                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                                            <path d="M12 21.35L10.55 20.03C5.4 15.36 2 12.28 2 8.5C2 5.42 4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.09C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.42 22 8.5C22 12.28 18.6 15.36 13.45 20.04L12 21.35Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                        </svg>
+                                                        <span class="ms-1">{{ $comment->likes_count }}</span>
+                                                    </a>
+                                                    <a href="{{ route('login') }}" class="btn btn-link text-dark p-0">
+                                                        Ответить
+                                                    </a>
+                                                    @endauth
                                                 </div>
 
                                                 <!-- Форма для ответа -->
@@ -257,24 +288,30 @@
                 <h5 class="modal-title">Пожаловаться на пост</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
+            @auth
             <form action="{{ route('posts.report', $post) }}" method="POST" data-remote="true">
                 @csrf
-                <input type="hidden" name="_token" value="{{ csrf_token() }}">
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label">Тип жалобы</label>
-                        <select name="type" class="form-select" required>
-                            <option value="">Выберите тип жалобы</option>
-                            <option value="спам">Спам</option>
-                            <option value="оскорбление">Оскорбление</option>
-                            <option value="неприемлемый контент">Неприемлемый контент</option>
-                            <option value="нарушение авторских прав">Нарушение авторских прав</option>
-                            <option value="другое">Другое</option>
+                        <label class="form-label">Причина жалобы</label>
+                        <select name="type" class="form-select @error('type') is-invalid @enderror">
+                            <option value="">Выберите причину</option>
+                            <option value="spam">Спам</option>
+                            <option value="insult">Оскорбление</option>
+                            <option value="inappropriate">Неприемлемый контент</option>
+                            <option value="copyright">Нарушение авторских прав</option>
+                            <option value="other">Другое</option>
                         </select>
+                        @error('type')
+                            <div class="invalid-feedback">{{ $errors->first('type') }}</div>
+                        @enderror
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Причина жалобы</label>
-                        <textarea name="reason" class="form-control" rows="3" required placeholder="Опишите подробнее причину жалобы..."></textarea>
+                        <label class="form-label">Описание</label>
+                        <textarea name="reason" class="form-control @error('reason') is-invalid @enderror" rows="3" placeholder="Опишите причину жалобы..."></textarea>
+                        @error('reason')
+                            <div class="invalid-feedback">{{ $errors->first('reason') }}</div>
+                        @enderror
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -282,6 +319,11 @@
                     <button type="submit" class="btn btn-danger">Отправить жалобу</button>
                 </div>
             </form>
+            @else
+            <div class="modal-body text-center py-4">
+                <p class="mb-2">Чтобы отправить жалобу, <a href="{{ route('login') }}">войдите</a> или <a href="{{ route('register') }}">зарегистрируйтесь</a></p>
+            </div>
+            @endauth
         </div>
     </div>
 </div>
@@ -303,11 +345,11 @@
                         <label class="form-label">Тип жалобы</label>
                         <select name="type" class="form-select" required>
                             <option value="">Выберите тип жалобы</option>
-                            <option value="спам">Спам</option>
-                            <option value="оскорбление">Оскорбление</option>
-                            <option value="неприемлемый контент">Неприемлемый контент</option>
-                            <option value="нарушение авторских прав">Нарушение авторских прав</option>
-                            <option value="другое">Другое</option>
+                            <option value="spam">Спам</option>
+                            <option value="insult">Оскорбление</option>
+                            <option value="inappropriate">Неприемлемый контент</option>
+                            <option value="copyright">Нарушение авторских прав</option>
+                            <option value="other">Другое</option>
                         </select>
                     </div>
                     <div class="mb-3">
@@ -504,49 +546,16 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Остальной JavaScript код...
 
-    // Обработка лайков поста
-    document.querySelectorAll('.like-button[data-post-id]').forEach(button => {
+    // Обработка лайков
+    document.querySelectorAll('.like-button').forEach(button => {
         button.addEventListener('click', function(e) {
             e.preventDefault();
-            e.stopPropagation();
-            
+            @auth
             const postId = this.dataset.postId;
-            const likesCount = this.querySelector('.likes-count');
-            const svg = this.querySelector('svg');
-            
-            fetch(`/posts/${postId}/like`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    'Accept': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                document.querySelectorAll(`.like-button[data-post-id="${postId}"] .likes-count`).forEach(count => {
-                    count.textContent = data.likes_count;
-                });
-                
-                if (svg.getAttribute('fill') === 'currentColor') {
-                    svg.setAttribute('fill', 'none');
-                } else {
-                    svg.setAttribute('fill', 'currentColor');
-                }
-            });
-        });
-    });
-
-    // Обработка лайков комментариев
-    document.querySelectorAll('.like-button[data-comment-id]').forEach(button => {
-        button.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            
             const commentId = this.dataset.commentId;
-            const likesCount = this.querySelector('.likes-count');
-            const svg = this.querySelector('svg');
+            const url = postId ? `/posts/${postId}/like` : `/comments/${commentId}/like`;
             
-            fetch(`/comments/${commentId}/like`, {
+            fetch(url, {
                 method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
@@ -555,76 +564,108 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .then(response => response.json())
             .then(data => {
-                document.querySelectorAll(`.like-button[data-comment-id="${commentId}"] .likes-count`).forEach(count => {
-                    count.textContent = data.likes_count;
-                });
-                
-                if (svg.getAttribute('fill') === 'currentColor') {
-                    svg.setAttribute('fill', 'none');
-                } else {
-                    svg.setAttribute('fill', 'currentColor');
+                const likesCount = this.querySelector('.likes-count');
+                if (likesCount) {
+                    likesCount.textContent = data.rating;
                 }
+                
+                const svg = this.querySelector('svg');
+                if (svg) {
+                    svg.setAttribute('fill', data.liked ? 'currentColor' : 'none');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
             });
+            @else
+            window.location.href = '{{ route("login") }}';
+            @endauth
         });
     });
 
-    // Показать/скрыть комментарии
+    // Обработка закладок
+    document.querySelector('form[action*="bookmark"]').addEventListener('submit', function(e) {
+        e.preventDefault();
+        @auth
+        fetch(this.action, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            const svg = this.querySelector('svg');
+            if (svg) {
+                svg.setAttribute('fill', data.bookmarked ? 'currentColor' : 'none');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+        @else
+        window.location.href = '{{ route("login") }}';
+        @endauth
+    });
+
+    // Обработка комментариев
     document.querySelector('.comment-toggle').addEventListener('click', function() {
         const commentsSection = document.querySelector('.comments-section');
         commentsSection.style.display = commentsSection.style.display === 'none' ? 'block' : 'none';
     });
 
-    // Обработка кнопок ответа на комментарии
+    // Обработка ответов на комментарии
     document.querySelectorAll('.reply-button').forEach(button => {
         button.addEventListener('click', function() {
+            @auth
             const commentId = this.dataset.commentId;
-            const form = document.getElementById(`reply-form-${commentId}`);
-            form.style.display = 'block';
+            const replyForm = document.querySelector(`#reply-form-${commentId}`);
+            replyForm.style.display = replyForm.style.display === 'none' ? 'block' : 'none';
+            @else
+            window.location.href = '{{ route("login") }}';
+            @endauth
         });
     });
 
+    // Обработка отмены ответа
     document.querySelectorAll('.cancel-reply').forEach(button => {
         button.addEventListener('click', function() {
             const commentId = this.dataset.commentId;
-            const form = document.getElementById(`reply-form-${commentId}`);
-            form.style.display = 'none';
+            const replyForm = document.querySelector(`#reply-form-${commentId}`);
+            replyForm.style.display = 'none';
         });
     });
 
-    // Обработка отправки формы ответа
-    document.querySelectorAll('.reply-form form').forEach(form => {
+    // Обработка жалоб
+    document.querySelectorAll('form[action*="report"]').forEach(form => {
         form.addEventListener('submit', function(e) {
             e.preventDefault();
+            @auth
             const formData = new FormData(this);
-            const commentId = this.closest('.reply-form').dataset.commentId;
-
+            
             fetch(this.action, {
                 method: 'POST',
-                body: formData,
                 headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                }
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json'
+                },
+                body: formData
             })
             .then(response => response.json())
             .then(data => {
-                if (data.html) {
-                    const repliesContainer = this.closest('.comment').querySelector('.replies');
-                    if (!repliesContainer) {
-                        const newRepliesContainer = document.createElement('div');
-                        newRepliesContainer.className = 'replies mt-3';
-                        this.closest('.comment').appendChild(newRepliesContainer);
-                        newRepliesContainer.innerHTML = data.html;
-                    } else {
-                        repliesContainer.insertAdjacentHTML('beforeend', data.html);
-                    }
+                if (data.success) {
+                    const modal = bootstrap.Modal.getInstance(document.querySelector('#reportModal'));
+                    modal.hide();
+                    alert('Жалоба успешно отправлена');
                 }
-                this.reset();
-                this.closest('.reply-form').style.display = 'none';
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Произошла ошибка при отправке ответа. Пожалуйста, попробуйте еще раз.');
             });
+            @else
+            window.location.href = '{{ route("login") }}';
+            @endauth
         });
     });
 });
