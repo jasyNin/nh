@@ -1,0 +1,23 @@
+@import 'variables';
+@import 'base';
+@import 'components/header';
+@import 'components/sidebar';
+@import 'components/auth';
+@import 'components/posts';
+@import 'components/comments';
+@import 'components/bookmarks';
+@import 'components/notifications';
+@import 'components/rating';
+@import 'components/tags';
+@import 'components/pages';
+
+/* Основные стили приложения */
+.app {
+    padding-top: $header-height;
+    padding-left: $sidebar-width;
+    min-height: 100vh;
+}
+
+.main-content {
+    padding: $container-padding;
+} 

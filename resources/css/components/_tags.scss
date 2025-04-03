@@ -1,0 +1,40 @@
+.tag-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: $spacing-unit * 2;
+    padding: $spacing-unit * 2;
+}
+
+.tag-item {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-unit;
+    padding: $spacing-unit * 2;
+    background-color: $background-color;
+    border-radius: 8px;
+    box-shadow: $box-shadow;
+    text-decoration: none;
+    color: $text-color;
+    transition: transform 0.2s;
+
+    &:hover {
+        transform: translateY(-2px);
+    }
+
+    &__name {
+        font-size: 1.2em;
+        font-weight: 500;
+        color: $primary-color;
+    }
+
+    &__count {
+        color: rgba($text-color, 0.6);
+        font-size: 0.9em;
+    }
+}
+
+.no-tags {
+    text-align: center;
+    padding: $spacing-unit * 3;
+    color: rgba($text-color, 0.6);
+} 

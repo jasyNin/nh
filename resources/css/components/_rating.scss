@@ -1,0 +1,79 @@
+.rating-list {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: $spacing-unit * 2;
+}
+
+.rating-item {
+    display: flex;
+    align-items: center;
+    gap: $spacing-unit * 2;
+    padding: $spacing-unit * 2;
+    background-color: $background-color;
+    border-radius: 8px;
+    box-shadow: $box-shadow;
+    margin-bottom: $spacing-unit * 2;
+    transition: transform 0.2s;
+
+    &:last-child {
+        margin-bottom: 0;
+    }
+
+    &:hover {
+        transform: translateX($spacing-unit);
+    }
+
+    &__rank {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: $primary-color;
+        color: white;
+        border-radius: 50%;
+        font-weight: 600;
+        font-size: 1.2em;
+    }
+
+    &__user {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: $spacing-unit;
+        text-decoration: none;
+        color: $text-color;
+    }
+
+    &__avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    &__info {
+        display: flex;
+        flex-direction: column;
+    }
+
+    &__name {
+        font-weight: 500;
+    }
+
+    &__rank-name {
+        color: rgba($text-color, 0.6);
+        font-size: 0.9em;
+    }
+
+    &__rating {
+        font-weight: 600;
+        color: $primary-color;
+    }
+}
+
+.no-users {
+    text-align: center;
+    padding: $spacing-unit * 3;
+    color: rgba($text-color, 0.6);
+} 
