@@ -560,6 +560,7 @@ select:focus,
 .post-content {
     font-size: 1.1rem;
     line-height: 1.8;
+    font-family: var(--font-family-base);
 }
 
 .post-image img {
@@ -568,9 +569,16 @@ select:focus,
     width: 100%;
 }
 
+/* СТИЛИ КОММЕНТАРИЕВ */
+.comments-section {
+    font-family: var(--font-family-base);
+    margin-top: 2rem;
+}
+
 .comment {
     border-bottom: 1px solid #eee;
     padding-bottom: 1rem;
+    font-family: var(--font-family-base);
 }
 
 .comment:last-child {
@@ -580,6 +588,11 @@ select:focus,
 .comment-content {
     font-size: 1rem;
     line-height: 1.6;
+    font-family: var(--font-family-base);
+}
+
+.comments-list {
+    margin-top: 1.5rem;
 }
 
 .btn-link {
@@ -603,12 +616,14 @@ select:focus,
     border-radius: 0.5rem;
     padding: 1rem;
     margin-top: 1rem;
+    font-family: var(--font-family-base);
 }
 
 .reply-form textarea {
     border: 1px solid #dee2e6;
     border-radius: 0.25rem;
     resize: vertical;
+    font-family: var(--font-family-base);
 }
 
 .reply-form textarea:focus {
@@ -620,6 +635,7 @@ select:focus,
     margin-left: 2rem;
     padding-left: 1rem;
     border-left: 2px solid var(--light-gray);
+    font-family: var(--font-family-base);
 }
 
 .comment-reply {
@@ -627,6 +643,7 @@ select:focus,
     border-radius: 0.5rem;
     padding: 1rem;
     margin-bottom: 0.5rem;
+    font-family: var(--font-family-base);
 }
 
 .comment-reply:last-child {
@@ -636,12 +653,14 @@ select:focus,
 .reply-content {
     font-size: 0.95rem;
     line-height: 1.5;
+    font-family: var(--font-family-base);
 }
 
 .reply-button, .cancel-reply {
     color: var(--gray);
     text-decoration: none;
     font-size: 0.9rem;
+    font-family: var(--font-family-base);
 }
 
 .reply-button:hover, .cancel-reply:hover {

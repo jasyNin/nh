@@ -11,10 +11,10 @@
 
         <!-- Основной контент -->
         <div class="col-md-7">
-            <div class="card border-0 bg-transparent" style="margin-top: 20px;">
-                <div class="card-header bg-transparent border-0">
-                    <ul class="nav nav-tabs card-header-tabs border-0">
-                        <li class="nav-item">
+            <div class="card border-0 bg-transparent">
+                <div class="card-header bg-transparent border-0 ">
+                    <ul class="nav nav-tabs card-header-tabs border-0"  style="margin-top: 15px;">
+                        <li class="nav-item" >
                             <a class="nav-link {{ !request('type') ? 'active' : '' }}" href="{{ route('home') }}">
                                 Все
                             </a>

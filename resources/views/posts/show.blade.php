@@ -145,7 +145,7 @@
                     </div>
 
                     <!-- Комментарии -->
-                    <div class="comments-section" style="display: none;">
+                    <div class="comments-section">
                         @auth
                             <form action="{{ route('posts.comments.store', $post) }}" method="POST" class="mb-4">
                                 @csrf
