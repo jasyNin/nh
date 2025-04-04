@@ -131,7 +131,7 @@
 
                     <!-- Комментарии -->
                     <div class="comments-section mb-4">
-                        <h6 class="mb-3">{{ $post->comments_count }} {{ __('posts.comments.' . min($post->comments_count, 20)) }}</h6>
+                        <h6 class="mb-3">{{ $post->comments_count }} {{ $post->comments_count == 1 ? 'комментарий' : ($post->comments_count > 1 && $post->comments_count < 5 ? 'комментария' : 'комментариев') }}</h6>
                         
                         <div class="comments-container">
                         @auth

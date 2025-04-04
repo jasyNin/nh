@@ -147,7 +147,7 @@
                                             <div id="comments-container-{{ $post->id }}" class="comments-container mt-3" style="display: none;">
                                                 <!-- Количество комментариев и сортировка -->
                                                 <div class="d-flex justify-content-between align-items-center mb-4">
-                                                    <h6 class="mb-0">{{ $post->comments_count }} {{ trans_choice('комментариев|комментария|комментариев', $post->comments_count) }}</h6>
+                                                    <h6 class="mb-0">{{ $post->comments_count }} {{ $post->comments_count == 1 ? 'комментарий' : ($post->comments_count > 1 && $post->comments_count < 5 ? 'комментария' : 'комментариев') }}</h6>
                                                     <div class="dropdown">
                                                         <button class="btn btn-sm text-muted bg-transparent border-0 dropdown-toggle" type="button" data-bs-toggle="dropdown">
                                                             <small>По популярности</small>

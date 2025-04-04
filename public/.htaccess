@@ -23,31 +23,3 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 </IfModule>
-
-# Настройки для CSS файлов
-<IfModule mod_headers.c>
-    <FilesMatch "\.(css)$">
-        Header set Content-Type "text/css; charset=utf-8"
-        Header unset Pragma
-        Header unset ETag
-        Header set Cache-Control "max-age=0, no-cache, no-store, must-revalidate"
-        Header set Pragma "no-cache"
-        Header set Expires "Wed, 11 Jan 1984 05:00:00 GMT"
-    </FilesMatch>
-</IfModule>
-
-# Настройки для JavaScript файлов
-<IfModule mod_headers.c>
-    <FilesMatch "\.(js)$">
-        Header set Content-Type "application/javascript; charset=utf-8"
-    </FilesMatch>
-</IfModule>
-
-# MIME типы
-<IfModule mod_mime.c>
-    AddType text/css .css
-    AddType application/javascript .js
-    AddType image/svg+xml .svg
-    AddType application/font-woff .woff
-    AddType application/font-woff2 .woff2
-</IfModule>

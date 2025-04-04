@@ -10,64 +10,8 @@
     <!-- Стили -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="{{ asset('css/fonts.css') }}?v={{ time() }}" rel="stylesheet">
-    <link href="{{ asset('css/styles.css') }}?v={{ time() }}" rel="stylesheet">
-    <style>
-        /* Основные стили для комментариев */
-        .comment .user-name {
-            font-weight: 500;
-            color: #000000;
-            font-size: 15px;
-        }
-        
-        .comment .comment-time {
-            color: #595959;
-            font-size: 13px;
-            font-weight: 400;
-        }
-        
-        .comment-content, .reply-content {
-            font-size: 17px;
-            line-height: 1.5;
-            font-weight: 400;
-        }
-        
-        .comment .replies-count {
-            color: #0B5DD7;
-            font-size: 13px;
-            cursor: pointer;
-        }
-        
-        .comment .replies-count:hover {
-            text-decoration: underline;
-        }
-        
-        /* Общие стили */
-        body {
-            font-family: 'Roboto', sans-serif;
-            background-color: #F2F2F2;
-        }
-        
-        .card {
-            border: none;
-            border-radius: 10px;
-            margin-bottom: 1.5rem;
-        }
-        
-        .card-header {
-            background-color: transparent;
-            border-bottom: none;
-        }
-        
-        .replies {
-            margin-left: 40px;
-            padding: 10px 0;
-        }
-        
-        .comment-reply {
-            margin-bottom: 15px;
-        }
-    </style>
+    <link href="{{ asset('css/fonts.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     @stack('styles')
 </head>
 <body>
