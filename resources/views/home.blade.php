@@ -12,8 +12,8 @@
         <!-- Основной контент (посты) -->
         <div class="col-md-7">
             <div class="card border-0 bg-transparent">
-                <div class="card-header bg-transparent border-0" style="padding-top: 0;">
-                    <ul class="nav nav-tabs card-header-tabs border-0"  style="margin-top: 15px;">
+                <div class="card-header bg-transparent border-0">
+                    <ul class="nav nav-tabs card-header-tabs border-0">
                         <li class="nav-item" >
                             <a class="nav-link {{ !request('type') ? 'active' : '' }}" href="{{ route('home') }}">
                                 Все
@@ -254,8 +254,8 @@
                                                         <form action="{{ route('posts.comments.store', $post) }}" method="POST" class="comment-form">
                                                             @csrf
                                                             <div class="input-group">
-                                                                <textarea name="content" class="form-control" rows="1" placeholder="Комментарий..." style="border-top-right-radius: 0; border-bottom-right-radius: 0;"></textarea>
-                                                                <button type="submit" class="btn" style="background-color: #1682FD; color: white; border-top-left-radius: 0; border-bottom-left-radius: 0;">
+                                                                <textarea name="content" class="form-control comment-textarea" rows="1" placeholder="Комментарий..."></textarea>
+                                                                <button type="submit" class="btn btn-primary comment-submit-btn">
                                                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
                                                                         <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"/>
                                                                     </svg>
@@ -280,69 +280,7 @@
         </div>
         
         <!-- Правая колонка с боковыми панелями --> 
-        <div class="col-md-3" style="margin-top: 20px;">
-            @auth
-                @php
-                    $viewedPosts = auth()->user()->viewedPosts()->take(5)->get();
-                @endphp
-                @if($viewedPosts->isNotEmpty())
-                    <div class="card mb-4 border-0">
-                        <div class="card-header bg-transparent border-0 py-3">
-                            <h6 class="card-title">История просмотров</h6>
-                        </div>
-                        <div class="list-group list-group-flush">
-                            @foreach($viewedPosts as $post)
-                                <a href="{{ route('posts.show', $post) }}" class="list-group-item list-group-item-action border-0 py-3">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div class="list-title text-truncate me-3">{{ $post->title }}</div>
-                                        <small class="text-muted">{{ $post->type === 'post' ? 'Запись' : 'Вопрос' }}</small>
-                                    </div>
-                                </a>
-                            @endforeach
-                        </div>
-                    </div>
-                @endif
-            @endauth
-
-            @if(count($popularTags) > 0)
-                <div class="card mb-4 border-0">
-                    <div class="card-header bg-transparent border-0 py-3">
-                        <h6 class="card-title">Популярные теги</h6>
-                    </div>
-                    <div class="card-body pt-0">
-                        <div class="d-flex flex-wrap gap-2">
-                            @foreach($popularTags->take(6) as $tag)
-                                <a href="{{ route('tags.show', $tag) }}" class="tag-badge">
-                                    #{{ $tag->name }}
-                                    <span class="tag-count">{{ $tag->posts_count }}</span>
-                                </a>
-                            @endforeach
-                        </div>
-                    </div>
-                </div>
-            @endif
-
-            @if(count($topUsers) > 0)
-                <div class="card mb-4 border-0">
-                    <div class="card-header bg-transparent border-0 py-3">
-                        <h6 class="card-title">Топ пользователей</h6>
-                    </div>
-                    <div class="list-group list-group-flush">
-                        @foreach($topUsers->take(3) as $user)
-                            <a href="{{ route('users.show', $user) }}" class="list-group-item list-group-item-action border-0 py-3">
-                                <div class="d-flex align-items-center">
-                                    <x-user-avatar :user="$user" :size="32" class="me-3" />
-                                    <div>
-                                        <div class="user-name">{{ $user->name }}</div>
-                                        <small class="text-muted">{{ $user->rating ?? $user->posts_count }} {{ isset($user->rating) ? __('rating.points') : __('posts.posts.' . min($user->posts_count, 20)) }}</small>
-                                    </div>
-                                </div>
-                            </a>
-                        @endforeach
-                    </div>
-                </div>
-            @endif
-        </div>
+        <x-right-sidebar :popularTags="$popularTags" :topUsers="$topUsers" :isHomePage="true" />
     </div>
 </div>
 
