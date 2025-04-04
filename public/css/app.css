@@ -15,6 +15,13 @@
     --white: #ffffff;
     --gray: #6c757d;
     --light-gray: #e9ecef;
+    
+    /* Стандартные отступы */
+    --spacing-xs: 0.5rem;
+    --spacing-sm: 1rem;
+    --spacing-md: 1.5rem;
+    --spacing-lg: 2rem;
+    --spacing-xl: 3rem;
 }
 
 /* Общие стили */
@@ -26,6 +33,93 @@ body {
 h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-family-base);
     font-weight: 700;
+}
+
+/* Стандартизация заголовков */
+h1 {
+    font-size: 2rem;
+    margin-bottom: var(--spacing-md);
+}
+
+h2 {
+    font-size: 1.75rem;
+    margin-bottom: var(--spacing-sm);
+}
+
+h3 {
+    font-size: 1.5rem;
+    margin-bottom: var(--spacing-sm);
+}
+
+h4 {
+    font-size: 1.25rem;
+    margin-bottom: var(--spacing-xs);
+}
+
+h5 {
+    font-size: 1.1rem;
+    margin-bottom: var(--spacing-xs);
+}
+
+h6 {
+    font-size: 1rem;
+    margin-bottom: var(--spacing-xs);
+}
+
+/* Стандартизация страниц */
+.page-container {
+    margin-top: 60px;
+    padding-top: 20px;
+}
+
+.page-header {
+    margin-bottom: 1.5rem;
+}
+
+.page-title {
+    font-weight: 500;
+    color: var(--dark-text);
+}
+
+.page-subtitle {
+    color: var(--gray);
+    font-weight: 400;
+}
+
+/* Уберем излишние стили карточек, оставим только нужные */
+.card {
+    border: none;
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+}
+
+.card-header {
+    background-color: transparent;
+    border-bottom: none;
+    padding: var(--spacing-sm) var(--spacing-md);
+}
+
+.card-body {
+    padding: var(--spacing-sm) var(--spacing-md);
+}
+
+.card-footer {
+    background-color: transparent;
+    border-top: none;
+    padding: var(--spacing-sm) var(--spacing-md);
+}
+
+/* Стандартные отступы */
+.content-section {
+    margin-bottom: var(--spacing-xl);
+}
+
+.content-block {
+    margin-bottom: var(--spacing-lg);
+}
+
+.content-item {
+    margin-bottom: var(--spacing-md);
 }
 
 a {
@@ -235,7 +329,6 @@ select:focus,
 .user-dropdown {
     padding: 8px 0;
     border: none;
-    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .user-dropdown .dropdown-item {
@@ -333,56 +426,79 @@ select:focus,
 /* ПРАВАЯ БОКОВАЯ ПАНЕЛЬ */
 .right-sidebar .card {
     border: none;
-    background-color: transparent;
+    background-color: white;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .right-sidebar .card-header {
     background-color: transparent;
     border-bottom: none;
-    padding: 1rem 0;
+    padding: var(--spacing-sm) var(--spacing-md);
 }
 
 .right-sidebar .card-body {
-    padding: 0;
+    padding: 0 var(--spacing-md) var(--spacing-md);
 }
 
 .right-sidebar .list-group-item {
     background-color: transparent;
     border: none;
-    padding: 0.5rem 0;
-}
-
-.right-sidebar .badge {
-    font-weight: 700;
-    font-size: 0.8rem;
+    padding: var(--spacing-xs) var(--spacing-md);
 }
 
 .right-sidebar .list-group-item:hover {
-    background-color: transparent;
+    background-color: var(--hover-bg);
+}
+
+.right-sidebar .badge {
+    font-weight: 400;
+    font-size: 0.8rem;
+}
+
+/* Заголовки в правой панели */
+.right-sidebar .card-title,
+.right-sidebar h6.card-title {
+    font-size: 17px;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+/* Элементы списков */
+.right-sidebar .list-title {
+    font-size: 15px;
+    font-weight: 400;
+    margin-bottom: 0.25rem;
+    color: var(--dark-text);
 }
 
 .right-sidebar .list-group-item a {
     color: var(--dark-text);
     text-decoration: none;
     transition: color 0.3s ease;
-    font-weight: 700;
+    font-size: 15px;
+    font-weight: 400;
+}
+
+.right-sidebar .list-group-item-action {
+    transition: all 0.2s ease;
+}
+
+.right-sidebar .list-group-item-action:hover {
+    background-color: var(--hover-bg);
 }
 
 .right-sidebar .list-group-item a:hover {
     color: var(--primary-color);
 }
 
-.right-sidebar .card-title {
-    font-size: 1rem;
-    font-weight: 700;
-    margin-bottom: 0;
-}
-
 .right-sidebar .text-muted {
-    font-size: 0.85rem;
-    font-weight: 700;
+    font-size: 13px;
+    font-weight: 400;
 }
 
+/* Пользователи */
 .right-sidebar .user-avatar {
     width: 32px;
     height: 32px;
@@ -391,21 +507,22 @@ select:focus,
 }
 
 .right-sidebar .user-name {
-    font-size: 0.9rem;
+    font-size: 15px;
+    font-weight: 400;
     color: var(--dark-text);
     text-decoration: none;
     transition: color 0.3s ease;
-    font-weight: 700;
-}
-
-.right-sidebar .user-name:hover {
-    color: var(--primary-color);
 }
 
 .right-sidebar .user-rating {
-    font-size: 0.8rem;
+    font-size: 13px;
     color: var(--primary-color);
-    font-weight: 700;
+    font-weight: 400;
+}
+
+/* Теги */
+.right-sidebar .d-flex.flex-wrap.gap-2 {
+    margin: 0 -0.25rem;
 }
 
 .right-sidebar .tag-badge {
@@ -416,38 +533,39 @@ select:focus,
     border-radius: 1rem;
     color: var(--dark-text);
     text-decoration: none;
-    font-size: 0.85rem;
+    font-size: 15px;
+    font-weight: 400;
     transition: all 0.3s ease;
-    font-weight: 700;
-}
-
-.right-sidebar .tag-badge:hover {
-    background-color: var(--light-gray);
-    color: var(--primary-color);
 }
 
 .right-sidebar .tag-count {
-    font-size: 0.75rem;
+    font-size: 13px;
     color: var(--gray);
     margin-left: 0.25rem;
-    font-weight: 700;
+    font-weight: 400;
 }
 
+/* Исправления для списков в правой боковой панели */
+.right-sidebar .list-group-flush {
+    border-radius: 0 0 10px 10px;
+    overflow: hidden;
+}
+
+.right-sidebar .list-group-item:first-child {
+    padding-top: 0.75rem;
+}
+
+.right-sidebar .list-group-item:last-child {
+    padding-bottom: 1.25rem;
+    border-radius: 0 0 10px 10px;
+}
+
+/* Общие стили */
 .right-sidebar .card, 
 .right-sidebar .card-header, 
 .right-sidebar .card-body, 
 .right-sidebar .list-group-item {
     font-family: var(--font-family-base);
-}
-
-.right-sidebar .card-title {
-    font-weight: 700;
-}
-
-.right-sidebar .list-group-item a,
-.right-sidebar .user-name,
-.right-sidebar .tag-badge {
-    font-weight: 700;
 }
 
 /* СТИЛИ ПОСТОВ И ГЛАВНОЙ СТРАНИЦЫ */
@@ -456,6 +574,7 @@ select:focus,
     margin-left: 1px;
     margin-bottom: -10px;
     margin-top: 0;
+    border-bottom: none;
 }
 
 .nav-tabs .nav-link {
@@ -495,19 +614,10 @@ select:focus,
     background-color: var(--white);
 }
 
-.hover-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
-}
-
 .card-title {
     font-size: 1.25rem;
     font-weight: 500;
     color: var(--dark-text);
-}
-
-.card-title:hover {
-    color: var(--primary-color) !important;
 }
 
 .card-text {
@@ -535,16 +645,148 @@ select:focus,
     cursor: pointer;
 }
 
-.post-content:hover .card-title {
-    color: var(--primary-color) !important;
-}
-
 .post-content:hover .card-text {
     color: #495057 !important;
 }
 
 .post-content:hover .post-image img {
     opacity: 0.9;
+}
+
+/* СТИЛИ СТРАНИЦ */
+/* Стили для общих компонентов страниц */
+.page-banner {
+    text-align: center;
+    margin-bottom: var(--spacing-lg);
+}
+
+.page-banner img {
+    margin-bottom: var(--spacing-sm);
+    filter: invert(32%) sepia(98%) saturate(1234%) hue-rotate(210deg) brightness(97%) contrast(101%);
+}
+
+.page-banner h1 {
+    font-size: 2rem;
+    font-weight: 500;
+    margin-bottom: var(--spacing-xs);
+}
+
+.page-banner p {
+    color: var(--gray);
+    font-size: 1.1rem;
+}
+
+/* Стили для карточек информации */
+.info-card {
+    background-color: var(--white);
+    border-radius: 10px;
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    height: 100%;
+}
+
+.info-card .card-icon {
+    color: var(--primary-color);
+    margin-right: var(--spacing-xs);
+}
+
+.info-card .card-title {
+    font-weight: 500;
+    font-size: 1.1rem;
+    margin-bottom: var(--spacing-sm);
+}
+
+.info-card .card-text {
+    color: var(--gray);
+    line-height: 1.6;
+}
+
+/* Стили для админ-панели */
+.admin-dashboard {
+    padding-top: var(--spacing-sm);
+}
+
+.admin-dashboard h1 {
+    font-size: 1.75rem;
+    font-weight: 500;
+    margin-bottom: var(--spacing-lg);
+}
+
+.admin-dashboard .card {
+    border-radius: 10px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    margin-bottom: var(--spacing-md);
+}
+
+.admin-dashboard .table {
+    margin-bottom: 0;
+}
+
+.admin-dashboard .table th {
+    font-weight: 500;
+    border-top: none;
+    padding: var(--spacing-sm) var(--spacing-sm);
+}
+
+.admin-dashboard .table td {
+    padding: var(--spacing-sm) var(--spacing-sm);
+    vertical-align: middle;
+}
+
+/* Стандартизация отступов контейнеров */
+.container {
+    padding-left: 15px;
+    padding-right: 15px;
+    max-width: 1300px;
+}
+
+/* Верхний отступ контейнера должен быть стандартизирован */
+.container {
+    margin-top: 0;
+}
+
+/* Контейнер внутри основного содержимого */
+main > .container {
+    margin-top: 60px;
+}
+
+/* Стили для списков */
+.custom-list {
+    list-style-type: none;
+    padding-left: 0;
+    margin-bottom: 0;
+}
+
+.custom-list li {
+    margin-bottom: var(--spacing-xs);
+    display: flex;
+    align-items: center;
+}
+
+.custom-list li i {
+    margin-right: var(--spacing-xs);
+    color: var(--primary-color);
+}
+
+.custom-list li:last-child {
+    margin-bottom: 0;
+}
+
+/* Контактная информация */
+.contact-info {
+    margin-bottom: var(--spacing-md);
+}
+
+.contact-info i {
+    color: var(--primary-color);
+    margin-right: var(--spacing-xs);
+    width: 20px;
+    text-align: center;
+}
+
+.contact-info .text {
+    color: var(--gray);
 }
 
 /* СТИЛИ СТРАНИЦЫ ТЕГОВ */
@@ -603,14 +845,290 @@ select:focus,
     color: var(--primary-color) !important;
 }
 
-.like-button svg {
+/* Стили для кнопок взаимодействия с постом */
+.like-button, .comment-button, .repost-button, .bookmark-button, .comment-toggle {
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+}
+
+/* Позиционирование закладки справа */
+.bookmark-button {
+    margin-left: auto;
+}
+
+/* Стили для обеспечения правильного цвета иконок */
+.like-button img, .comment-button img, .comment-toggle img, .repost-button img, .bookmark-button img {
+    transition: filter 0.2s ease;
+}
+
+/* Иконки при наведении */
+.like-button:hover img {
+    filter: brightness(0) saturate(100%) invert(45%) sepia(85%) saturate(2262%) hue-rotate(318deg) brightness(95%) contrast(96%);
+}
+
+.comment-button:hover img, .comment-toggle:hover img, 
+.repost-button:hover img, .bookmark-button:hover img {
+    filter: brightness(0) saturate(100%) invert(37%) sepia(74%) saturate(1115%) hue-rotate(194deg) brightness(101%) contrast(101%);
+}
+
+/* Иконки в активном состоянии */
+.like-button.active img, .like-button img.liked {
+    filter: brightness(0) saturate(100%) invert(45%) sepia(85%) saturate(2262%) hue-rotate(318deg) brightness(95%) contrast(96%);
+}
+
+.comment-button.active img, .comment-toggle.active img,
+.repost-button.active img, .bookmark-button.active img,
+.bookmark-button img.bookmarked {
+    filter: brightness(0) saturate(100%) invert(37%) sepia(74%) saturate(1115%) hue-rotate(194deg) brightness(101%) contrast(101%);
+}
+
+/* Активные состояния счетчиков */
+.likes-count.active {
+    color: #E65C77;
+    font-weight: 500;
+}
+
+.comments-count.active, 
+.comment-toggle.active span, 
+.reposts-count.active {
+    color: #1682FD;
+    font-weight: 500;
+}
+
+/* Счетчики при наведении */
+.like-button:hover .likes-count {
+    color: #E65C77;
+}
+
+.comment-button:hover .comments-count,
+.comment-toggle:hover span,
+.repost-button:hover .reposts-count {
+    color: #1682FD;
+}
+
+/* Плавные переходы стилей */
+.likes-count, .comments-count, .reposts-count {
+    color: #888;
+    font-size: 13px;
+    transition: color 0.2s ease;
+}
+
+.likes-count.active {
+    color: #E53935;
+    font-weight: 500;
+}
+
+.comments-count.active, 
+.reposts-count.active,
+.bookmarks-count.active {
+    color: #1682FD;
+    font-weight: 500;
+}
+
+/* Показать все комментарии ссылка */
+.comments-view-all {
+    color: #1682FD;
+    text-align: center;
+    display: block;
+    margin: 10px 0;
+    font-size: 14px;
+}
+
+.comments-view-all:hover {
+    text-decoration: underline;
+    color: #0D6EFD;
+}
+
+.comment-form textarea:focus {
+    border-color: #1682FD;
+    box-shadow: none;
+    background-color: #FFFFFF;
+}
+
+/* АДАПТИВНЫЕ СТИЛИ */
+@media (max-width: 768px) {
+    .side-menu {
+        height: auto;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+    
+    .menu-section {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+    
+    .menu-section:last-child {
+        margin-top: 0;
+        border-top: none;
+    }
+    
+    .post-image img {
+        max-height: 300px;
+    }
+    
+    .replies {
+        margin-left: 1rem;
+        padding-left: 0.5rem;
+    }
+}
+
+.right-sidebar .user-name {
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--dark-text);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.right-sidebar .list-group-item a {
+    color: var(--dark-text);
+    text-decoration: none;
+    transition: color 0.3s ease;
+    font-size: 15px;
+}
+
+.right-sidebar .tag-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    margin: 0.25rem;
+    background-color: var(--hover-bg);
+    border-radius: 1rem;
+    color: var(--dark-text);
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 400;
     transition: all 0.3s ease;
 }
 
-.like-button:hover svg {
-    transform: scale(1.1);
+.right-sidebar .list-group-item a,
+.right-sidebar .user-name,
+.right-sidebar .tag-badge {
+    font-weight: 400;
 }
 
+.right-sidebar .list-group-item a:hover {
+    color: var(--primary-color);
+}
+
+/* Унификация стилей форм */
+.form-container {
+    background-color: var(--white);
+    border-radius: 10px;
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.form-container .form-label {
+    font-weight: 500;
+    color: var(--dark-text);
+    margin-bottom: var(--spacing-xs);
+}
+
+.form-container .form-control {
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: 0.95rem;
+}
+
+.form-container .form-control:focus {
+    box-shadow: 0 0 0 0.2rem rgba(22, 130, 253, 0.25);
+    border-color: var(--primary-color);
+}
+
+.form-container .btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    padding: var(--spacing-xs) var(--spacing-md);
+    border-radius: 30px;
+    font-weight: 500;
+}
+
+.form-container .btn-primary:hover {
+    background-color: var(--primary-color-dark);
+    border-color: var(--primary-color-dark);
+}
+
+/* Стили для сообщений об ошибках и предупреждения */
+.alert {
+    border-radius: 10px;
+    padding: 0.75rem 1.25rem;
+    margin-bottom: 1rem;
+    border: none;
+}
+
+.alert-success {
+    background-color: rgba(40, 167, 69, 0.1);
+    color: #28a745;
+}
+
+.alert-danger {
+    background-color: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+}
+
+.alert-warning {
+    background-color: rgba(255, 193, 7, 0.1);
+    color: #ffc107;
+}
+
+.alert-info {
+    background-color: rgba(23, 162, 184, 0.1);
+    color: #17a2b8;
+}
+
+/* Исправление стилей header */
+.navbar {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    background-color: var(--white);
+    height: 60px;
+}
+
+.navbar-brand {
+    margin-right: 2rem;
+}
+
+.navbar .container {
+    max-width: 1300px;
+    padding-left: 5px;
+}
+
+/* Базовые стили для страниц */
+.content-container {
+    padding-top: 80px;
+}
+
+.card-transparent {
+    background-color: transparent;
+    box-shadow: none;
+}
+
+/* Стили для правой боковой панели */
+.right-sidebar {
+    margin-top: 20px;
+}
+
+/* Базовые стили для отступов */
+.mt-60 {
+    margin-top: 60px;
+}
+
+.mt-80 {
+    margin-top: 80px;
+}
+
+/* Кнопка активации коментариев */
+.comment-toggle {
+    cursor: pointer;
+}
+
+/* Стили для форм ответов */
 .reply-form {
     background-color: var(--hover-bg);
     border-radius: 0.5rem;
@@ -677,32 +1195,226 @@ select:focus,
     opacity: 1;
 }
 
-/* АДАПТИВНЫЕ СТИЛИ */
-@media (max-width: 768px) {
-    .side-menu {
-        height: auto;
-        flex-direction: row;
-        flex-wrap: wrap;
-        gap: 10px;
-        margin-bottom: 20px;
-    }
-    
-    .menu-section {
-        flex-direction: row;
-        flex-wrap: wrap;
-    }
-    
-    .menu-section:last-child {
-        margin-top: 0;
-        border-top: none;
-    }
-    
-    .post-image img {
-        max-height: 300px;
-    }
-    
-    .replies {
-        margin-left: 1rem;
-        padding-left: 0.5rem;
-    }
+/* Стили для отображения ответов на карточке поста */
+.answers-list {
+    background-color: rgba(240, 240, 240, 0.3);
+    border-radius: 8px;
+    padding: 12px;
+}
+
+.answer-item {
+    transition: all 0.2s ease;
+}
+
+.answer-item:hover {
+    background-color: rgba(240, 240, 240, 0.5);
+}
+
+.answer-content {
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+/* Стили для меню управления постом */
+.dropdown-menu {
+    border-radius: 8px;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    padding: 8px 0;
+}
+
+.dropdown-item {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+}
+
+.dropdown-item:hover {
+    background-color: rgba(22, 130, 253, 0.1);
+}
+
+.dropdown-item.text-danger:hover {
+    background-color: rgba(230, 92, 119, 0.1);
+}
+
+/* Стили для отображения ответов внутри контейнера комментариев */
+.answers-section {
+    margin-bottom: 20px;
+}
+
+.answers-section .answers-list {
+    background-color: rgba(240, 240, 240, 0.5);
+    border-radius: 8px;
+    padding: 15px;
+}
+
+.answers-section h6 {
+    color: var(--dark-text);
+    font-weight: 500;
+}
+
+/* Обновленные стили для ответов */
+.answer-item {
+    transition: all 0.2s ease;
+    padding: 8px;
+    border-radius: 6px;
+}
+
+.answer-item:hover {
+    background-color: rgba(240, 240, 240, 0.8);
+}
+
+.answer-item:last-child {
+    border-bottom: none !important;
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+}
+
+/* Стили для заголовков в комментариях */
+.comments-list h6 {
+    color: var(--dark-text);
+    font-weight: 500;
+}
+
+/* Новые стили для блока комментариев */
+.comments-container {
+    background-color: transparent;
+    border-radius: 0;
+    border-top: 1px solid #eee !important;
+    padding: 20px 0;
+    margin-top: 15px !important;
+}
+
+.comments-container h6 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.comment {
+    margin-bottom: 20px;
+    background-color: transparent;
+    border-radius: 0;
+    padding: 0 0 15px 0;
+    box-shadow: none;
+    border-bottom: 1px solid #eee;
+}
+
+.comment:last-child {
+    margin-bottom: 0;
+    border-bottom: none;
+}
+
+.comment-content {
+    font-size: 14px;
+    line-height: 1.5;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.comments-list {
+    margin-bottom: 25px;
+}
+
+.comment .user-name {
+    font-weight: 500;
+    color: #000000;
+    font-size: 15px;
+}
+
+.comment .comment-time {
+    color: #595959;
+    font-size: 13px;
+    font-weight: 400;
+}
+
+.comment-form-container {
+    margin-top: 20px;
+    background-color: transparent;
+    border-radius: 0;
+    padding: 0;
+    box-shadow: none;
+}
+
+.comment-form textarea {
+    border: 1px solid #E0E0E0;
+    border-radius: 10px;
+    resize: none;
+    padding: 12px 15px;
+    padding-right: 100px;
+    font-size: 14px;
+    background-color: #FFFFFF;
+}
+
+.comment-form button[type="submit"] {
+    background-color: #1682FD;
+    border-color: #1682FD;
+    border-radius: 8px;
+    font-weight: 500;
+    padding: 8px 20px;
+    font-size: 14px;
+}
+
+.comment-form button[type="submit"]:hover {
+    background-color: #0D6EFD;
+    border-color: #0D6EFD;
+}
+
+.like-button, .comment-button, .repost-button, .bookmark-button, .comment-toggle {
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 20px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+}
+
+/* Стили для счетчиков комментариев и лайков */
+.likes-count, .comments-count, .reposts-count {
+    color: #888;
+    font-size: 13px;
+    transition: color 0.2s ease;
+}
+
+.likes-count.active {
+    color: #E53935;
+    font-weight: 500;
+}
+
+.comments-count.active, 
+.reposts-count.active,
+.bookmarks-count.active {
+    color: #1682FD;
+    font-weight: 500;
+}
+
+/* Показать все комментарии ссылка */
+.comments-view-all {
+    color: #1682FD;
+    text-align: center;
+    display: block;
+    margin: 10px 0;
+    font-size: 14px;
+}
+
+.comments-view-all:hover {
+    text-decoration: underline;
+    color: #0D6EFD;
+}
+
+.comment-form textarea:focus {
+    border-color: #1682FD;
+    box-shadow: none;
+    background-color: #FFFFFF;
+}
+
+/* Счетчик количества ответов */
+.comment .replies-count {
+    color: #0B5DD7;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.comment .replies-count:hover {
+    text-decoration: underline;
 } 

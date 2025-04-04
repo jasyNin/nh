@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class CommentReply extends Model
 {
@@ -29,6 +31,21 @@ class CommentReply extends Model
     public function comment(): BelongsTo
     {
         return $this->belongsTo(Comment::class);
+    }
+
+    public function likes(): MorphMany
+    {
+        return $this->morphMany(Like::class, 'likeable');
+    }
+    
+    public function likedBy(User $user): bool
+    {
+        return $this->likes()->where('user_id', $user->id)->exists();
+    }
+    
+    public function getLikesCountAttribute(): int
+    {
+        return $this->likes()->count();
     }
 
     public function getUrl()

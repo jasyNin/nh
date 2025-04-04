@@ -7,6 +7,7 @@ use App\Models\Tag;
 use App\Models\User;
 use App\Models\Like;
 use App\Models\Bookmark;
+use App\Models\Answer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -18,13 +19,15 @@ class PostController extends Controller
 
     public function index(Request $request)
     {
-        $query = Post::with(['user', 'tags']);
+        $query = Post::with(['user', 'tags'])
+            ->withCount(['comments', 'views', 'likesCount as likes_count', 'reposts', 'answers'])
+            ->latest();
 
         if ($request->has('type')) {
             $query->where('type', $request->type);
         }
 
-        $posts = $query->latest()->paginate(10);
+        $posts = $query->paginate(10);
 
         $popularTags = Tag::withCount('posts')
             ->orderBy('posts_count', 'desc')
@@ -121,6 +124,12 @@ class PostController extends Controller
             ->orderByDesc('posts_count')
             ->limit(5)
             ->get();
+            
+        // Получаем последние ответы для правой колонки
+        $recentAnswers = Answer::with(['user', 'post'])
+            ->orderBy('created_at', 'desc')
+            ->take(3)
+            ->get();
 
         $post->load(['user', 'tags', 'comments.user']);
         $similarPosts = Post::whereHas('tags', function ($query) use ($post) {
@@ -130,7 +139,7 @@ class PostController extends Controller
         ->take(3)
         ->get();
 
-        return view('posts.show', compact('post', 'similarPosts', 'popularTags', 'topUsers'));
+        return view('posts.show', compact('post', 'similarPosts', 'popularTags', 'topUsers', 'recentAnswers'));
     }
 
     public function edit(Post $post)
@@ -230,27 +239,18 @@ class PostController extends Controller
 
     public function like(Post $post)
     {
-        $user = auth()->user();
+        $liked = false;
         
-        if ($user->likes()->where('post_id', $post->id)->exists()) {
-            $user->likes()->where('post_id', $post->id)->delete();
-            $post->decrement('rating');
-            $message = 'Лайк убран';
+        if ($post->likedBy(auth()->user())) {
+            $post->likes()->where('user_id', auth()->id())->delete();
         } else {
-            $user->likes()->create([
-                'post_id' => $post->id
-            ]);
-            $post->increment('rating');
-            $message = 'Лайк добавлен';
+            $post->likes()->create(['user_id' => auth()->id()]);
+            $liked = true;
         }
 
-        if (request()->ajax()) {
-            return response()->json([
-                'rating' => $post->rating,
-                'message' => $message
-            ]);
-        }
-
-        return back()->with('success', $message);
+        return response()->json([
+            'likes_count' => $post->likes_count,
+            'liked' => $liked
+        ]);
     }
 } 

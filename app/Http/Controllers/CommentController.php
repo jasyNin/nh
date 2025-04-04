@@ -31,6 +31,21 @@ class CommentController extends Controller
             ]);
         }
 
+        // Если запрос ожидает JSON (AJAX запрос)
+        if ($request->expectsJson()) {
+            $user = Auth::user();
+            return response()->json([
+                'success' => true,
+                'comment_id' => $comment->id,
+                'user_name' => $user->name,
+                'user_avatar' => $user->avatar ? asset('storage/' . $user->avatar) : asset('images/default-avatar.png'),
+                'user_url' => route('users.show', $user),
+                'content' => $comment->content,
+                'likes_count' => 0,
+                'comments_count' => $post->comments_count
+            ]);
+        }
+
         return back()->with('success', 'Комментарий добавлен');
     }
 
@@ -44,6 +59,13 @@ class CommentController extends Controller
 
         $comment->update($validated);
 
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'content' => $comment->content
+            ]);
+        }
+
         return back()->with('success', 'Комментарий обновлен!');
     }
 
@@ -53,19 +75,30 @@ class CommentController extends Controller
 
         $comment->delete();
 
+        if (request()->expectsJson()) {
+            return response()->json([
+                'success' => true
+            ]);
+        }
+
         return back()->with('success', 'Комментарий удален!');
     }
 
     public function like(Comment $comment)
     {
-        if ($comment->likedBy(auth()->user())) {
-            $comment->likes()->where('user_id', auth()->id())->delete();
+        $user = auth()->user();
+        
+        if ($comment->likedBy($user)) {
+            $comment->likes()->where('user_id', $user->id)->delete();
+            $liked = false;
         } else {
-            $comment->likes()->create(['user_id' => auth()->id()]);
+            $comment->likes()->create(['user_id' => $user->id]);
+            $liked = true;
         }
 
         return response()->json([
-            'likes_count' => $comment->likes_count
+            'likes_count' => $comment->likes_count,
+            'liked' => $liked
         ]);
     }
 } 

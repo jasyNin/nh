@@ -16,8 +16,8 @@
 </head>
 <body>
     <!-- Навигация -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top" style="height: 60px;">
-        <div class="container" style="max-width: 1300px; padding-left: 5px;">
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
+        <div class="container">
             <a class="navbar-brand" href="{{ url('/') }}">
                 <img src="{{ asset('images/logo.svg') }}" alt="НейроХаб" height="32" class="me-2">
                 <span class="text">НЕЙРОХАБ</span>
@@ -114,16 +114,20 @@
     </nav>
 
     <!-- Основной контент -->
-    <main class="container my-4" style="margin-top: 80px;">
-        @if(session('success'))
-            <div class="alert alert-success">
-                {{ session('success') }}
-            </div>
-        @endif
+    <main>
+        @if(session('success') || session('error'))
+            <div class="container" style="margin-top: 80px;">
+                @if(session('success'))
+                    <div class="alert alert-success">
+                        {{ session('success') }}
+                    </div>
+                @endif
 
-        @if(session('error'))
-            <div class="alert alert-danger">
-                {{ session('error') }}
+                @if(session('error'))
+                    <div class="alert alert-danger">
+                        {{ session('error') }}
+                    </div>
+                @endif
             </div>
         @endif
 

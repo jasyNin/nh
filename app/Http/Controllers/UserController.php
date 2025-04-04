@@ -27,11 +27,13 @@ class UserController extends Controller
             ->latest()
             ->paginate(10);
 
-        // Подсчет статистики
+        // Подсчет статистики с использованием полиморфных отношений
         $stats = [
             'posts_count' => $user->posts()->count(),
             'comments_count' => $user->comments()->count(),
-            'likes_received' => $user->posts()->join('likes', 'posts.id', '=', 'likes.post_id')->count(),
+            'likes_received' => \App\Models\Like::where('likeable_type', 'App\\Models\\Post')
+                ->whereIn('likeable_id', $user->posts()->pluck('id'))
+                ->count(),
             'bookmarks_count' => $user->bookmarks()->count(),
         ];
 

@@ -94,6 +94,24 @@ class User extends Authenticatable
         return $this->hasMany(Like::class);
     }
 
+    public function likedPosts()
+    {
+        return $this->belongsToMany(Post::class, 'polymorphic_likes', 'user_id', 'likeable_id')
+            ->where('likeable_type', 'App\\Models\\Post');
+    }
+    
+    public function likedComments()
+    {
+        return $this->belongsToMany(Comment::class, 'polymorphic_likes', 'user_id', 'likeable_id')
+            ->where('likeable_type', 'App\\Models\\Comment');
+    }
+    
+    public function likedReplies()
+    {
+        return $this->belongsToMany(CommentReply::class, 'polymorphic_likes', 'user_id', 'likeable_id')
+            ->where('likeable_type', 'App\\Models\\CommentReply');
+    }
+
     public function reposts()
     {
         return $this->hasMany(Repost::class);

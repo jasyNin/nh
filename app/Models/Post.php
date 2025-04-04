@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Support\Facades\DB;
 
 class Post extends Model
 {
@@ -75,9 +77,9 @@ class Post extends Model
         return $this->ratings()->where('user_id', $user->id)->value('value');
     }
 
-    public function likes()
+    public function likes(): MorphMany
     {
-        return $this->hasMany(Like::class);
+        return $this->morphMany(Like::class, 'likeable');
     }
 
     public function likedBy(User $user)
@@ -90,6 +92,12 @@ class Post extends Model
         return $this->likes()->count();
     }
 
+    // Метод для использования с withCount
+    public function likesCount()
+    {
+        return $this->morphMany(Like::class, 'likeable');
+    }
+
     public function answers()
     {
         return $this->hasMany(Answer::class);
@@ -98,6 +106,11 @@ class Post extends Model
     public function getAnswersCountAttribute()
     {
         return $this->answers()->count();
+    }
+
+    public function getCommentsCountAttribute()
+    {
+        return $this->comments()->count();
     }
 
     public function views()
