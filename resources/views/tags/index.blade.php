@@ -130,66 +130,8 @@
 </div>
 
 @push('styles')
-<style>
-.hover-card {
-    transition: all 0.3s ease;
-    background-color: white;
-}
-
-.hover-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
-}
-
-.card-title {
-    color: #272727;
-    font-size: 1.1rem;
-}
-
-.card-title:hover {
-    color: #1682FD;
-}
-
-.badge {
-    font-weight: 400;
-    font-size: 0.8rem;
-}
-
-.card-text {
-    line-height: 1.5;
-}
-
-.row.g-4 {
-    margin-bottom: 12px;
-}
-
-.btn-primary {
-    background-color: #1682FD;
-    border-color: #1682FD;
-}
-
-.btn-primary:hover {
-    background-color: #1470e0;
-    border-color: #1470e0;
-}
-
-.tag-card {
-    margin-bottom: 12px;
-}
-
-#tagSearch:focus {
-    box-shadow: 0 0 0 0.2rem rgba(22, 130, 253, 0.25);
-    border-color: #1682FD;
-}
-
-.search-container {
-    position: relative;
-}
-
-.search-container svg {
-    pointer-events: none;
-}
-</style>
+<!-- Стили для страницы тегов перенесены в общий файл CSS app.css -->
+@endpush
 
 @push('scripts')
 <script>

@@ -3,7 +3,7 @@
 @section('title', 'Главная')
 
 @section('content')
-<div class="container" style="margin-top: 80px;">
+<div class="container" style="margin-top: 60px;">
     <div class="row">
         <!-- Боковое меню -->
         <x-side-menu />
@@ -11,7 +11,7 @@
 
         <!-- Основной контент -->
         <div class="col-md-7">
-            <div class="card border-0 bg-transparent">
+            <div class="card border-0 bg-transparent" style="margin-top: 20px;">
                 <div class="card-header bg-transparent border-0">
                     <ul class="nav nav-tabs card-header-tabs border-0">
                         <li class="nav-item">
@@ -142,107 +142,7 @@
 </div>
 
 @push('styles')
-<style>
-.nav-tabs {
-    justify-content: flex-start;
-    margin-left: 1px;
-}
-
-.nav-tabs .nav-link {
-    color: #6c757d;
-    border: none;
-    padding: 0.5rem 1rem;
-    font-weight: 500;
-    transition: all 0.3s ease;
-}
-
-.nav-tabs .nav-link:hover {
-    color: #1682FD;
-    border: none;
-}
-
-.nav-tabs .nav-link.active {
-    color: #1682FD;
-    border: none;
-    border-bottom: 2px solid #1682FD;
-}
-
-.posts-container {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.post-card {
-    width: 100%;
-}
-
-.hover-card {
-    transition: all 0.3s ease;
-    background-color: white;
-}
-
-.hover-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
-}
-
-.card-title {
-    font-size: 1.25rem;
-    font-weight: 500;
-}
-
-.card-title:hover {
-    color: #1682FD !important;
-}
-
-.card-text {
-    line-height: 1.6;
-}
-
-.post-image img {
-    max-height: 400px;
-    object-fit: cover;
-    width: 100%;
-}
-
-.tags .badge {
-    font-weight: 400;
-    font-size: 0.8rem;
-    padding: 0.5rem 0.75rem;
-}
-
-.tags .badge:hover {
-    background-color: #e9ecef !important;
-    color: #1682FD !important;
-}
-
-.btn-primary {
-    background-color: #1682FD;
-    border-color: #1682FD;
-}
-
-.btn-primary:hover {
-    background-color: #1470e0;
-    border-color: #1470e0;
-}
-
-.post-content {
-    cursor: pointer;
-}
-
-.post-content:hover .card-title {
-    color: #1682FD !important;
-}
-
-.post-content:hover .card-text {
-    color: #495057 !important;
-}
-
-.post-content:hover .post-image img {
-    opacity: 0.9;
-}
-</style>
+<!-- Стили для главной страницы перенесены в общий файл CSS app.css -->
 @endpush
 
 @push('scripts')

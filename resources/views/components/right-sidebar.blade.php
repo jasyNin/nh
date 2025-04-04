@@ -1,6 +1,6 @@
 @props(['popularTags' => [], 'topUsers' => [], 'recentAnswers' => [], 'isTagsPage' => false, 'isHomePage' => false])
 
-<div class="col-md-3">
+<div class="col-md-3" style="margin-top: 20px;">
     @if($isTagsPage)
         <div class="card mb-4 border-0 ">
             <div class="card-header bg-transparent border-0 py-3">

@@ -17,10 +17,10 @@
 <body>
     <!-- Навигация -->
     <nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top" style="height: 60px;">
-        <div class="container">
-            <a class="navbar-brand text" href="{{ url('/') }}">
+        <div class="container" style="max-width: 1300px; padding-left: 5px;">
+            <a class="navbar-brand" href="{{ url('/') }}">
                 <img src="{{ asset('images/logo.svg') }}" alt="НейроХаб" height="32" class="me-2">
-                НЕЙРОХАБ
+                <span class="text">НЕЙРОХАБ</span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>

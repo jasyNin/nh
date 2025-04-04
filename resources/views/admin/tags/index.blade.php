@@ -68,20 +68,7 @@
 </div>
 
 @push('styles')
-<style>
-#tagSearch:focus {
-    box-shadow: 0 0 0 0.2rem rgba(22, 130, 253, 0.25);
-    border-color: #1682FD;
-}
-
-.search-container {
-    position: relative;
-}
-
-.search-container svg {
-    pointer-events: none;
-}
-</style>
+<!-- Стили для страницы тегов в админ-панели перенесены в общий файл CSS app.css -->
 @endpush
 
 @push('scripts')

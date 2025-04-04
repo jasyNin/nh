@@ -216,15 +216,6 @@ document.addEventListener('DOMContentLoaded', function() {
 @endpush
 
 @push('styles')
-<style>
-.fade-out {
-    opacity: 1;
-    transition: opacity 5s ease-out;
-}
-
-.fade-out:hover {
-    opacity: 1;
-}
-</style>
+<!-- Стили для страницы жалоб в админ-панели перенесены в общий файл CSS app.css -->
 @endpush
 @endsection 
