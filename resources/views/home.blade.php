@@ -3,6 +3,34 @@
 @section('title', 'Главная')
 
 @section('content')
+<style>
+    /* Основные стили для главной страницы */
+    .right-sidebar {
+        margin-top: 20px;
+    }
+    .comment-textarea {
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+    .comment-submit-btn {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+    .card-header {
+        background-color: transparent;
+        border-bottom: none;
+        padding: 1rem 1.5rem;
+    }
+    .nav-tabs {
+        border-bottom: none;
+    }
+    .nav-tabs .nav-link.active {
+        color: #1682FD;
+        border: none;
+        border-bottom: 2px solid #1682FD;
+        background-color: transparent;
+    }
+</style>
 <div class="container" style="margin-top: 60px;">
     <div class="row">
         <!-- Боковое меню -->
