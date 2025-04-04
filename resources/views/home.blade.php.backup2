@@ -9,10 +9,10 @@
         <x-side-menu />
         @include('components.side-menu-styles')
 
-        <!-- Основной контент (посты) -->
+        <!-- Основной контент -->
         <div class="col-md-7">
             <div class="card border-0 bg-transparent">
-                <div class="card-header bg-transparent border-0" style="padding-top: 0;">
+                <div class="card-header bg-transparent border-0 ">
                     <ul class="nav nav-tabs card-header-tabs border-0"  style="margin-top: 15px;">
                         <li class="nav-item" >
                             <a class="nav-link {{ !request('type') ? 'active' : '' }}" href="{{ route('home') }}">
@@ -34,7 +34,7 @@
                 <div class="card-body">
                     @if($posts->isEmpty())
                         <div class="text-center py-5">
-                            <img src="{{ asset('images/home.svg') }}" alt="Постов пока нет" width="48" height="48" class="mb-3">
+                            <img src="{{ asset('images/no-posts.svg') }}" alt="Постов пока нет" width="48" height="48" class="mb-3">
                             <h5 class="fw-light mb-3">Постов пока нет</h5>
                             <p class="text-muted mb-4">Создайте свой первый пост, чтобы начать</p>
                             <a href="{{ route('posts.create') }}" class="btn btn-primary rounded-pill px-4">
@@ -143,7 +143,7 @@
                                                 </div>
                                             </div>
 
-                                            <!-- Остальной код для отображения комментариев -->
+                                            <!-- Раздел комментариев (скрыт по умолчанию) -->
                                             <div id="comments-container-{{ $post->id }}" class="comments-container mt-3 border-top pt-3" style="display: none;">
                                                 <!-- Отображение ответов в контейнере комментариев -->
                                                 @if($post->type === 'question' && $post->answers->isNotEmpty())
@@ -220,16 +220,17 @@
                                                                         </div>
                                                                         <div class="comment-content mt-1 mb-2">
                                                                             {{ $comment->content }}
-                                                                        </div>
-                                                                        <div class="d-flex align-items-center">
-                                                                            <div class="d-flex align-items-center me-3 like-button" data-comment-id="{{ $comment->id }}">
-                                                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart{{ $comment->likedBy(auth()->user()) ? '-fill text-danger' : '' }} me-1" viewBox="0 0 16 16">
-                                                                                    <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>
-                                                                                </svg>
-                                                                                <span class="likes-count" style="pointer-events: none;" {{ $comment->likedBy(auth()->user()) ? 'class=active' : '' }}>{{ $comment->likes_count > 0 ? $comment->likes_count : '' }}</span>
-                                                                            </div>
-                                                                            <div class="d-flex align-items-center reply-button" data-comment-id="{{ $comment->id }}">
-                                                                                <a href="#" class="text-decoration-none text-muted small">Ответить</a>
+                                                    </div>
+                                                    <div class="d-flex align-items-center">
+                                                                                <div class="d-flex align-items-center me-3 like-button" data-comment-id="{{ $comment->id }}">
+                                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart{{ $comment->likedBy(auth()->user()) ? '-fill text-danger' : '' }} me-1" viewBox="0 0 16 16">
+                                                                                        <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>
+                                                        </svg>
+                                                                                    <span class="likes-count" style="pointer-events: none;" {{ $comment->likedBy(auth()->user()) ? 'class=active' : '' }}>{{ $comment->likes_count > 0 ? $comment->likes_count : '' }}</span>
+                                                                                </div>
+                                                                                <div class="d-flex align-items-center reply-button" data-comment-id="{{ $comment->id }}">
+                                                                                    <a href="#" class="text-decoration-none text-muted small">Ответить</a>
+                                                                                </div>
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -278,71 +279,9 @@
                 </div>
             </div>
         </div>
-        
-        <!-- Правая колонка с боковыми панелями --> 
-        <div class="col-md-3" style="margin-top: 20px;">
-            @auth
-                @php
-                    $viewedPosts = auth()->user()->viewedPosts()->take(5)->get();
-                @endphp
-                @if($viewedPosts->isNotEmpty())
-                    <div class="card mb-4 border-0">
-                        <div class="card-header bg-transparent border-0 py-3">
-                            <h6 class="card-title">История просмотров</h6>
-                        </div>
-                        <div class="list-group list-group-flush">
-                            @foreach($viewedPosts as $post)
-                                <a href="{{ route('posts.show', $post) }}" class="list-group-item list-group-item-action border-0 py-3">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div class="list-title text-truncate me-3">{{ $post->title }}</div>
-                                        <small class="text-muted">{{ $post->type === 'post' ? 'Запись' : 'Вопрос' }}</small>
-                                    </div>
-                                </a>
-                            @endforeach
-                        </div>
-                    </div>
-                @endif
-            @endauth
 
-            @if(count($popularTags) > 0)
-                <div class="card mb-4 border-0">
-                    <div class="card-header bg-transparent border-0 py-3">
-                        <h6 class="card-title">Популярные теги</h6>
-                    </div>
-                    <div class="card-body pt-0">
-                        <div class="d-flex flex-wrap gap-2">
-                            @foreach($popularTags->take(6) as $tag)
-                                <a href="{{ route('tags.show', $tag) }}" class="tag-badge">
-                                    #{{ $tag->name }}
-                                    <span class="tag-count">{{ $tag->posts_count }}</span>
-                                </a>
-                            @endforeach
-                        </div>
-                    </div>
-                </div>
-            @endif
-
-            @if(count($topUsers) > 0)
-                <div class="card mb-4 border-0">
-                    <div class="card-header bg-transparent border-0 py-3">
-                        <h6 class="card-title">Топ пользователей</h6>
-                    </div>
-                    <div class="list-group list-group-flush">
-                        @foreach($topUsers->take(3) as $user)
-                            <a href="{{ route('users.show', $user) }}" class="list-group-item list-group-item-action border-0 py-3">
-                                <div class="d-flex align-items-center">
-                                    <x-user-avatar :user="$user" :size="32" class="me-3" />
-                                    <div>
-                                        <div class="user-name">{{ $user->name }}</div>
-                                        <small class="text-muted">{{ $user->rating ?? $user->posts_count }} {{ isset($user->rating) ? __('rating.points') : __('posts.posts.' . min($user->posts_count, 20)) }}</small>
-                                    </div>
-                                </div>
-                            </a>
-                        @endforeach
-                    </div>
-                </div>
-            @endif
-        </div>
+        <!-- Правая колонка -->
+        <x-right-sidebar :popularTags="$popularTags" :topUsers="$topUsers" :isHomePage="true" />
     </div>
 </div>
 
@@ -351,7 +290,6 @@
 @endpush
 
 @push('scripts')
-<!-- Скрипты для взаимодействия с постами -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Функция для обработки клика на кнопку лайка
@@ -406,12 +344,12 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Применяем обработчик ко всем кнопкам лайка
+    // Лайки
     document.querySelectorAll('.like-button').forEach(button => {
         button.addEventListener('click', handleLikeButtonClick);
     });
     
-    // Комментарии - показать/скрыть комментарии при клике на кнопку комментариев
+    // Комментарии - показать/скрыть комментарии
     document.querySelectorAll('.comment-button').forEach(button => {
         button.addEventListener('click', function(e) {
             e.preventDefault();
@@ -519,25 +457,21 @@ document.addEventListener('DOMContentLoaded', function() {
                                         </div>
                                     `;
                                     
-                                    // Добавляем комментарий в начало списка
-                                    const commentsHeader = commentsList.querySelector('h6');
-                                    if (commentsHeader) {
-                                        commentsList.insertBefore(newComment, commentsHeader.nextSibling);
+                                    // Если список еще не существует, создаем его
+                                    if (!commentsList) {
+                                        const newCommentsList = document.createElement('div');
+                                        newCommentsList.className = 'comments-list';
+                                        newCommentsList.appendChild(newComment);
+                                        commentsContainer.insertBefore(newCommentsList, commentForm.parentNode);
                                     } else {
                                         commentsList.appendChild(newComment);
                                     }
-                                    
-                                    // Добавляем обработчик клика для нового комментария
-                                    const newLikeButton = newComment.querySelector('.like-button');
-                                    if (newLikeButton) {
-                                        newLikeButton.addEventListener('click', handleLikeButtonClick);
-                                    }
-                                    
-                                    // Добавляем обработчик для кнопки ответа
-                                    const newReplyButton = newComment.querySelector('.reply-button');
-                                    if (newReplyButton) {
-                                        newReplyButton.addEventListener('click', handleReplyButtonClick);
-                                    }
+                                }
+                                
+                                // Добавляем обработчик клика для нового комментария
+                                const newLikeButton = newComment.querySelector('.like-button');
+                                if (newLikeButton) {
+                                    newLikeButton.addEventListener('click', handleLikeButtonClick);
                                 }
                             }
                         });
@@ -559,95 +493,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 commentsContainer.style.display = 'none';
             }
         });
-    });
-    
-    // Обработка кликов на кнопку "Ответить" в комментариях
-    function handleReplyButtonClick(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        
-        const commentId = this.dataset.commentId;
-        const commentElement = this.closest('.comment');
-        
-        // Проверяем, есть ли уже форма для ответа
-        let replyForm = commentElement.querySelector('.reply-form-container');
-        
-        // Если форма уже есть, просто переключаем её видимость
-        if (replyForm) {
-            if (replyForm.style.display === 'none') {
-                replyForm.style.display = 'block';
-                replyForm.querySelector('textarea').focus();
-            } else {
-                replyForm.style.display = 'none';
-            }
-            return;
-        }
-        
-        // Если формы нет, создаем её
-        replyForm = document.createElement('div');
-        replyForm.className = 'reply-form-container mt-3';
-        replyForm.innerHTML = `
-            <form class="reply-form" action="/comments/${commentId}/replies" method="POST">
-                <input type="hidden" name="_token" value="${document.querySelector('meta[name="csrf-token"]').content}">
-                <div class="input-group">
-                    <textarea name="content" class="form-control" rows="1" placeholder="Ответить..." style="border-top-right-radius: 0; border-bottom-right-radius: 0;"></textarea>
-                    <button type="submit" class="btn" style="background-color: #1682FD; color: white; border-top-left-radius: 0; border-bottom-left-radius: 0;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
-                            <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"/>
-                        </svg>
-                    </button>
-                </div>
-            </form>
-        `;
-        
-        // Добавляем форму после содержимого комментария
-        commentElement.querySelector('.flex-grow-1').appendChild(replyForm);
-        
-        // Фокусируемся на текстовом поле
-        replyForm.querySelector('textarea').focus();
-        
-        // Обрабатываем отправку ответа
-        replyForm.querySelector('form').addEventListener('submit', function(event) {
-            event.preventDefault();
-            
-            const formData = new FormData(this);
-            fetch(this.action, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    'Accept': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Скрываем форму
-                    replyForm.style.display = 'none';
-                    
-                    // Очищаем форму
-                    replyForm.querySelector('form').reset();
-                    
-                    // Создаем всплывающее сообщение
-                    const toast = document.createElement('div');
-                    toast.className = 'alert alert-success position-fixed top-0 start-50 translate-middle-x mt-3';
-                    toast.style.zIndex = '9999';
-                    toast.textContent = 'Ответ отправлен';
-                    
-                    document.body.appendChild(toast);
-                    
-                    // Удаляем сообщение через 2 секунды
-                    setTimeout(() => {
-                        toast.remove();
-                    }, 2000);
-                }
-            });
-        });
-    }
-    
-    // Добавляем обработчики для всех кнопок "Ответить"
-    document.querySelectorAll('.reply-button').forEach(button => {
-        button.addEventListener('click', handleReplyButtonClick);
     });
     
     // Предотвращаем переход при клике на пост, если клик был по комментариям
@@ -748,8 +593,196 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     });
+
+    // Обработка ответов на комментарии
+    document.querySelectorAll('.reply-button').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const commentId = this.dataset.commentId;
+            const commentElement = this.closest('.comment');
+            
+            // Проверяем, есть ли уже форма для ответа
+            let replyForm = commentElement.querySelector('.reply-form-container');
+            
+            // Если форма уже есть, просто переключаем её видимость
+            if (replyForm) {
+                if (replyForm.style.display === 'none') {
+                    replyForm.style.display = 'block';
+                    replyForm.querySelector('textarea').focus();
+                } else {
+                    replyForm.style.display = 'none';
+                }
+                return;
+            }
+            
+            // Если формы нет, создаем её
+            replyForm = document.createElement('div');
+            replyForm.className = 'reply-form-container mt-3';
+            replyForm.innerHTML = `
+                <form class="reply-form" action="/comments/${commentId}/replies" method="POST">
+                    <input type="hidden" name="_token" value="${document.querySelector('meta[name="csrf-token"]').content}">
+                    <div class="input-group">
+                        <textarea name="content" class="form-control" rows="1" placeholder="Ответить..." style="border-top-right-radius: 0; border-bottom-right-radius: 0;"></textarea>
+                        <button type="submit" class="btn" style="background-color: #1682FD; color: white; border-top-left-radius: 0; border-bottom-left-radius: 0;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </form>
+            `;
+            
+            // Добавляем форму после содержимого комментария
+            commentElement.querySelector('.flex-grow-1').appendChild(replyForm);
+            
+            // Фокусируемся на текстовом поле
+            replyForm.querySelector('textarea').focus();
+            
+            // Обрабатываем отправку ответа
+            replyForm.querySelector('form').addEventListener('submit', function(event) {
+                event.preventDefault();
+                
+                const formData = new FormData(this);
+                fetch(this.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Скрываем форму
+                        replyForm.style.display = 'none';
+                        
+                        // Очищаем форму
+                        replyForm.querySelector('form').reset();
+                        
+                        // Создаем всплывающее сообщение
+                        const toast = document.createElement('div');
+                        toast.className = 'alert alert-success position-fixed top-0 start-50 translate-middle-x mt-3';
+                        toast.style.zIndex = '9999';
+                        toast.textContent = 'Ответ отправлен';
+                        
+                        document.body.appendChild(toast);
+                        
+                        // Удаляем сообщение через 2 секунды
+                        setTimeout(() => {
+                            toast.remove();
+                        }, 2000);
+                    }
+                });
+            });
+        });
+    });
 });
 </script>
 @endpush
 
+<!-- Модальные окна для жалоб на посты -->
+@foreach($posts as $post)
+<div class="modal fade" id="reportPostModal{{ $post->id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Пожаловаться на пост</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ route('posts.report', $post) }}" method="POST">
+                @csrf
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Тип жалобы</label>
+                        <select name="type" class="form-select" required>
+                            <option value="">Выберите тип жалобы</option>
+                            <option value="спам">Спам</option>
+                            <option value="оскорбление">Оскорбление</option>
+                            <option value="неприемлемый контент">Неприемлемый контент</option>
+                            <option value="нарушение авторских прав">Нарушение авторских прав</option>
+                            <option value="другое">Другое</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Причина жалобы</label>
+                        <textarea name="reason" class="form-control" rows="3" required placeholder="Опишите подробнее причину жалобы..." minlength="10" maxlength="1000"></textarea>
+                        <div class="form-text">Минимум 10 символов</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="submit" class="btn btn-danger">Отправить жалобу</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Модальные окна для комментариев -->
+@foreach($post->comments as $comment)
+    <!-- Модальное окно для редактирования комментария -->
+    <div class="modal fade" id="editCommentModal{{ $comment->id }}" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Редактирование комментария</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form action="{{ route('comments.update', $comment) }}" method="POST">
+                    @csrf
+                    @method('PUT')
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <textarea name="content" class="form-control" rows="3" required>{{ $comment->content }}</textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                        <button type="submit" class="btn" style="background-color: #1682FD; color: white;">Сохранить</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно для жалобы на комментарий -->
+    <div class="modal fade" id="reportCommentModal{{ $comment->id }}" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Пожаловаться на комментарий</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form action="{{ route('comments.report', $comment) }}" method="POST">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Тип жалобы</label>
+                            <select name="type" class="form-select" required>
+                                <option value="">Выберите тип жалобы</option>
+                                <option value="спам">Спам</option>
+                                <option value="оскорбление">Оскорбление</option>
+                                <option value="неприемлемый контент">Неприемлемый контент</option>
+                                <option value="нарушение авторских прав">Нарушение авторских прав</option>
+                                <option value="другое">Другое</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Причина жалобы</label>
+                            <textarea name="reason" class="form-control" rows="3" required placeholder="Опишите подробнее причину жалобы..." minlength="10" maxlength="1000"></textarea>
+                            <div class="form-text">Минимум 10 символов</div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                        <button type="submit" class="btn btn-danger">Отправить жалобу</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+@endforeach
 @endsection 

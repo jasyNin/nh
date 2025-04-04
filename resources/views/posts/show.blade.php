@@ -131,7 +131,7 @@
 
                     <!-- Комментарии -->
                     <div class="comments-section mb-4">
-                        <h6 class="mb-3">{{ $post->comments_count }} {{ $post->comments_count == 1 ? 'комментарий' : ($post->comments_count > 1 && $post->comments_count < 5 ? 'комментария' : 'комментариев') }}</h6>
+                        <h6 class="mb-3">{{ $post->comments_count }} {{ __('posts.comments.' . min($post->comments_count, 20)) }}</h6>
                         
                         <div class="comments-container">
                         @auth
@@ -230,7 +230,7 @@
                                                         </div>
                                                         @if($comment->replies->count() > 0)
                                                         <div class="d-flex align-items-center">
-                                                            <span class="replies-count" data-comment-id="{{ $comment->id }}">{{ $comment->replies->count() }} {{ $comment->replies->count() == 1 ? 'ответ' : ($comment->replies->count() > 1 && $comment->replies->count() < 5 ? 'ответа' : 'ответов') }}</span>
+                                                            <span class="replies-count" data-comment-id="{{ $comment->id }}">{{ $comment->replies->count() }} {{ trans_choice('posts.replies', $comment->replies->count()) }}</span>
                                                         </div>
                                                         @endif
                                                     @else
@@ -245,7 +245,7 @@
                                                         </div>
                                                         @if($comment->replies->count() > 0)
                                                         <div class="d-flex align-items-center">
-                                                            <span class="text-muted small">{{ $comment->replies->count() }} {{ $comment->replies->count() == 1 ? 'ответ' : ($comment->replies->count() > 1 && $comment->replies->count() < 5 ? 'ответа' : 'ответов') }}</span>
+                                                            <span class="text-muted small">{{ $comment->replies->count() }} {{ trans_choice('posts.replies', $comment->replies->count()) }}</span>
                                                         </div>
                                                         @endif
                                                     @endauth
@@ -371,6 +371,8 @@
                         @endif
                     </div>
                 </div>
+            </div>
+        </div>
             </div>
         </div>
         
