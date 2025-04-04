@@ -135,28 +135,20 @@
                         
                         <div class="comments-container">
                         @auth
-                                <div class="comment-form-container mb-4">
+                                <div class="comment-form-container mt-4">
                                     <form action="{{ route('posts.comments.store', $post) }}" method="POST" class="comment-form">
-                                @csrf
-                                        <div class="d-flex align-items-start gap-2">
-                                            <div class="flex-shrink-0">
-                                                <x-user-avatar :user="Auth::user()" :size="40" />
-                                            </div>
-                                            <div class="flex-grow-1">
-                                                <div class="position-relative">
-                                                    <textarea name="content" class="form-control @error('content') is-invalid @enderror" rows="2" placeholder="Комментарий...">{{ old('content') }}</textarea>
-                                                    <button type="submit" class="btn btn-primary position-absolute" style="bottom: 8px; right: 8px; padding: 5px 15px; font-size: 13px;">Отправить</button>
-                                    @error('content')
-                                        <div class="invalid-feedback">{{ $errors->first('content') }}</div>
-                                    @enderror
-                                </div>
-                                            </div>
+                                        @csrf
+                                        <div class="input-group">
+                                            <textarea name="content" class="form-control comment-textarea" rows="1" placeholder="Комментарий..."></textarea>
+                                            <button type="submit" class="btn btn-primary comment-submit-btn">
+                                                Отправить
+                                            </button>
                                         </div>
-                            </form>
+                                    </form>
                                 </div>
                         @else
-                            <div class="text-center py-4">
-                                <p class="mb-2">Чтобы оставить комментарий, <a href="{{ route('login') }}">войдите</a> или <a href="{{ route('register') }}">зарегистрируйтесь</a></p>
+                            <div class="text-center py-3 mt-3">
+                                <p class="mb-0">Чтобы оставить комментарий, <a href="{{ route('login') }}">войдите</a> или <a href="{{ route('register') }}">зарегистрируйтесь</a></p>
                             </div>
                         @endauth
 
@@ -256,22 +248,17 @@
                                                 <div class="reply-form mt-3" style="display: none;" id="reply-form-{{ $comment->id }}">
                                                         <form action="{{ route('comments.replies.store', $comment) }}" method="POST" class="reply-form-inner">
                                                         @csrf
-                                                            <div class="d-flex align-items-start gap-2">
-                                                                <div class="flex-shrink-0">
-                                                                    <x-user-avatar :user="Auth::user()" :size="32" />
-                                                                </div>
-                                                                <div class="flex-grow-1">
-                                                                    <div class="position-relative">
-                                                            <textarea name="content" class="form-control" rows="2" placeholder="Напишите ответ..."></textarea>
-                                                                        <button type="submit" class="btn btn-primary position-absolute" style="bottom: 8px; right: 8px; padding: 5px 15px; font-size: 13px;">Отправить</button>
-                                                                    </div>
-                                                                    <div class="d-flex justify-content-end mt-2">
-                                                                        <button type="button" class="btn btn-link text-muted small p-0 cancel-reply" data-comment-id="{{ $comment->id }}">Отмена</button>
-                                                                    </div>
-                                                        </div>
-                                                        </div>
-                                                    </form>
-                                                </div>
+                                                            <div class="input-group">
+                                                                <textarea name="content" class="form-control comment-textarea" rows="1" placeholder="Ответить..."></textarea>
+                                                                <button type="submit" class="btn btn-primary comment-submit-btn">
+                                                                    Ответить
+                                                                </button>
+                                                            </div>
+                                                            <div class="d-flex justify-content-end mt-2">
+                                                                <button type="button" class="btn btn-link text-muted small p-0 cancel-reply" data-comment-id="{{ $comment->id }}">Отмена</button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
                                                     @endauth
 
                                                 <!-- Ответы на комментарий -->

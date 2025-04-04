@@ -11,10 +11,15 @@
     .comment-textarea {
         border-top-right-radius: 0;
         border-bottom-right-radius: 0;
+        resize: none;
     }
     .comment-submit-btn {
         border-top-left-radius: 0;
         border-bottom-left-radius: 0;
+        background-color: #1682FD;
+        color: white;
+        font-size: 14px;
+        padding: 6px 16px;
     }
     .card-header {
         background-color: transparent;
@@ -29,6 +34,45 @@
         border: none;
         border-bottom: 2px solid #1682FD;
         background-color: transparent;
+    }
+    
+    /* Стили для комментариев */
+    .comments-container {
+        border-top: 1px solid #eee;
+        padding-top: 15px;
+        margin-top: 15px;
+    }
+    .comment {
+        margin-bottom: 15px;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 15px;
+    }
+    .comment:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+    }
+    .comment-content {
+        margin: 8px 0;
+        font-size: 14px;
+    }
+    .comment-form-container {
+        margin-top: 15px;
+    }
+    .input-group {
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    .replies-toggle {
+        color: #1682FD;
+        cursor: pointer;
+        font-size: 15px;
+        font-weight: normal;
+    }
+    .replies-toggle:hover {
+        text-decoration: underline !important;
+    }
+    .replies-toggle.active {
+        font-weight: bold;
     }
 </style>
 <div class="container" style="margin-top: 60px;">
@@ -79,7 +123,7 @@
                                             <div class="d-flex align-items-center mb-2">
                                                 <div class="me-2">
                                                     <a href="{{ route('users.show', $post->user) }}" class="text-decoration-none">
-                                                        <x-user-avatar :user="$post->user" :size="52" />
+                                                        <x-user-avatar :user="$post->user" :size="40" />
                                                     </a>
                                                 </div>
                                                 <div>
@@ -182,7 +226,7 @@
                                                                 <div class="answer-item d-flex align-items-start mb-2 pb-2 border-bottom">
                                                                     <div class="flex-shrink-0 me-2">
                                                                         <a href="{{ route('users.show', $answer->user) }}">
-                                                                            <x-user-avatar :user="$answer->user" :size="32" />
+                                                                            <x-user-avatar :user="$answer->user" :size="40" />
                                                                         </a>
                                                                     </div>
                                                                     <div class="flex-grow-1">
@@ -211,11 +255,11 @@
                                                     
                                                     @if($post->comments->count() > 0)
                                                         @foreach($post->comments->take(3) as $comment)
-                                                            <div class="comment mb-3">
+                                                            <div class="comment mb-3" id="comment-{{ $comment->id }}">
                                                                 <div class="d-flex">
                                                                     <div class="flex-shrink-0 me-3">
                                                                         <a href="{{ route('users.show', $comment->user) }}">
-                                                                            <x-user-avatar :user="$comment->user" :size="32" />
+                                                                            <x-user-avatar :user="$comment->user" :size="40" />
                                                                         </a>
                                                                     </div>
                                                                     <div class="flex-grow-1">
@@ -256,10 +300,106 @@
                                                                                 </svg>
                                                                                 <span class="likes-count" style="pointer-events: none;" {{ $comment->likedBy(auth()->user()) ? 'class=active' : '' }}>{{ $comment->likes_count > 0 ? $comment->likes_count : '' }}</span>
                                                                             </div>
-                                                                            <div class="d-flex align-items-center reply-button" data-comment-id="{{ $comment->id }}">
+                                                                            <div class="d-flex align-items-center me-3 reply-button" data-comment-id="{{ $comment->id }}">
                                                                                 <a href="#" class="text-decoration-none text-muted small">Ответить</a>
                                                                             </div>
+                                                                            @if($comment->replies->count() > 0)
+                                                                            <div class="d-flex align-items-center">
+                                                                                <a href="#" class="text-decoration-none replies-toggle" data-comment-id="{{ $comment->id }}">
+                                                                                    {{ $comment->replies->count() }} {{ trans_choice('ответ|ответа|ответов', $comment->replies->count()) }}
+                                                                                </a>
+                                                                            </div>
+                                                                            @endif
                                                                         </div>
+                                                                        
+                                                                        <!-- Форма для ответа на комментарий -->
+                                                                        <div class="reply-form mt-3" style="display: none;" id="reply-form-{{ $post->id }}-{{ $comment->id }}">
+                                                                            <form action="{{ route('comments.replies.store', $comment) }}" method="POST" class="reply-form-inner">
+                                                                                @csrf
+                                                                                <div class="input-group">
+                                                                                    <textarea name="content" class="form-control comment-textarea" rows="1" placeholder="Ответить..."></textarea>
+                                                                                    <button type="submit" class="btn btn-primary comment-submit-btn">
+                                                                                        Ответить
+                                                                                    </button>
+                                                                                </div>
+                                                                                <div class="d-flex justify-content-end mt-2">
+                                                                                    <button type="button" class="btn btn-link text-muted small p-0 cancel-reply" data-post-id="{{ $post->id }}" data-comment-id="{{ $comment->id }}">Отмена</button>
+                                                                                </div>
+                                                                            </form>
+                                                                        </div>
+                                                                        
+                                                                        <!-- Ответы на комментарий -->
+                                                                        @if($comment->replies->count() > 0)
+                                                                            <div class="replies mt-3" style="display: none;" id="replies-{{ $post->id }}-{{ $comment->id }}">
+                                                                                @foreach($comment->replies as $reply)
+                                                                                    <div class="reply d-flex mt-2">
+                                                                                        <div class="flex-shrink-0 me-2">
+                                                                                            <a href="{{ route('users.show', $reply->user) }}">
+                                                                                                <x-user-avatar :user="$reply->user" :size="40" />
+                                                                                            </a>
+                                                                                        </div>
+                                                                                        <div class="flex-grow-1">
+                                                                                            <div class="d-flex justify-content-between">
+                                                                                                <div>
+                                                                                                    <a href="{{ route('users.show', $reply->user) }}" class="text-decoration-none fw-bold">{{ $reply->user->name }}</a>
+                                                                                                    <small class="text-muted ms-2">{{ $reply->created_at->diffForHumans() }}</small>
+                                                                                                </div>
+                                                                                                <div class="dropdown">
+                                                                                                    <button class="btn btn-link text-dark p-0" type="button" data-bs-toggle="dropdown">
+                                                                                                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-three-dots" viewBox="0 0 16 16">
+                                                                                                            <path d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/>
+                                                                                                        </svg>
+                                                                                                    </button>
+                                                                                                    <ul class="dropdown-menu dropdown-menu-end">
+                                                                                                        @if(auth()->check() && auth()->id() === $reply->user_id)
+                                                                                                            <li>
+                                                                                                                <form action="{{ route('comments.destroy', $reply) }}" method="POST" onsubmit="return confirm('Вы уверены?');">
+                                                                                                                    @csrf
+                                                                                                                    @method('DELETE')
+                                                                                                                    <button type="submit" class="dropdown-item text-danger">Удалить</button>
+                                                                                                                </form>
+                                                                                                            </li>
+                                                                                                        @else
+                                                                                                            <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#reportCommentModal{{ $reply->id }}">Пожаловаться</a></li>
+                                                                                                        @endif
+                                                                                                    </ul>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                            <div class="reply-content small">
+                                                                                                {{ $reply->content }}
+                                                                                            </div>
+                                                                                            <div class="d-flex align-items-center mt-1">
+                                                                                                <div class="d-flex align-items-center me-3 like-button" data-reply-id="{{ $reply->id }}">
+                                                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-heart{{ $reply->likedBy(auth()->user()) ? '-fill text-danger' : '' }} me-1" viewBox="0 0 16 16">
+                                                                                                        <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>
+                                                                                                    </svg>
+                                                                                                    <span class="likes-count" style="pointer-events: none;" {{ $reply->likedBy(auth()->user()) ? 'class=active' : '' }}>{{ $reply->likes_count > 0 ? $reply->likes_count : '' }}</span>
+                                                                                                </div>
+                                                                                                <div class="d-flex align-items-center reply-to-reply-button" data-post-id="{{ $post->id }}" data-comment-id="{{ $comment->id }}" data-reply-id="{{ $reply->id }}">
+                                                                                                    <a href="#" class="text-decoration-none text-muted small">Ответить</a>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                            
+                                                                                            <!-- Форма для ответа на ответ -->
+                                                                                            <div class="reply-to-reply-form mt-2" style="display: none;" id="reply-to-reply-form-{{ $post->id }}-{{ $comment->id }}-{{ $reply->id }}">
+                                                                                                <form action="{{ route('comments.replies.store', $comment) }}" method="POST" class="reply-to-reply-form-inner">
+                                                                                                    @csrf
+                                                                                                    <div class="input-group">
+                                                                                                        <textarea name="content" class="form-control comment-textarea" rows="1" placeholder="Ответить..."></textarea>
+                                                                                                        <button type="submit" class="btn btn-primary comment-submit-btn">
+                                                                                                            Ответить
+                                                                                                        </button>
+                                                                                                    </div>
+                                                                                                    <div class="d-flex justify-content-end mt-2">
+                                                                                                        <button type="button" class="btn btn-link text-muted small p-0 cancel-reply-to-reply" data-post-id="{{ $post->id }}" data-comment-id="{{ $comment->id }}" data-reply-id="{{ $reply->id }}">Отмена</button>
+                                                                                                    </div>
+                                                                                                </form>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                @endforeach
+                                                                            </div>
+                                                                        @endif
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -284,9 +424,7 @@
                                                             <div class="input-group">
                                                                 <textarea name="content" class="form-control comment-textarea" rows="1" placeholder="Комментарий..."></textarea>
                                                                 <button type="submit" class="btn btn-primary comment-submit-btn">
-                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
-                                                                        <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"/>
-                                                                    </svg>
+                                                                    Отправить
                                                                 </button>
                                                             </div>
                                                         </form>
@@ -377,6 +515,32 @@ document.addEventListener('DOMContentLoaded', function() {
         button.addEventListener('click', handleLikeButtonClick);
     });
     
+    // Обработка клика на счетчик ответов
+    document.querySelectorAll('.replies-toggle').forEach(toggle => {
+        toggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const commentId = this.dataset.commentId;
+            const comment = this.closest('.comment');
+            const repliesContainer = comment.querySelector('.replies');
+            
+            if (repliesContainer) {
+                // Проверяем, отображаются ли ответы сейчас
+                const isRepliesVisible = repliesContainer.style.display !== 'none';
+                
+                // Переключаем видимость ответов
+                if (isRepliesVisible) {
+                    repliesContainer.style.display = 'none';
+                    this.classList.remove('active');
+                } else {
+                    repliesContainer.style.display = 'block';
+                    this.classList.add('active');
+                }
+            }
+        });
+    });
+    
     // Комментарии - показать/скрыть комментарии при клике на кнопку комментариев
     document.querySelectorAll('.comment-button').forEach(button => {
         button.addEventListener('click', function(e) {
@@ -447,7 +611,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                         <div class="d-flex">
                                             <div class="flex-shrink-0 me-3">
                                                 <a href="${data.user_url}">
-                                                    <img src="${data.user_avatar}" alt="${data.user_name}" class="rounded-circle" width="32" height="32">
+                                                    <img src="${data.user_avatar}" alt="${data.user_name}" class="rounded-circle" width="40" height="40">
                                                 </a>
                                             </div>
                                             <div class="flex-grow-1">
@@ -533,48 +697,208 @@ document.addEventListener('DOMContentLoaded', function() {
         e.stopPropagation();
         
         const commentId = this.dataset.commentId;
+        const postId = this.closest('.post-card').querySelector('.like-button').dataset.postId;
+        const replyFormId = `reply-form-${postId}-${commentId}`;
+        
+        // Получаем имя пользователя, на комментарий которого отвечаем
         const commentElement = this.closest('.comment');
+        const userName = commentElement.querySelector('.text-decoration-none.fw-bold').textContent.trim();
         
-        // Проверяем, есть ли уже форма для ответа
-        let replyForm = commentElement.querySelector('.reply-form-container');
+        // Находим форму ответа
+        let replyForm = document.getElementById(replyFormId);
         
-        // Если форма уже есть, просто переключаем её видимость
         if (replyForm) {
+            // Если форма существует, переключаем её видимость
             if (replyForm.style.display === 'none') {
                 replyForm.style.display = 'block';
-                replyForm.querySelector('textarea').focus();
+                const textarea = replyForm.querySelector('textarea');
+                
+                // Добавляем префикс @username, если он еще не добавлен
+                if (!textarea.value.includes(`@${userName}`)) {
+                    textarea.value = `@${userName} `;
+                }
+                
+                textarea.focus();
+                // Устанавливаем курсор в конец текста
+                textarea.selectionStart = textarea.selectionEnd = textarea.value.length;
             } else {
                 replyForm.style.display = 'none';
             }
             return;
         }
         
-        // Если формы нет, создаем её
-        replyForm = document.createElement('div');
-        replyForm.className = 'reply-form-container mt-3';
-        replyForm.innerHTML = `
-            <form class="reply-form" action="/comments/${commentId}/replies" method="POST">
-                <input type="hidden" name="_token" value="${document.querySelector('meta[name="csrf-token"]').content}">
-                <div class="input-group">
-                    <textarea name="content" class="form-control" rows="1" placeholder="Ответить..." style="border-top-right-radius: 0; border-bottom-right-radius: 0;"></textarea>
-                    <button type="submit" class="btn" style="background-color: #1682FD; color: white; border-top-left-radius: 0; border-bottom-left-radius: 0;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
-                            <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"/>
-                        </svg>
-                    </button>
+        // Если форма не найдена, код не продолжается дальше
+        console.log('Форма для ответа не найдена:', replyFormId);
+    }
+    
+    // Обработчик для отмены ответа на комментарий
+    document.querySelectorAll('.cancel-reply').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const postId = this.dataset.postId;
+            const commentId = this.dataset.commentId;
+            const replyForm = document.getElementById(`reply-form-${postId}-${commentId}`);
+            
+            if (replyForm) {
+                replyForm.style.display = 'none';
+                replyForm.querySelector('textarea').value = '';
+            }
+        });
+    });
+    
+    // Обработка кликов на кнопку "Ответить" в ответах на комментарии
+    function handleReplyToReplyButtonClick(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const postId = this.dataset.postId;
+        const commentId = this.dataset.commentId;
+        const replyId = this.dataset.replyId;
+        
+        // Получаем имя пользователя, на которого отвечаем
+        const replyElement = this.closest('.reply');
+        const userName = replyElement.querySelector('.text-decoration-none.fw-bold').textContent.trim();
+        
+        // Находим форму ответа
+        const replyToReplyForm = document.getElementById(`reply-to-reply-form-${postId}-${commentId}-${replyId}`);
+        
+        if (!replyToReplyForm) return;
+        
+        // Показываем форму и фокусируемся на поле ввода
+        replyToReplyForm.style.display = 'block';
+        const textarea = replyToReplyForm.querySelector('textarea');
+        
+        // Добавляем префикс @username, если он еще не добавлен
+        if (!textarea.value.includes(`@${userName}`)) {
+            textarea.value = `@${userName} `;
+        }
+        
+        textarea.focus();
+        // Устанавливаем курсор в конец текста
+        textarea.selectionStart = textarea.selectionEnd = textarea.value.length;
+        
+        // Обрабатываем отправку формы
+        const form = replyToReplyForm.querySelector('form');
+        
+        // Проверяем, не добавлен ли уже обработчик
+        if (!form.hasSubmitHandler) {
+            form.hasSubmitHandler = true;
+            
+            form.addEventListener('submit', function(event) {
+                event.preventDefault();
+                
+                const formData = new FormData(this);
+                fetch(this.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Скрываем форму и очищаем её
+                        replyToReplyForm.style.display = 'none';
+                        form.reset();
+                        
+                        // Создаем новый ответ и добавляем его в DOM
+                        const repliesContainer = replyElement.closest('.replies');
+                        if (repliesContainer) {
+                            const newReply = document.createElement('div');
+                            newReply.className = 'reply d-flex mt-2';
+                            newReply.innerHTML = `
+                                <div class="flex-shrink-0 me-2">
+                                    <a href="${data.user_url}">
+                                        <img src="${data.user_avatar}" alt="${data.user_name}" class="rounded-circle" width="40" height="40">
+                                    </a>
                 </div>
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <a href="${data.user_url}" class="text-decoration-none fw-bold">${data.user_name}</a>
+                                            <small class="text-muted ms-2">только что</small>
+                                        </div>
+                                        <div class="dropdown">
+                                            <button class="btn btn-link text-dark p-0" type="button" data-bs-toggle="dropdown">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-three-dots" viewBox="0 0 16 16">
+                                                    <path d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/>
+                                                </svg>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                <li>
+                                                    <form action="/comments/${data.comment_id}" method="POST" onsubmit="return confirm('Вы уверены?');">
+                                                        <input type="hidden" name="_token" value="${document.querySelector('meta[name="csrf-token"]').content}">
+                                                        <input type="hidden" name="_method" value="DELETE">
+                                                        <button type="submit" class="dropdown-item text-danger">Удалить</button>
             </form>
-        `;
-        
-        // Добавляем форму после содержимого комментария
-        commentElement.querySelector('.flex-grow-1').appendChild(replyForm);
-        
-        // Фокусируемся на текстовом поле
-        replyForm.querySelector('textarea').focus();
-        
-        // Обрабатываем отправку ответа
-        replyForm.querySelector('form').addEventListener('submit', function(event) {
-            event.preventDefault();
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="reply-content small">
+                                        ${data.content}
+                                    </div>
+                                    <div class="d-flex align-items-center mt-1">
+                                        <div class="d-flex align-items-center me-3 like-button" data-reply-id="${data.comment_id}">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-heart me-1" viewBox="0 0 16 16">
+                                                <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>
+                                            </svg>
+                                            <span class="likes-count" style="pointer-events: none;">0</span>
+                                        </div>
+                                        <div class="d-flex align-items-center reply-to-reply-button" data-post-id="${postId}" data-comment-id="${commentId}" data-reply-id="${data.comment_id}">
+                                            <a href="#" class="text-decoration-none text-muted small">Ответить</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                            
+                            // Добавляем новый ответ в контейнер
+                            repliesContainer.appendChild(newReply);
+                            
+                            // Добавляем обработчики для нового ответа
+                            const newLikeButton = newReply.querySelector('.like-button');
+                            if (newLikeButton) {
+                                newLikeButton.addEventListener('click', handleLikeButtonClick);
+                            }
+                            
+                            const newReplyButton = newReply.querySelector('.reply-to-reply-button');
+                            if (newReplyButton) {
+                                newReplyButton.addEventListener('click', handleReplyToReplyButtonClick);
+                            }
+                        }
+                        
+                        // Показываем уведомление
+                        const toast = document.createElement('div');
+                        toast.className = 'alert alert-success position-fixed top-0 start-50 translate-middle-x mt-3';
+                        toast.style.zIndex = '9999';
+                        toast.textContent = 'Ответ отправлен';
+                        
+                        document.body.appendChild(toast);
+                        
+                        // Удаляем уведомление через 2 секунды
+                        setTimeout(() => {
+                            toast.remove();
+                        }, 2000);
+                    }
+                });
+            });
+        }
+    }
+    
+    // Обработка отправки формы ответа на комментарий
+    document.querySelectorAll('.reply-form-inner').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const commentId = this.closest('.comment').id.replace('comment-', '');
+            const postId = this.closest('.post-card').querySelector('.like-button').dataset.postId;
+            const replyForm = this.closest('.reply-form');
+            const repliesContainer = this.closest('.comment').querySelector('.replies');
+            let repliesToggle = this.closest('.comment').querySelector('.replies-toggle');
             
             const formData = new FormData(this);
             fetch(this.action, {
@@ -588,13 +912,157 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Скрываем форму
+                    // Скрываем форму и очищаем её
                     replyForm.style.display = 'none';
+                    this.reset();
                     
-                    // Очищаем форму
-                    replyForm.querySelector('form').reset();
+                    // Если контейнер с ответами не существует, создаем его
+                    if (!repliesContainer) {
+                        const newRepliesContainer = document.createElement('div');
+                        newRepliesContainer.className = 'replies mt-3';
+                        newRepliesContainer.id = `replies-${postId}-${commentId}`;
+                        newRepliesContainer.style.display = 'block';
+                        
+                        // Вставляем контейнер перед формой ответа
+                        this.closest('.comment').querySelector('.flex-grow-1').appendChild(newRepliesContainer);
+                        
+                        // Создаем новый toggle для ответов, если его еще нет
+                        if (!repliesToggle) {
+                            const toggleContainer = document.createElement('div');
+                            toggleContainer.className = 'd-flex align-items-center';
+                            toggleContainer.innerHTML = `
+                                <a href="#" class="text-decoration-none replies-toggle active" data-comment-id="${commentId}">
+                                    1 ответ
+                                </a>
+                            `;
+                            
+                            // Находим место для вставки toggle после кнопки "Ответить"
+                            const replyButton = this.closest('.comment').querySelector('.reply-button');
+                            const replyButtonParent = replyButton.parentNode;
+                            replyButtonParent.parentNode.insertBefore(toggleContainer, replyButtonParent.nextSibling);
+                            
+                            // Назначаем обработчик для нового toggle
+                            const newToggle = toggleContainer.querySelector('.replies-toggle');
+                            newToggle.addEventListener('click', function(e) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                
+                                const commentId = this.dataset.commentId;
+                                const comment = this.closest('.comment');
+                                const repliesContainer = comment.querySelector('.replies');
+                                
+                                if (repliesContainer) {
+                                    const isRepliesVisible = repliesContainer.style.display !== 'none';
+                                    
+                                    if (isRepliesVisible) {
+                                        repliesContainer.style.display = 'none';
+                                        this.classList.remove('active');
+                                    } else {
+                                        repliesContainer.style.display = 'block';
+                                        this.classList.add('active');
+                                    }
+                                }
+                            });
+                            
+                            repliesToggle = newToggle;
+                        } else {
+                            // Обновляем счетчик ответов
+                            const replyCount = parseInt(repliesToggle.textContent.match(/\d+/)[0]) + 1;
+                            repliesToggle.textContent = `${replyCount} ${trans_choice('ответ|ответа|ответов', replyCount)}`;
+                            repliesToggle.classList.add('active');
+                        }
+                    }
                     
-                    // Создаем всплывающее сообщение
+                    // Создаем новый ответ и добавляем его в DOM
+                    const repliesContainerToUse = repliesContainer || document.getElementById(`replies-${postId}-${commentId}`);
+                    if (repliesContainerToUse) {
+                        repliesContainerToUse.style.display = 'block';
+                        
+                        const newReply = document.createElement('div');
+                        newReply.className = 'reply d-flex mt-2';
+                        newReply.innerHTML = `
+                            <div class="flex-shrink-0 me-2">
+                                <a href="${data.user_url}">
+                                    <img src="${data.user_avatar}" alt="${data.user_name}" class="rounded-circle" width="40" height="40">
+                                </a>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <a href="${data.user_url}" class="text-decoration-none fw-bold">${data.user_name}</a>
+                                        <small class="text-muted ms-2">только что</small>
+                                    </div>
+                                    <div class="dropdown">
+                                        <button class="btn btn-link text-dark p-0" type="button" data-bs-toggle="dropdown">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-three-dots" viewBox="0 0 16 16">
+                                                <path d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/>
+                                            </svg>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end">
+                                            <li>
+                                                <form action="/comments/${data.comment_id}" method="POST" onsubmit="return confirm('Вы уверены?');">
+                                                    <input type="hidden" name="_token" value="${document.querySelector('meta[name="csrf-token"]').content}">
+                                                    <input type="hidden" name="_method" value="DELETE">
+                                                    <button type="submit" class="dropdown-item text-danger">Удалить</button>
+                                                </form>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="reply-content small">
+                                    ${data.content}
+                                </div>
+                                <div class="d-flex align-items-center mt-1">
+                                    <div class="d-flex align-items-center me-3 like-button" data-reply-id="${data.comment_id}">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-heart me-1" viewBox="0 0 16 16">
+                                            <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>
+                                        </svg>
+                                        <span class="likes-count" style="pointer-events: none;">0</span>
+                                    </div>
+                                    <div class="d-flex align-items-center reply-to-reply-button" data-post-id="${postId}" data-comment-id="${commentId}" data-reply-id="${data.comment_id}">
+                                        <a href="#" class="text-decoration-none text-muted small">Ответить</a>
+                                    </div>
+                                </div>
+                                
+                                <!-- Форма для ответа на ответ -->
+                                <div class="reply-to-reply-form mt-2" style="display: none;" id="reply-to-reply-form-${postId}-${commentId}-${data.comment_id}">
+                                    <form action="/comments/${commentId}/replies" method="POST" class="reply-to-reply-form-inner">
+                                        <input type="hidden" name="_token" value="${document.querySelector('meta[name="csrf-token"]').content}">
+                                        <div class="input-group">
+                                            <textarea name="content" class="form-control comment-textarea" rows="1" placeholder="Ответить..."></textarea>
+                                            <button type="submit" class="btn btn-primary comment-submit-btn">
+                                                Ответить
+                                            </button>
+                                        </div>
+                                        <div class="d-flex justify-content-end mt-2">
+                                            <button type="button" class="btn btn-link text-muted small p-0 cancel-reply-to-reply" data-post-id="${postId}" data-comment-id="${commentId}" data-reply-id="${data.comment_id}">Отмена</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        `;
+                        
+                        // Добавляем новый ответ в контейнер
+                        repliesContainerToUse.appendChild(newReply);
+                        
+                        // Добавляем обработчики для нового ответа
+                        const newLikeButton = newReply.querySelector('.like-button');
+                        if (newLikeButton) {
+                            newLikeButton.addEventListener('click', handleLikeButtonClick);
+                        }
+                        
+                        const newReplyButton = newReply.querySelector('.reply-to-reply-button');
+                        if (newReplyButton) {
+                            newReplyButton.addEventListener('click', handleReplyToReplyButtonClick);
+                        }
+                        
+                        const newCancelButton = newReply.querySelector('.cancel-reply-to-reply');
+                        if (newCancelButton) {
+                            newCancelButton.addEventListener('click', handleCancelReplyToReply);
+                        }
+                    }
+                    
+                    // Показываем уведомление
                     const toast = document.createElement('div');
                     toast.className = 'alert alert-success position-fixed top-0 start-50 translate-middle-x mt-3';
                     toast.style.zIndex = '9999';
@@ -602,18 +1070,46 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     document.body.appendChild(toast);
                     
-                    // Удаляем сообщение через 2 секунды
+                    // Удаляем уведомление через 2 секунды
                     setTimeout(() => {
                         toast.remove();
                     }, 2000);
                 }
             });
         });
+    });
+    
+    // Обработка кликов на кнопку "Отмена" в ответах на ответы
+    function handleCancelReplyToReply(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const postId = this.dataset.postId;
+        const commentId = this.dataset.commentId;
+        const replyId = this.dataset.replyId;
+        
+        // Находим форму ответа и скрываем её
+        const replyToReplyForm = document.getElementById(`reply-to-reply-form-${postId}-${commentId}-${replyId}`);
+        
+        if (replyToReplyForm) {
+            replyToReplyForm.style.display = 'none';
+            replyToReplyForm.querySelector('form').reset();
+        }
     }
     
-    // Добавляем обработчики для всех кнопок "Ответить"
+    // Добавляем обработчики для всех кнопок "Ответить" в комментариях
     document.querySelectorAll('.reply-button').forEach(button => {
         button.addEventListener('click', handleReplyButtonClick);
+    });
+    
+    // Добавляем обработчики для всех кнопок "Ответить" в ответах
+    document.querySelectorAll('.reply-to-reply-button').forEach(button => {
+        button.addEventListener('click', handleReplyToReplyButtonClick);
+    });
+    
+    // Добавляем обработчики для всех кнопок "Отмена" в ответах на ответы
+    document.querySelectorAll('.cancel-reply-to-reply').forEach(button => {
+        button.addEventListener('click', handleCancelReplyToReply);
     });
     
     // Предотвращаем переход при клике на пост, если клик был по комментариям

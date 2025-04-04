@@ -69,19 +69,38 @@ class PostController extends Controller
             'title' => 'required|string|max:255',
             'content' => 'required|string',
             'type' => 'required|in:post,question',
-            'tags' => 'nullable|string'
+            'tags' => 'nullable|string',
+            'is_draft' => 'nullable|in:0,1',
+            'redirect_to' => 'nullable|string'
         ]);
 
         // Отладочная информация после валидации
         \Log::info('Validated data:', $validated);
         \Log::info('Validated tags type:', ['type' => gettype($validated['tags'])]);
 
-        $post = Post::create([
+        // Создаем базовый пост
+        $post = new Post([
             'user_id' => auth()->id(),
             'title' => $validated['title'],
             'content' => $validated['content'],
             'type' => $validated['type']
         ]);
+
+        // Определяем и устанавливаем статус, если это поле существует в таблице
+        $isDraft = isset($validated['is_draft']) && $validated['is_draft'] == '1';
+        
+        try {
+            if ($isDraft) {
+                $post->setAttribute('status', 'draft');
+            }
+            $post->save();
+        } catch (\Exception $e) {
+            // Если статус не поддерживается, просто сохраняем пост без него
+            \Log::error('Error setting status: ' . $e->getMessage());
+            if (!$post->exists) {
+                $post->save();
+            }
+        }
 
         // Обработка тегов
         if (!empty($validated['tags'])) {
@@ -103,8 +122,21 @@ class PostController extends Controller
             }
         }
 
+        // Определяем куда перенаправить пользователя
+        if (!empty($validated['redirect_to'])) {
+            $route = $validated['redirect_to'];
+            $message = 'Пост сохранен как черновик.';
+            
+            // Если это абсолютный URL-путь, преобразуем его в относительный
+            if (strpos($route, '/') === 0) {
+                return redirect($route)->with('success', $message);
+            }
+            return redirect()->to($route)->with('success', $message);
+        }
+
+        // По умолчанию переходим на страницу поста
         return redirect()->route('posts.show', $post)
-            ->with('success', 'Пост успешно создан.');
+            ->with('success', $isDraft ? 'Черновик успешно создан.' : 'Пост успешно опубликован.');
     }
 
     public function show(Post $post)
