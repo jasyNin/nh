@@ -10,7 +10,7 @@
         @include('components.side-menu-styles')
 
         <!-- Основной контент -->
-        <div class="col-md-9">
+        <div class="col-md-7">
             <div class="card border-0">
                 <div class="card-body p-4">
                     <!-- Информация о пользователе -->
@@ -94,79 +94,77 @@
                         <div class="d-flex align-items-center">
                             @auth
                             <button class="btn btn-link text-dark p-0 me-4 like-button" data-post-id="{{ $post->id }}">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="{{ $post->likedBy(auth()->user()) ? 'currentColor' : 'none' }}">
-                                    <path d="M12 21.35L10.55 20.03C5.4 15.36 2 12.28 2 8.5C2 5.42 4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.09C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.42 22 8.5C22 12.28 18.6 15.36 13.45 20.04L12 21.35Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
+                                <img src="{{ asset('images/like.svg') }}" alt="Лайк" width="18" height="16" class="{{ $post->likedBy(auth()->user()) ? 'liked' : '' }}">
                                 <span class="ms-1 likes-count" style="pointer-events: none;">{{ $post->likes_count }}</span>
                             </button>
                             @else
                             <a href="{{ route('login') }}" class="btn btn-link text-dark p-0 me-4">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                    <path d="M12 21.35L10.55 20.03C5.4 15.36 2 12.28 2 8.5C2 5.42 4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.09C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.42 22 8.5C22 12.28 18.6 15.36 13.45 20.04L12 21.35Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
+                                <img src="{{ asset('images/like.svg') }}" alt="Лайк" width="18" height="16">
                                 <span class="ms-1">{{ $post->likes_count }}</span>
                             </a>
                             @endauth
 
                             <button class="btn btn-link text-dark p-0 me-4 comment-toggle">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
+                                <img src="{{ asset('images/comment.svg') }}" alt="Комментарии" width="20" height="19">
                                 <span class="ms-1">{{ $post->comments_count }}</span>
                             </button>
 
-                            <button class="btn btn-link text-dark p-0 me-4">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                    <path d="M17 1l4 4-4 4"></path>
-                                    <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
-                                    <path d="M7 23l-4-4 4-4"></path>
-                                    <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
-                                </svg>
+                            <button class="btn btn-link text-dark p-0 me-4 repost-button" id="copy-post-link">
+                                <img src="{{ asset('images/reply.svg') }}" alt="Поделиться" width="20" height="21">
                                 <span class="ms-1">{{ $post->reposts_count }}</span>
                             </button>
                         </div>
 
                         @auth
-                        <form action="{{ route('posts.bookmark', $post) }}" method="POST">
+                        <form action="{{ route('posts.bookmark', $post) }}" method="POST" class="ms-auto">
                             @csrf
-                            <button type="submit" class="btn btn-link text-dark p-0">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="{{ $post->isBookmarkedBy(auth()->user()) ? 'currentColor' : 'none' }}">
-                                    <path d="M5 5C5 4.46957 5.21071 3.96086 5.58579 3.58579C5.96086 3.21071 6.46957 3 7 3H17C17.5304 3 18.0391 3.21071 18.4142 3.58579C18.7893 3.96086 19 4.46957 19 5V21L12 16L5 21V5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
+                            <button type="submit" class="btn btn-link text-dark p-0 bookmark-button {{ $post->isBookmarkedBy(auth()->user()) ? 'active' : '' }}">
+                                <img src="{{ asset('images/bookmark-mini.svg') }}" alt="Закладка" width="20" height="20" class="{{ $post->isBookmarkedBy(auth()->user()) ? 'bookmarked' : '' }}">
                             </button>
                         </form>
                         @else
-                        <a href="{{ route('login') }}" class="btn btn-link text-dark p-0">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                <path d="M5 5C5 4.46957 5.21071 3.96086 5.58579 3.58579C5.96086 3.21071 6.46957 3 7 3H17C17.5304 3 18.0391 3.21071 18.4142 3.58579C18.7893 3.96086 19 4.46957 19 5V21L12 16L5 21V5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
+                        <a href="{{ route('login') }}" class="btn btn-link text-dark p-0 ms-auto">
+                            <img src="{{ asset('images/bookmark-mini.svg') }}" alt="Закладка" width="20" height="20">
                         </a>
                         @endauth
                     </div>
 
                     <!-- Комментарии -->
-                    <div class="comments-section">
+                    <div class="comments-section mb-4">
+                        <h6 class="mb-3">{{ $post->comments_count }} {{ __('posts.comments.' . min($post->comments_count, 20)) }}</h6>
+                        
+                        <div class="comments-container">
                         @auth
-                            <form action="{{ route('posts.comments.store', $post) }}" method="POST" class="mb-4">
+                                <div class="comment-form-container mb-4">
+                                    <form action="{{ route('posts.comments.store', $post) }}" method="POST" class="comment-form">
                                 @csrf
-                                <div class="mb-3">
-                                    <textarea name="content" class="form-control @error('content') is-invalid @enderror" rows="3" placeholder="Напишите комментарий...">{{ old('content') }}</textarea>
+                                        <div class="d-flex align-items-start gap-2">
+                                            <div class="flex-shrink-0">
+                                                <x-user-avatar :user="Auth::user()" :size="40" />
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <div class="position-relative">
+                                                    <textarea name="content" class="form-control @error('content') is-invalid @enderror" rows="2" placeholder="Комментарий...">{{ old('content') }}</textarea>
+                                                    <button type="submit" class="btn btn-primary position-absolute" style="bottom: 8px; right: 8px; padding: 5px 15px; font-size: 13px;">Отправить</button>
                                     @error('content')
                                         <div class="invalid-feedback">{{ $errors->first('content') }}</div>
                                     @enderror
                                 </div>
-                                <button type="submit" class="btn btn-primary">Отправить</button>
+                                            </div>
+                                        </div>
                             </form>
+                                </div>
                         @else
                             <div class="text-center py-4">
                                 <p class="mb-2">Чтобы оставить комментарий, <a href="{{ route('login') }}">войдите</a> или <a href="{{ route('register') }}">зарегистрируйтесь</a></p>
                             </div>
                         @endauth
 
-                        @if($post->comments->isNotEmpty())
+                            <!-- Список комментариев -->
                             <div class="comments-list">
+                                @if($post->comments->isNotEmpty())
                                 @foreach($post->comments as $comment)
-                                    <div class="comment mb-4">
+                                        <div class="comment" id="comment-{{ $comment->id }}">
                                         <div class="d-flex">
                                             <div class="flex-shrink-0 me-3">
                                                 <a href="{{ route('users.show', $comment->user) }}">
@@ -176,12 +174,12 @@
                                             <div class="flex-grow-1">
                                                 <div class="d-flex justify-content-between align-items-center mb-2">
                                                     <div>
-                                                        <a href="{{ route('users.show', $comment->user) }}" class="text-decoration-none text-dark fw-bold">{{ $comment->user->name }}</a>
-                                                        <span class="text-muted ms-2">{{ $comment->created_at->diffForHumans() }}</span>
+                                                            <a href="{{ route('users.show', $comment->user) }}" class="text-decoration-none user-name me-2">{{ $comment->user->name }}</a>
+                                                            <span class="comment-time">{{ $comment->created_at->diffForHumans() }}</span>
                                                     </div>
                                                     @auth
                                                     <div class="dropdown">
-                                                        <button class="btn btn-link text-dark p-0" type="button" data-bs-toggle="dropdown">
+                                                            <button class="btn btn-link text-muted p-0" type="button" data-bs-toggle="dropdown">
                                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                                                                 <path d="M12 13C12.5523 13 13 12.5523 13 12C13 11.4477 12.5523 11 12 11C11.4477 11 11 11.4477 11 12C11 12.5523 11.4477 13 12 13Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                                                 <path d="M12 6C12.5523 6 13 5.55228 13 5C13 4.44772 12.5523 4 12 4C11.4477 4 11 4.44772 11 5C11 5.55228 11.4477 6 12 6Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -223,47 +221,142 @@
                                                 </div>
                                                 <div class="d-flex align-items-center">
                                                     @auth
-                                                    <button class="btn btn-link text-dark p-0 me-3 like-button" data-comment-id="{{ $comment->id }}">
-                                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="{{ $comment->likedBy(auth()->user()) ? 'currentColor' : 'none' }}">
-                                                            <path d="M12 21.35L10.55 20.03C5.4 15.36 2 12.28 2 8.5C2 5.42 4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.09C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.42 22 8.5C22 12.28 18.6 15.36 13.45 20.04L12 21.35Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                                        </svg>
-                                                        <span class="ms-1 likes-count" style="pointer-events: none;">{{ $comment->likes_count }}</span>
-                                                    </button>
-                                                    <button class="btn btn-link text-dark p-0 reply-button" data-comment-id="{{ $comment->id }}">
-                                                        Ответить
-                                                    </button>
+                                                        <div class="d-flex align-items-center me-3 like-button" data-comment-id="{{ $comment->id }}">
+                                                            <img src="{{ asset('images/like.svg') }}" alt="Лайк" width="18" height="16" class="me-1 {{ $comment->likedBy(auth()->user()) ? 'liked' : '' }}">
+                                                            <span class="likes-count {{ $comment->likedBy(auth()->user()) ? 'active' : '' }}">{{ $comment->likes_count }}</span>
+                                                        </div>
+                                                        <div class="d-flex align-items-center me-3">
+                                                            <a href="#" class="text-decoration-none text-muted small reply-button" data-comment-id="{{ $comment->id }}">Ответить</a>
+                                                        </div>
+                                                        @if($comment->replies->count() > 0)
+                                                        <div class="d-flex align-items-center">
+                                                            <span class="replies-count" data-comment-id="{{ $comment->id }}">{{ $comment->replies->count() }} {{ $comment->replies->count() == 1 ? 'ответ' : ($comment->replies->count() > 1 && $comment->replies->count() < 5 ? 'ответа' : 'ответов') }}</span>
+                                                        </div>
+                                                        @endif
                                                     @else
-                                                    <a href="{{ route('login') }}" class="btn btn-link text-dark p-0 me-3">
-                                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                                                            <path d="M12 21.35L10.55 20.03C5.4 15.36 2 12.28 2 8.5C2 5.42 4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.09C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.42 22 8.5C22 12.28 18.6 15.36 13.45 20.04L12 21.35Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                                        </svg>
-                                                        <span class="ms-1">{{ $comment->likes_count }}</span>
-                                                    </a>
-                                                    <a href="{{ route('login') }}" class="btn btn-link text-dark p-0">
-                                                        Ответить
-                                                    </a>
+                                                        <div class="d-flex align-items-center me-3">
+                                                            <a href="{{ route('login') }}" class="text-decoration-none text-muted small d-flex align-items-center">
+                                                                <img src="{{ asset('images/like.svg') }}" alt="Лайк" width="18" height="16" class="me-1">
+                                                                <span>{{ $comment->likes_count }}</span>
+                                                            </a>
+                                                        </div>
+                                                        <div class="d-flex align-items-center me-3">
+                                                            <a href="{{ route('login') }}" class="text-decoration-none text-muted small">Ответить</a>
+                                                        </div>
+                                                        @if($comment->replies->count() > 0)
+                                                        <div class="d-flex align-items-center">
+                                                            <span class="text-muted small">{{ $comment->replies->count() }} {{ $comment->replies->count() == 1 ? 'ответ' : ($comment->replies->count() > 1 && $comment->replies->count() < 5 ? 'ответа' : 'ответов') }}</span>
+                                                        </div>
+                                                        @endif
                                                     @endauth
                                                 </div>
 
-                                                <!-- Форма для ответа -->
+                                                    <!-- Форма для ответа на комментарий -->
+                                                    @auth
                                                 <div class="reply-form mt-3" style="display: none;" id="reply-form-{{ $comment->id }}">
-                                                    <form action="{{ route('comments.replies.store', $comment) }}" method="POST" class="reply-form">
+                                                        <form action="{{ route('comments.replies.store', $comment) }}" method="POST" class="reply-form-inner">
                                                         @csrf
-                                                        <div class="mb-3">
+                                                            <div class="d-flex align-items-start gap-2">
+                                                                <div class="flex-shrink-0">
+                                                                    <x-user-avatar :user="Auth::user()" :size="32" />
+                                                                </div>
+                                                                <div class="flex-grow-1">
+                                                                    <div class="position-relative">
                                                             <textarea name="content" class="form-control" rows="2" placeholder="Напишите ответ..."></textarea>
+                                                                        <button type="submit" class="btn btn-primary position-absolute" style="bottom: 8px; right: 8px; padding: 5px 15px; font-size: 13px;">Отправить</button>
+                                                                    </div>
+                                                                    <div class="d-flex justify-content-end mt-2">
+                                                                        <button type="button" class="btn btn-link text-muted small p-0 cancel-reply" data-comment-id="{{ $comment->id }}">Отмена</button>
+                                                                    </div>
                                                         </div>
-                                                        <div class="d-flex justify-content-end">
-                                                            <button type="button" class="btn btn-link text-dark me-2 cancel-reply" data-comment-id="{{ $comment->id }}">Отмена</button>
-                                                            <button type="submit" class="btn btn-primary">Отправить</button>
                                                         </div>
                                                     </form>
                                                 </div>
+                                                    @endauth
 
                                                 <!-- Ответы на комментарий -->
-                                                @if($comment->replies->isNotEmpty())
-                                                    <div class="replies mt-3">
+                                                    @if($comment->replies && $comment->replies->isNotEmpty())
+                                                    <div class="replies mt-3" id="replies-{{ $comment->id }}" style="display: none;">
                                                         @foreach($comment->replies as $reply)
-                                                            <x-comment-reply :reply="$reply" />
+                                                                <div class="comment-reply mb-3" id="reply-{{ $reply->id }}">
+                                                                    <div class="d-flex">
+                                                                        <div class="flex-shrink-0 me-3">
+                                                                            <a href="{{ route('users.show', $reply->user) }}">
+                                                                                <x-user-avatar :user="$reply->user" :size="32" />
+                                                                            </a>
+                                                                        </div>
+                                                                        <div class="flex-grow-1">
+                                                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                                                <div>
+                                                                                    <a href="{{ route('users.show', $reply->user) }}" class="text-decoration-none user-name me-2">{{ $reply->user->name }}</a>
+                                                                                    <span class="comment-time">{{ $reply->created_at->diffForHumans() }}</span>
+                                                                                </div>
+                                                                                @auth
+                                                                                <div class="dropdown">
+                                                                                    <button class="btn btn-link text-muted p-0" type="button" data-bs-toggle="dropdown">
+                                                                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                                                                            <path d="M12 13C12.5523 13 13 12.5523 13 12C13 11.4477 12.5523 11 12 11C11.4477 11 11 11.4477 11 12C11 12.5523 11.4477 13 12 13Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                                                            <path d="M12 6C12.5523 6 13 5.55228 13 5C13 4.44772 12.5523 4 12 4C11.4477 4 11 4.44772 11 5C11 5.55228 11.4477 6 12 6Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                                                            <path d="M12 20C12.5523 20 13 19.5523 13 19C13 18.4477 12.5523 18 12 18C11.4477 18 11 18.4477 11 19C11 19.5523 11.4477 20 12 20Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                                                        </svg>
+                                                                                    </button>
+                                                                                    <ul class="dropdown-menu dropdown-menu-end">
+                                                                                        @can('update', $reply)
+                                                                                            <li>
+                                                                                                <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#editReplyModal{{ $reply->id }}">
+                                                                                                    Редактировать
+                                                                                                </a>
+                                                                                            </li>
+                                                                                        @endcan
+                                                                                        @can('delete', $reply)
+                                                                                            <li>
+                                                                                                <form action="{{ route('replies.destroy', $reply) }}" method="POST">
+                                                                                                    @csrf
+                                                                                                    @method('DELETE')
+                                                                                                    <button type="submit" class="dropdown-item text-danger" onclick="return confirm('Вы уверены?')">
+                                                                                                        Удалить
+                                                                                                    </button>
+                                                                                                </form>
+                                                                                            </li>
+                                                                                        @endcan
+                                                                                        @cannot('update', $reply)
+                                                                                            <li>
+                                                                                                <a class="dropdown-item text-danger" href="#" data-bs-toggle="modal" data-bs-target="#reportReplyModal{{ $reply->id }}">
+                                                                                                    Пожаловаться
+                                                                                                </a>
+                                                                                            </li>
+                                                                                        @endcannot
+                                                                                    </ul>
+                                                                                </div>
+                                                                                @endauth
+                                                                            </div>
+                                                                            <div class="reply-content mb-2">
+                                                                                {{ $reply->content }}
+                                                                            </div>
+                                                                            <div class="d-flex align-items-center">
+                                                                                @auth
+                                                                                <div class="d-flex align-items-center me-3 like-button" data-reply-id="{{ $reply->id }}">
+                                                                                    <img src="{{ asset('images/like.svg') }}" alt="Лайк" width="18" height="16" class="me-1 {{ $reply->likedBy(auth()->user()) ? 'liked' : '' }}">
+                                                                                    <span class="likes-count {{ $reply->likedBy(auth()->user()) ? 'active' : '' }}">{{ $reply->likes_count }}</span>
+                                                                                </div>
+                                                                                <div class="d-flex align-items-center me-3">
+                                                                                    <a href="#" class="text-decoration-none text-muted small reply-to-reply-button" data-comment-id="{{ $comment->id }}" data-reply-id="{{ $reply->id }}">Ответить</a>
+                                                                                </div>
+                                                                                @else
+                                                                                <div class="d-flex align-items-center me-3">
+                                                                                    <a href="{{ route('login') }}" class="text-decoration-none text-muted small d-flex align-items-center">
+                                                                                        <img src="{{ asset('images/like.svg') }}" alt="Лайк" width="18" height="16" class="me-1">
+                                                                                        <span>{{ $reply->likes_count }}</span>
+                                                                                    </a>
+                                                                                </div>
+                                                                                <div class="d-flex align-items-center me-3">
+                                                                                    <a href="{{ route('login') }}" class="text-decoration-none text-muted small">Ответить</a>
+                                                                                </div>
+                                                                                @endauth
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
                                                         @endforeach
                                                     </div>
                                                 @endif
@@ -271,12 +364,18 @@
                                         </div>
                                     </div>
                                 @endforeach
+                                @else
+                                    <div class="text-center py-3">
+                                        <p class="mb-0">Будьте первым, кто оставит комментарий</p>
                             </div>
                         @endif
                     </div>
                 </div>
             </div>
         </div>
+        
+        <!-- Правая колонка -->
+        <x-right-sidebar :popularTags="$popularTags" :topUsers="$topUsers" :recentAnswers="$recentAnswers ?? null" />
     </div>
 </div>
 
@@ -377,6 +476,23 @@ document.addEventListener('DOMContentLoaded', function() {
     // Получаем CSRF токен из мета-тега
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
+    // Обработка клика по счетчику ответов
+    document.querySelectorAll('.replies-count').forEach(counter => {
+        counter.addEventListener('click', function() {
+            const commentId = this.dataset.commentId;
+            const repliesContainer = document.querySelector(`#replies-${commentId}`);
+            
+            if (repliesContainer) {
+                // Переключаем отображение блока ответов
+                if (repliesContainer.style.display === 'none') {
+                    repliesContainer.style.display = 'block';
+                } else {
+                    repliesContainer.style.display = 'none';
+                }
+            }
+        });
+    });
+
     // Находим все формы жалоб
     const reportForms = document.querySelectorAll('form[action*="report"]');
     
@@ -441,17 +557,29 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     });
-    
-    // Остальной JavaScript код...
 
     // Обработка лайков
     document.querySelectorAll('.like-button').forEach(button => {
-        button.addEventListener('click', function(e) {
-            e.preventDefault();
+        button.addEventListener('click', function() {
             @auth
             const postId = this.dataset.postId;
             const commentId = this.dataset.commentId;
-            const url = postId ? `/posts/${postId}/like` : `/comments/${commentId}/like`;
+            const replyId = this.dataset.replyId;
+            
+            let url;
+            if (postId) {
+                url = `/posts/${postId}/like`;
+            } else if (commentId) {
+                url = `/comments/${commentId}/like`;
+            } else if (replyId) {
+                url = `/replies/${replyId}/like`;
+            } else {
+                console.error('Не указан id для лайка');
+                return;
+            }
+            
+            const likesCount = this.querySelector('.likes-count');
+            const img = this.querySelector('img');
             
             fetch(url, {
                 method: 'POST',
@@ -462,14 +590,32 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .then(response => response.json())
             .then(data => {
-                const likesCount = this.querySelector('.likes-count');
                 if (likesCount) {
-                    likesCount.textContent = data.rating;
+                    // Обновляем текст счетчика лайков
+                    likesCount.textContent = data.likes_count;
+                    
+                    // Добавляем/удаляем класс active для счетчика
+                    if (data.liked) {
+                        likesCount.classList.add('active');
+                    } else {
+                        likesCount.classList.remove('active');
+                    }
                 }
                 
-                const svg = this.querySelector('svg');
-                if (svg) {
-                    svg.setAttribute('fill', data.liked ? 'currentColor' : 'none');
+                // Добавляем/удаляем класс для изменения цвета иконки
+                if (img) {
+                    if (data.liked) {
+                        img.classList.add('liked');
+                    } else {
+                        img.classList.remove('liked');
+                    }
+                }
+                
+                // Добавляем/удаляем класс active для кнопки
+                if (data.liked) {
+                    this.classList.add('active');
+                } else {
+                    this.classList.remove('active');
                 }
             })
             .catch(error => {
@@ -494,9 +640,16 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => response.json())
         .then(data => {
-            const svg = this.querySelector('svg');
-            if (svg) {
-                svg.setAttribute('fill', data.bookmarked ? 'currentColor' : 'none');
+            const img = this.querySelector('img');
+            const button = this.querySelector('button');
+            if (img && button) {
+                if (data.bookmarked) {
+                    img.classList.add('bookmarked');
+                    button.classList.add('active');
+                } else {
+                    img.classList.remove('bookmarked');
+                    button.classList.remove('active');
+                }
             }
         })
         .catch(error => {
@@ -511,15 +664,109 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelector('.comment-toggle').addEventListener('click', function() {
         const commentsSection = document.querySelector('.comments-section');
         commentsSection.style.display = commentsSection.style.display === 'none' ? 'block' : 'none';
+        
+        // Добавляем/удаляем класс active для кнопки
+        this.classList.toggle('active');
+        
+        // Добавляем/удаляем класс active для изображения
+        const img = this.querySelector('img');
+        if (img) {
+            img.classList.toggle('active');
+        }
+        
+        // Добавляем/удаляем класс active для счетчика
+        const span = this.querySelector('span');
+        if (span) {
+            span.classList.toggle('active');
+        }
+    });
+
+    // Обработка репоста (копирование ссылки)
+    document.getElementById('copy-post-link').addEventListener('click', function() {
+        const url = window.location.href;
+        navigator.clipboard.writeText(url).then(() => {
+            // Добавляем класс active для кнопки и элементов
+            this.classList.add('active');
+            
+            // Добавляем класс active для изображения
+            const img = this.querySelector('img');
+            if (img) {
+                img.classList.add('active');
+            }
+            
+            // Добавляем класс active для счетчика
+            const span = this.querySelector('span');
+            if (span) {
+                span.classList.add('active');
+            }
+            
+            // Создаем и показываем сообщение
+            const toast = document.createElement('div');
+            toast.className = 'alert alert-success position-fixed top-0 start-50 translate-middle-x mt-3';
+            toast.style.zIndex = '9999';
+            toast.textContent = 'Ссылка скопирована в буфер обмена';
+            
+            document.body.appendChild(toast);
+            
+            // Удаляем сообщение и класс active через 2 секунды
+            setTimeout(() => {
+                toast.remove();
+                this.classList.remove('active');
+                
+                // Удаляем класс active для изображения
+                if (img) {
+                    img.classList.remove('active');
+                }
+                
+                // Удаляем класс active для счетчика
+                if (span) {
+                    span.classList.remove('active');
+                }
+            }, 2000);
+            
+            // Увеличиваем счетчик репостов
+            const repostsCount = this.querySelector('span');
+            if (repostsCount) {
+                repostsCount.textContent = parseInt(repostsCount.textContent) + 1;
+            }
+        }).catch(err => {
+            console.error('Не удалось скопировать: ', err);
+        });
     });
 
     // Обработка ответов на комментарии
     document.querySelectorAll('.reply-button').forEach(button => {
-        button.addEventListener('click', function() {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
             @auth
             const commentId = this.dataset.commentId;
             const replyForm = document.querySelector(`#reply-form-${commentId}`);
             replyForm.style.display = replyForm.style.display === 'none' ? 'block' : 'none';
+            @else
+            window.location.href = '{{ route("login") }}';
+            @endauth
+        });
+    });
+
+    // Обработка ответов на ответы
+    document.querySelectorAll('.reply-to-reply-button').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            @auth
+            const commentId = this.dataset.commentId;
+            const replyId = this.dataset.replyId;
+            const replyForm = document.querySelector(`#reply-form-${commentId}`);
+            
+            // Показываем форму для ответа
+            replyForm.style.display = 'block';
+            
+            // Фокусируемся на текстовом поле
+            const textarea = replyForm.querySelector('textarea');
+            textarea.focus();
+            
+            // Добавляем упоминание пользователя, на чей ответ отвечаем
+            const replyUserName = this.closest('.comment-reply').querySelector('.user-name').textContent;
+            textarea.value = `@${replyUserName} `;
             @else
             window.location.href = '{{ route("login") }}';
             @endauth
@@ -532,41 +779,14 @@ document.addEventListener('DOMContentLoaded', function() {
             const commentId = this.dataset.commentId;
             const replyForm = document.querySelector(`#reply-form-${commentId}`);
             replyForm.style.display = 'none';
-        });
-    });
-
-    // Обработка жалоб
-    document.querySelectorAll('form[action*="report"]').forEach(form => {
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            @auth
-            const formData = new FormData(this);
             
-            fetch(this.action, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    'Accept': 'application/json'
-                },
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    const modal = bootstrap.Modal.getInstance(document.querySelector('#reportModal'));
-                    modal.hide();
-                    alert('Жалоба успешно отправлена');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-            @else
-            window.location.href = '{{ route("login") }}';
-            @endauth
+            // Очищаем текстовое поле
+            const textarea = replyForm.querySelector('textarea');
+            textarea.value = '';
         });
     });
 });
 </script>
 @endpush
+
 @endsection

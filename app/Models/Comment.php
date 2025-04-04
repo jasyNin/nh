@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Comment extends Model
 {
@@ -38,9 +39,9 @@ class Comment extends Model
             ->where('notifiable_type', self::class);
     }
 
-    public function likes(): HasMany
+    public function likes()
     {
-        return $this->hasMany(CommentLike::class);
+        return $this->morphMany(Like::class, 'likeable');
     }
 
     public function replies(): HasMany

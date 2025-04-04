@@ -14,13 +14,11 @@ return new class extends Migration
         Schema::create('likes', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('post_id')->nullable()->constrained()->onDelete('cascade');
-            $table->foreignId('comment_id')->nullable()->constrained()->onDelete('cascade');
+            $table->morphs('likeable');
             $table->timestamps();
 
-            // Убедимся, что пользователь может лайкнуть пост или комментарий только один раз
-            $table->unique(['user_id', 'post_id']);
-            $table->unique(['user_id', 'comment_id']);
+            // Убедимся, что пользователь может лайкнуть объект только один раз
+            $table->unique(['user_id', 'likeable_id', 'likeable_type']);
         });
     }
 

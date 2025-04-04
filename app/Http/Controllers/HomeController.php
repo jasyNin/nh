@@ -5,14 +5,19 @@ namespace App\Http\Controllers;
 use App\Models\Post;
 use App\Models\Tag;
 use App\Models\User;
+use App\Models\Answer;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class HomeController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Post::with(['user', 'tags'])
-            ->withCount(['comments', 'views', 'likes', 'reposts'])
+        // Включаем логирование SQL запросов
+        DB::enableQueryLog();
+        
+        $query = Post::with(['user', 'tags', 'comments.user', 'answers.user'])
+            ->withCount(['comments', 'views', 'likesCount as likes_count', 'reposts', 'answers'])
             ->latest();
 
         if ($request->has('type')) {
@@ -20,6 +25,9 @@ class HomeController extends Controller
         }
 
         $posts = $query->paginate(10);
+        
+        // Выводим сгенерированные запросы в лог
+        \Log::info('Queries:', DB::getQueryLog());
 
         $popularTags = Tag::withCount('posts')
             ->orderBy('posts_count', 'desc')
@@ -31,6 +39,12 @@ class HomeController extends Controller
             ->take(5)
             ->get();
 
-        return view('home', compact('posts', 'popularTags', 'topUsers'));
+        // Получаем последние ответы для правой колонки
+        $recentAnswers = Answer::with(['user', 'post'])
+            ->orderBy('created_at', 'desc')
+            ->take(3)
+            ->get();
+
+        return view('home', compact('posts', 'popularTags', 'topUsers', 'recentAnswers'));
     }
 } 

@@ -20,6 +20,7 @@ use App\Http\Controllers\DraftController;
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\CommentReplyController;
+use App\Http\Controllers\ReplyLikeController;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
@@ -78,6 +79,8 @@ Route::middleware('auth')->group(function () {
     Route::post('comments/{comment}/replies', [CommentReplyController::class, 'store'])->name('comments.replies.store');
     Route::put('comments/replies/{reply}', [CommentReplyController::class, 'update'])->name('comments.replies.update');
     Route::delete('comments/replies/{reply}', [CommentReplyController::class, 'destroy'])->name('comments.replies.destroy');
+    Route::delete('replies/{reply}', [CommentReplyController::class, 'destroy'])->name('replies.destroy');
+    Route::post('replies/{reply}/like', [ReplyLikeController::class, 'toggle'])->name('replies.like');
 
     Route::get('drafts', [DraftController::class, 'index'])->name('drafts.index');
 
