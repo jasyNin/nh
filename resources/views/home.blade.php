@@ -319,8 +319,8 @@
                                                                                             </div>
                                                                                             <div class="reply-content mb-2">
                                                                                                 {{ $reply->content }}
-                                                                                            </div>
-                                                                                            <div class="d-flex align-items-center">
+                                                </div>
+                                                <div class="d-flex align-items-center">
                                                                                                 @auth
                                                                                                 <div class="d-flex align-items-center me-3 like-button" data-reply-id="{{ $reply->id }}">
                                                                                                     <img src="{{ asset('images/like.svg') }}" alt="Лайк" width="18" height="16" class="me-1 {{ $reply->likedBy(auth()->user()) ? 'liked' : '' }}">
