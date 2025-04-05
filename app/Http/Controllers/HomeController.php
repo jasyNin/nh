@@ -24,20 +24,29 @@ class HomeController extends Controller
 
             $posts = $query->paginate(10);
             
-            $popularTags = Tag::withCount('posts')
-                ->orderBy('posts_count', 'desc')
-                ->take(10)
-                ->get();
+            // Получаем популярные теги только если есть посты
+            $popularTags = $posts->isNotEmpty() 
+                ? Tag::withCount('posts')
+                    ->orderBy('posts_count', 'desc')
+                    ->take(10)
+                    ->get()
+                : collect();
 
-            $topUsers = User::withCount('posts')
-                ->orderBy('posts_count', 'desc')
-                ->take(5)
-                ->get();
+            // Получаем топ пользователей только если есть посты
+            $topUsers = $posts->isNotEmpty()
+                ? User::withCount('posts')
+                    ->orderBy('posts_count', 'desc')
+                    ->take(5)
+                    ->get()
+                : collect();
 
-            $recentAnswers = Answer::with(['user', 'post'])
-                ->orderBy('created_at', 'desc')
-                ->take(3)
-                ->get();
+            // Получаем последние ответы только если есть посты
+            $recentAnswers = $posts->isNotEmpty()
+                ? Answer::with(['user', 'post'])
+                    ->orderBy('created_at', 'desc')
+                    ->take(3)
+                    ->get()
+                : collect();
 
             return view('home', compact('posts', 'popularTags', 'topUsers', 'recentAnswers'));
         } catch (\Exception $e) {
