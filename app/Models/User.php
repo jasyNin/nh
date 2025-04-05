@@ -9,6 +9,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class User extends Authenticatable
 {
@@ -56,97 +58,153 @@ class User extends Authenticatable
 
     public function posts(): HasMany
     {
-        return $this->hasMany(Post::class);
+        return $this->hasMany(Post::class)->latest();
     }
 
     public function comments(): HasMany
     {
-        return $this->hasMany(Comment::class);
+        return $this->hasMany(Comment::class)->latest();
     }
 
     public function bookmarks(): HasMany
     {
-        return $this->hasMany(Bookmark::class);
+        return $this->hasMany(Bookmark::class)->latest();
     }
 
     public function notifications(): HasMany
     {
-        return $this->hasMany(Notification::class);
+        return $this->hasMany(Notification::class)->latest();
     }
 
     public function receivedNotifications(): HasMany
     {
-        return $this->hasMany(Notification::class, 'user_id');
+        return $this->hasMany(Notification::class, 'user_id')->latest();
     }
 
-    public function ratings()
+    public function ratings(): HasMany
     {
         return $this->hasMany(Rating::class);
     }
 
     public function answers(): HasMany
     {
-        return $this->hasMany(Answer::class);
+        return $this->hasMany(Answer::class)->latest();
     }
 
-    public function likes()
+    public function likes(): HasMany
     {
         return $this->hasMany(Like::class);
     }
 
-    public function likedPosts()
+    public function likedPosts(): BelongsToMany
     {
         return $this->belongsToMany(Post::class, 'polymorphic_likes', 'user_id', 'likeable_id')
-            ->where('likeable_type', 'App\\Models\\Post');
+            ->where('likeable_type', Post::class)
+            ->withTimestamps();
     }
     
-    public function likedComments()
+    public function likedComments(): BelongsToMany
     {
         return $this->belongsToMany(Comment::class, 'polymorphic_likes', 'user_id', 'likeable_id')
-            ->where('likeable_type', 'App\\Models\\Comment');
+            ->where('likeable_type', Comment::class)
+            ->withTimestamps();
     }
     
-    public function likedReplies()
+    public function likedReplies(): BelongsToMany
     {
         return $this->belongsToMany(CommentReply::class, 'polymorphic_likes', 'user_id', 'likeable_id')
-            ->where('likeable_type', 'App\\Models\\CommentReply');
+            ->where('likeable_type', CommentReply::class)
+            ->withTimestamps();
     }
 
-    public function reposts()
+    public function reposts(): HasMany
     {
-        return $this->hasMany(Repost::class);
+        return $this->hasMany(Repost::class)->latest();
     }
 
-    public function getPostCountAttribute()
+    public function getPostCountAttribute(): int
     {
-        return $this->posts()->count();
+        return Cache::remember("user_{$this->id}_posts_count", 300, function () {
+            return $this->posts()->count();
+        });
     }
 
-    public function getCommentCountAttribute()
+    public function getCommentCountAttribute(): int
     {
-        return $this->comments()->count();
+        return Cache::remember("user_{$this->id}_comments_count", 300, function () {
+            return $this->comments()->count();
+        });
     }
 
-    public function getBookmarkCountAttribute()
+    public function getBookmarkCountAttribute(): int
     {
-        return $this->bookmarks()->count();
+        return Cache::remember("user_{$this->id}_bookmarks_count", 300, function () {
+            return $this->bookmarks()->count();
+        });
     }
 
-    public function getAnswersCountAttribute()
+    public function getAnswersCountAttribute(): int
     {
-        return $this->answers()->count();
+        return Cache::remember("user_{$this->id}_answers_count", 300, function () {
+            return $this->answers()->count();
+        });
     }
 
-    public function getRepostsCountAttribute()
+    public function getRepostsCountAttribute(): int
     {
-        return $this->reposts()->count();
+        return Cache::remember("user_{$this->id}_reposts_count", 300, function () {
+            return $this->reposts()->count();
+        });
     }
 
-    public function viewedPosts()
+    public function viewedPosts(): BelongsToMany
     {
         return $this->belongsToMany(Post::class, 'post_views')
             ->withPivot('viewed_at')
             ->orderBy('post_views.viewed_at', 'desc')
             ->whereNotNull('post_views.viewed_at');
+    }
+
+    public function getAvatarUrlAttribute(): string
+    {
+        if (!$this->avatar) {
+            return asset('images/default-avatar.png');
+        }
+        return asset('storage/' . $this->avatar);
+    }
+
+    public function getRankNameAttribute(): string
+    {
+        return match($this->rank) {
+            1 => 'Новичок',
+            2 => 'Активист',
+            3 => 'Эксперт',
+            4 => 'Мастер',
+            5 => 'Легенда',
+            default => 'Новичок'
+        };
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        // Очищаем кэш при обновлении пользователя
+        static::updated(function ($user) {
+            Cache::forget("user_{$user->id}_posts_count");
+            Cache::forget("user_{$user->id}_comments_count");
+            Cache::forget("user_{$user->id}_bookmarks_count");
+            Cache::forget("user_{$user->id}_answers_count");
+            Cache::forget("user_{$user->id}_reposts_count");
+        });
+
+        // Очищаем кэш при удалении пользователя
+        static::deleted(function ($user) {
+            Cache::forget("user_{$user->id}_posts_count");
+            Cache::forget("user_{$user->id}_comments_count");
+            Cache::forget("user_{$user->id}_bookmarks_count");
+            Cache::forget("user_{$user->id}_answers_count");
+            Cache::forget("user_{$user->id}_reposts_count");
+        });
     }
 }

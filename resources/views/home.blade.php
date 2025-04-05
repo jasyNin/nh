@@ -76,6 +76,12 @@
     }
 </style>
 <div class="container" style="margin-top: 60px;">
+    @if(isset($error))
+        <div class="alert alert-danger">
+            {{ $error }}
+        </div>
+    @endif
+
     <div class="row">
         <!-- Боковое меню -->
         <x-side-menu />
@@ -143,8 +149,8 @@
                                                         {{ $post->type === 'post' ? 'Запись' : 'Вопрос' }}
                                                     </span>
                                                     
+                                                    <!-- Добавляем меню управления -->
                                                     @auth
-                                                        <!-- Добавляем меню управления -->
                                                         <div class="dropdown">
                                                             <button class="btn btn-link text-dark p-0" type="button" data-bs-toggle="dropdown">
                                                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
@@ -220,7 +226,7 @@
                                                 </div>
                                                 @if($post->type === 'question')
                                                     <div>
-                                                        <i class="fas fa-reply me-1"></i>
+                                                        <i class="fas fa-check-circle me-1"></i>
                                                         {{ $post->answers_count }}
                                                     </div>
                                                 @endif
@@ -268,22 +274,19 @@
                         <div class="card-header">
                             <h6 class="mb-0">Топ пользователей</h6>
                         </div>
-                        <div class="card-body">
-                            @foreach($topUsers as $user)
-                                <div class="d-flex align-items-center mb-3">
-                                    <div class="me-2">
-                                        <a href="{{ route('users.show', $user) }}" class="text-decoration-none">
-                                            <x-user-avatar :user="$user" :size="32" />
-                                        </a>
-                                    </div>
-                                    <div>
-                                        <a href="{{ route('users.show', $user) }}" class="text-decoration-none text-dark">
+                        <div class="card-body p-0">
+                            <div class="list-group list-group-flush">
+                                @foreach($topUsers as $user)
+                                    <a href="{{ route('users.show', $user) }}" 
+                                       class="list-group-item list-group-item-action d-flex align-items-center">
+                                        <x-user-avatar :user="$user" :size="32" class="me-2" />
+                                        <div>
                                             <h6 class="mb-0">{{ $user->name }}</h6>
-                                        </a>
-                                        <small class="text-muted">{{ $user->posts_count }} постов</small>
-                                    </div>
-                                </div>
-                            @endforeach
+                                            <small class="text-muted">{{ $user->posts_count }} постов</small>
+                                        </div>
+                                    </a>
+                                @endforeach
+                            </div>
                         </div>
                     </div>
                 @endif
@@ -294,28 +297,19 @@
                         <div class="card-header">
                             <h6 class="mb-0">Последние ответы</h6>
                         </div>
-                        <div class="card-body">
-                            @foreach($recentAnswers as $answer)
-                                <div class="mb-3">
-                                    <div class="d-flex align-items-center mb-2">
-                                        <div class="me-2">
-                                            <a href="{{ route('users.show', $answer->user) }}" class="text-decoration-none">
-                                                <x-user-avatar :user="$answer->user" :size="24" />
-                                            </a>
+                        <div class="card-body p-0">
+                            <div class="list-group list-group-flush">
+                                @foreach($recentAnswers as $answer)
+                                    <a href="{{ route('posts.show', $answer->post) }}#answer-{{ $answer->id }}" 
+                                       class="list-group-item list-group-item-action">
+                                        <div class="d-flex align-items-center mb-1">
+                                            <x-user-avatar :user="$answer->user" :size="24" class="me-2" />
+                                            <small class="text-muted">{{ $answer->user->name }}</small>
                                         </div>
-                                        <div>
-                                            <a href="{{ route('users.show', $answer->user) }}" class="text-decoration-none text-dark">
-                                                <h6 class="mb-0">{{ $answer->user->name }}</h6>
-                                            </a>
-                                            <small class="text-muted">{{ $answer->created_at->diffForHumans() }}</small>
-                                        </div>
-                                    </div>
-                                    <p class="mb-0 text-muted">{{ Str::limit($answer->content, 100) }}</p>
-                                    <a href="{{ route('posts.show', $answer->post) }}" class="text-decoration-none">
-                                        <small class="text-primary">Читать далее</small>
+                                        <p class="mb-0 text-muted small">{{ Str::limit($answer->content, 100) }}</p>
                                     </a>
-                                </div>
-                            @endforeach
+                                @endforeach
+                            </div>
                         </div>
                     </div>
                 @endif

@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 
 class Post extends Model
 {
@@ -27,24 +28,31 @@ class Post extends Model
         'updated_at' => 'datetime'
     ];
 
+    protected $with = ['user']; // Автоматически загружаем пользователя
+
+    protected $withCount = ['comments', 'views', 'likes', 'reposts', 'answers']; // Автоматически подсчитываем количество
+
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class)->withDefault([
+            'name' => 'Удаленный пользователь',
+            'avatar' => null
+        ]);
     }
 
     public function comments(): HasMany
     {
-        return $this->hasMany(Comment::class);
+        return $this->hasMany(Comment::class)->latest();
     }
 
     public function tags(): BelongsToMany
     {
-        return $this->belongsToMany(Tag::class);
+        return $this->belongsToMany(Tag::class)->withTimestamps();
     }
 
     public function bookmarks(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'bookmarks');
+        return $this->belongsToMany(User::class, 'bookmarks')->withTimestamps();
     }
 
     public function ratings(): HasMany
@@ -58,24 +66,38 @@ class Post extends Model
             ->where('notifiable_type', self::class);
     }
 
-    public function isBookmarkedBy(User $user)
+    public function isBookmarkedBy(?User $user): bool
     {
-        return $this->bookmarks()->where('user_id', $user->id)->exists();
+        if (!$user) return false;
+        
+        return Cache::remember("post_{$this->id}_bookmarked_by_{$user->id}", 300, function () use ($user) {
+            return $this->bookmarks()->where('user_id', $user->id)->exists();
+        });
     }
 
-    public function getRatingAttribute()
+    public function getRatingAttribute(): int
     {
-        return $this->ratings()->sum('value');
+        return Cache::remember("post_{$this->id}_rating", 300, function () {
+            return $this->ratings()->sum('value');
+        });
     }
 
-    public function hasUserRated(User $user)
+    public function hasUserRated(?User $user): bool
     {
-        return $this->ratings()->where('user_id', $user->id)->exists();
+        if (!$user) return false;
+        
+        return Cache::remember("post_{$this->id}_rated_by_{$user->id}", 300, function () use ($user) {
+            return $this->ratings()->where('user_id', $user->id)->exists();
+        });
     }
 
-    public function getUserRating(User $user)
+    public function getUserRating(?User $user): ?int
     {
-        return $this->ratings()->where('user_id', $user->id)->value('value');
+        if (!$user) return null;
+        
+        return Cache::remember("post_{$this->id}_user_{$user->id}_rating", 300, function () use ($user) {
+            return $this->ratings()->where('user_id', $user->id)->value('value');
+        });
     }
 
     public function likes(): MorphMany
@@ -83,62 +105,101 @@ class Post extends Model
         return $this->morphMany(Like::class, 'likeable');
     }
 
-    public function likedBy(User $user)
+    public function likedBy(?User $user): bool
     {
-        return $this->likes()->where('user_id', $user->id)->exists();
+        if (!$user) return false;
+        
+        return Cache::remember("post_{$this->id}_liked_by_{$user->id}", 300, function () use ($user) {
+            return $this->likes()->where('user_id', $user->id)->exists();
+        });
     }
 
-    public function getLikesCountAttribute()
+    public function getLikesCountAttribute(): int
     {
-        return $this->likes()->count();
+        return Cache::remember("post_{$this->id}_likes_count", 300, function () {
+            return $this->likes()->count();
+        });
     }
 
-    // Метод для использования с withCount
     public function likesCount()
     {
         return $this->morphMany(Like::class, 'likeable');
     }
 
-    public function answers()
+    public function answers(): HasMany
     {
-        return $this->hasMany(Answer::class);
+        return $this->hasMany(Answer::class)->latest();
     }
 
-    public function getAnswersCountAttribute()
+    public function getAnswersCountAttribute(): int
     {
-        return $this->answers()->count();
+        return Cache::remember("post_{$this->id}_answers_count", 300, function () {
+            return $this->answers()->count();
+        });
     }
 
-    public function getCommentsCountAttribute()
+    public function getCommentsCountAttribute(): int
     {
-        return $this->comments()->count();
+        return Cache::remember("post_{$this->id}_comments_count", 300, function () {
+            return $this->comments()->count();
+        });
     }
 
-    public function views()
+    public function views(): HasMany
     {
         return $this->hasMany(PostView::class);
     }
 
-    public function viewedBy(User $user)
+    public function viewedBy(?User $user): void
     {
+        if (!$user) return;
+        
         $this->views()->updateOrCreate(
             ['user_id' => $user->id],
             ['viewed_at' => now()]
         );
+        
+        // Очищаем кэш просмотров
+        Cache::forget("post_{$this->id}_views_count");
     }
 
-    public function reposts()
+    public function reposts(): HasMany
     {
         return $this->hasMany(Repost::class);
     }
 
-    public function getRepostsCountAttribute()
+    public function getRepostsCountAttribute(): int
     {
-        return $this->reposts()->count();
+        return Cache::remember("post_{$this->id}_reposts_count", 300, function () {
+            return $this->reposts()->count();
+        });
     }
 
-    public function getUrl()
+    public function getUrl(): string
     {
         return route('posts.show', $this);
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        // Очищаем кэш при обновлении поста
+        static::updated(function ($post) {
+            Cache::forget("post_{$post->id}_rating");
+            Cache::forget("post_{$post->id}_likes_count");
+            Cache::forget("post_{$post->id}_comments_count");
+            Cache::forget("post_{$post->id}_answers_count");
+            Cache::forget("post_{$post->id}_reposts_count");
+        });
+
+        // Очищаем кэш при удалении поста
+        static::deleted(function ($post) {
+            Cache::forget("post_{$post->id}_rating");
+            Cache::forget("post_{$post->id}_likes_count");
+            Cache::forget("post_{$post->id}_comments_count");
+            Cache::forget("post_{$post->id}_answers_count");
+            Cache::forget("post_{$post->id}_reposts_count");
+        });
     }
 }
