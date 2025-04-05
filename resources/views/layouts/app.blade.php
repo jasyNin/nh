@@ -16,7 +16,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     
     <!-- Основные стили -->
-    <link href="/css/app.css?v={{ time() }}" rel="stylesheet">
+    <link href="{{ asset('css/app.css') }}?v={{ time() }}" rel="stylesheet">
     
     <!-- Дополнительные стили из секций -->
     @stack('styles')
@@ -147,43 +147,36 @@
     <!-- Скрипты -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- Загружаем скрипт только если он еще не загружен -->
+    
+    <!-- Основной скрипт приложения -->
+    <script src="{{ asset('js/app.js') }}?v={{ time() }}"></script>
+    
+    <!-- Скрипт поиска только для авторизованных пользователей -->
+    @auth
     <script>
-        window.addEventListener('load', function() {
-            if (typeof window.appScriptLoaded === 'undefined') {
-                window.appScriptLoaded = true;
-                
-                const script = document.createElement('script');
-                script.src = "{{ asset('build/assets/app-eMHK6VFw.js') }}";
-                script.async = true;
-                script.defer = true;
-                
-                script.onerror = function() {
-                    console.error('Ошибка загрузки скрипта app-eMHK6VFw.js');
-                    window.appScriptLoaded = false;
-                };
-                
-                document.head.appendChild(script);
-            }
-        });
-    </script>
-    <script>
-        document.querySelector('.search-trigger').addEventListener('click', function() {
-            const container = this.closest('.search-container');
-            container.classList.toggle('active');
-            if (container.classList.contains('active')) {
-                container.querySelector('.search-input').focus();
-            }
-        });
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchTrigger = document.querySelector('.search-trigger');
+            if (searchTrigger) {
+                searchTrigger.addEventListener('click', function() {
+                    const container = this.closest('.search-container');
+                    container.classList.toggle('active');
+                    if (container.classList.contains('active')) {
+                        container.querySelector('.search-input').focus();
+                    }
+                });
 
-        // Закрытие поиска при клике вне формы
-        document.addEventListener('click', function(event) {
-            const container = document.querySelector('.search-container');
-            if (!container.contains(event.target)) {
-                container.classList.remove('active');
+                // Закрытие поиска при клике вне формы
+                document.addEventListener('click', function(event) {
+                    const container = document.querySelector('.search-container');
+                    if (container && !container.contains(event.target)) {
+                        container.classList.remove('active');
+                    }
+                });
             }
         });
     </script>
+    @endauth
+    
     @stack('scripts')
 </body>
 </html> 
