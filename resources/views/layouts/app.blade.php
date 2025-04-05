@@ -17,7 +17,6 @@
     
     <!-- Основные стили -->
     <link href="{{ asset('css/app.css') }}?v={{ time() }}" rel="stylesheet">
-    <link href="{{ url('/css/app.css') }}?v={{ time() }}" rel="stylesheet">
     
     <!-- Дополнительные стили из секций -->
     @stack('styles')
