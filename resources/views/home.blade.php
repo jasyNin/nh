@@ -74,6 +74,13 @@
     .replies-toggle.active {
         font-weight: bold;
     }
+    .alert-error {
+        background-color: #f8d7da;
+        color: #721c24;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+    }
 </style>
 <div class="container" style="margin-top: 60px;">
     <div class="row">
@@ -103,6 +110,13 @@
                         </li>
                     </ul>
                 </div>
+                
+                @if(isset($error))
+                    <div class="alert alert-error">
+                        {{ $error }}
+                    </div>
+                @endif
+                
                 <div class="card-body">
                     @if($posts->isEmpty())
                         <div class="text-center py-5">
