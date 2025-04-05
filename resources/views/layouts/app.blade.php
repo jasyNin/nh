@@ -153,47 +153,35 @@
             if (typeof window.appScriptLoaded === 'undefined') {
                 window.appScriptLoaded = true;
                 
-                try {
-                    const script = document.createElement('script');
-                    script.src = "/build/assets/app-eMHK6VFw.js";
-                    script.async = true;
-                    script.defer = true;
-                    
-                    script.onerror = function() {
-                        console.error('Ошибка загрузки скрипта app-eMHK6VFw.js');
-                        window.appScriptLoaded = false;
-                    };
-                    
-                    document.head.appendChild(script);
-                } catch (e) {
-                    console.error('Ошибка при добавлении скрипта:', e);
-                }
+                const script = document.createElement('script');
+                script.src = "{{ asset('build/assets/app-eMHK6VFw.js') }}";
+                script.async = true;
+                script.defer = true;
+                
+                script.onerror = function() {
+                    console.error('Ошибка загрузки скрипта app-eMHK6VFw.js');
+                    window.appScriptLoaded = false;
+                };
+                
+                document.head.appendChild(script);
             }
         });
     </script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const searchTrigger = document.querySelector('.search-trigger');
-            if (searchTrigger) {
-                searchTrigger.addEventListener('click', function() {
-                    const container = this.closest('.search-container');
-                    container.classList.toggle('active');
-                    if (container.classList.contains('active')) {
-                        const searchInput = container.querySelector('.search-input');
-                        if (searchInput) {
-                            searchInput.focus();
-                        }
-                    }
-                });
+        document.querySelector('.search-trigger').addEventListener('click', function() {
+            const container = this.closest('.search-container');
+            container.classList.toggle('active');
+            if (container.classList.contains('active')) {
+                container.querySelector('.search-input').focus();
             }
+        });
 
-            // Закрытие поиска при клике вне формы
-            document.addEventListener('click', function(event) {
-                const container = document.querySelector('.search-container');
-                if (container && !container.contains(event.target)) {
-                    container.classList.remove('active');
-                }
-            });
+        // Закрытие поиска при клике вне формы
+        document.addEventListener('click', function(event) {
+            const container = document.querySelector('.search-container');
+            if (!container.contains(event.target)) {
+                container.classList.remove('active');
+            }
         });
     </script>
     @stack('scripts')

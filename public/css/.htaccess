@@ -1,0 +1,21 @@
+# Включаем кеширование для CSS-файлов
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/css "access plus 1 year"
+</IfModule>
+
+# Устанавливаем правильный MIME-тип
+<IfModule mod_mime.c>
+    AddType text/css .css
+</IfModule>
+
+# Разрешаем доступ к CSS-файлам
+<FilesMatch "\.css$">
+    Order Allow,Deny
+    Allow from all
+</FilesMatch>
+
+# Отключаем сжатие для CSS-файлов, если оно вызывает проблемы
+<IfModule mod_deflate.c>
+    SetEnvIfNoCase Request_URI \.css$ no-gzip dont-vary
+</IfModule> 

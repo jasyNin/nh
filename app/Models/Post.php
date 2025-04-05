@@ -34,22 +34,12 @@ class Post extends Model
 
     public function comments(): HasMany
     {
-        try {
-            return $this->hasMany(Comment::class);
-        } catch (\Exception $e) {
-            \Log::error('Ошибка в методе comments: ' . $e->getMessage());
-            return $this->hasMany(Comment::class)->whereRaw('1=0'); // Возвращаем пустой запрос
-        }
+        return $this->hasMany(Comment::class);
     }
 
     public function tags(): BelongsToMany
     {
-        try {
-            return $this->belongsToMany(Tag::class);
-        } catch (\Exception $e) {
-            \Log::error('Ошибка в методе tags: ' . $e->getMessage());
-            return $this->belongsToMany(Tag::class)->whereRaw('1=0'); // Возвращаем пустой запрос
-        }
+        return $this->belongsToMany(Tag::class);
     }
 
     public function bookmarks(): BelongsToMany
@@ -59,23 +49,13 @@ class Post extends Model
 
     public function ratings(): HasMany
     {
-        try {
-            return $this->hasMany(Rating::class);
-        } catch (\Exception $e) {
-            \Log::error('Ошибка в методе ratings: ' . $e->getMessage());
-            return $this->hasMany(Rating::class)->whereRaw('1=0'); // Возвращаем пустой запрос
-        }
+        return $this->hasMany(Rating::class);
     }
 
     public function notifications(): HasMany
     {
-        try {
-            return $this->hasMany(Notification::class, 'notifiable_id')
-                ->where('notifiable_type', self::class);
-        } catch (\Exception $e) {
-            \Log::error('Ошибка в методе notifications: ' . $e->getMessage());
-            return $this->hasMany(Notification::class)->whereRaw('1=0'); // Возвращаем пустой запрос
-        }
+        return $this->hasMany(Notification::class, 'notifiable_id')
+            ->where('notifiable_type', self::class);
     }
 
     public function isBookmarkedBy(User $user)
@@ -114,24 +94,14 @@ class Post extends Model
     }
 
     // Метод для использования с withCount
-    public function likesCount(): MorphMany
+    public function likesCount()
     {
-        try {
-            return $this->morphMany(Like::class, 'likeable');
-        } catch (\Exception $e) {
-            \Log::error('Ошибка в методе likesCount: ' . $e->getMessage());
-            return $this->morphMany(Like::class, 'likeable')->whereRaw('1=0'); // Возвращаем пустой запрос
-        }
+        return $this->morphMany(Like::class, 'likeable');
     }
 
-    public function answers(): HasMany
+    public function answers()
     {
-        try {
-            return $this->hasMany(Answer::class);
-        } catch (\Exception $e) {
-            \Log::error('Ошибка в методе answers: ' . $e->getMessage());
-            return $this->hasMany(Answer::class)->whereRaw('1=0'); // Возвращаем пустой запрос
-        }
+        return $this->hasMany(Answer::class);
     }
 
     public function getAnswersCountAttribute()
@@ -144,14 +114,9 @@ class Post extends Model
         return $this->comments()->count();
     }
 
-    public function views(): HasMany
+    public function views()
     {
-        try {
-            return $this->hasMany(PostView::class);
-        } catch (\Exception $e) {
-            \Log::error('Ошибка в методе views: ' . $e->getMessage());
-            return $this->hasMany(PostView::class)->whereRaw('1=0'); // Возвращаем пустой запрос
-        }
+        return $this->hasMany(PostView::class);
     }
 
     public function viewedBy(User $user)
@@ -162,14 +127,9 @@ class Post extends Model
         );
     }
 
-    public function reposts(): HasMany
+    public function reposts()
     {
-        try {
-            return $this->hasMany(Repost::class);
-        } catch (\Exception $e) {
-            \Log::error('Ошибка в методе reposts: ' . $e->getMessage());
-            return $this->hasMany(Repost::class)->whereRaw('1=0'); // Возвращаем пустой запрос
-        }
+        return $this->hasMany(Repost::class);
     }
 
     public function getRepostsCountAttribute()
@@ -180,15 +140,5 @@ class Post extends Model
     public function getUrl()
     {
         return route('posts.show', $this);
-    }
-
-    public function bookmarkedByUsers(): BelongsToMany
-    {
-        try {
-            return $this->belongsToMany(User::class, 'bookmarks', 'post_id', 'user_id');
-        } catch (\Exception $e) {
-            \Log::error('Ошибка в методе bookmarkedByUsers: ' . $e->getMessage());
-            return $this->belongsToMany(User::class, 'bookmarks', 'post_id', 'user_id')->whereRaw('1=0'); // Возвращаем пустой запрос
-        }
     }
 }
