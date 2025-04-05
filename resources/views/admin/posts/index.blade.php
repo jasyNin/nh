@@ -40,7 +40,7 @@
                                             <a href="{{ $post->getUrl() }}" class="btn btn-sm btn-primary me-2" target="_blank">
                                                 Посмотреть
                                             </a>
-                                            <form action="{{ route('posts.destroy', $post) }}" method="POST" class="d-inline">
+                                            <form action="{{ route('admin.posts.destroy', $post) }}" method="POST" class="d-inline">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Вы уверены, что хотите удалить этот пост?')">

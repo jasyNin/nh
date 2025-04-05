@@ -14,10 +14,7 @@
             <div class="card border-0 bg-transparent">
                 <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center">
                     <div class="d-flex align-items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-2" style="filter: invert(32%) sepia(98%) saturate(1234%) hue-rotate(210deg) brightness(97%) contrast(101%);">
-                            <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
-                            <line x1="7" y1="7" x2="7.01" y2="7"></line>
-                        </svg>
+                        
                         <h5 class="mb-0">Все теги</h5>
                     </div>
                     <div class="search-container position-relative" style="width: 300px;">

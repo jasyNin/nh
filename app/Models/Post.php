@@ -168,6 +168,11 @@ class Post extends Model
         return $this->hasMany(Repost::class);
     }
 
+    public function complaints(): MorphMany
+    {
+        return $this->morphMany(Complaint::class, 'complaintable');
+    }
+
     public function getRepostsCountAttribute(): int
     {
         return Cache::remember("post_{$this->id}_reposts_count", 300, function () {

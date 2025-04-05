@@ -76,7 +76,7 @@
                                     @foreach($comments as $comment)
                                         <a href="{{ route('posts.show', $comment->commentable->post) }}#comment-{{ $comment->id }}" class="list-group-item list-group-item-action">
                                             <div class="d-flex justify-content-between align-items-center">
-                                                <h6 class="mb-1">Комментарий к {{ $comment->commentable instanceof App\Models\Post ? 'посту' : 'ответу' }} "{{ $comment->commentable->post->title }}"</h6>
+                                                <h6 class="mb-1">Комментарий к {{ strpos($comment->commentable_type, 'Post') !== false ? 'посту' : 'ответу' }} "{{ $comment->commentable->post->title }}"</h6>
                                                 <small class="text-muted">{{ $comment->created_at->diffForHumans() }}</small>
                                             </div>
                                             <p class="mb-1">{{ Str::limit($comment->content, 100) }}</p>

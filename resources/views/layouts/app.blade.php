@@ -7,6 +7,9 @@
 
     <title>@yield('title', config('app.name'))</title>
 
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
+
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -85,31 +88,30 @@
                                     <path d="M4 6L8 10L12 6" stroke="#272727" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
                             </a>
-                            <div class="dropdown-menu dropdown-menu-end user-dropdown" style="width: 240px;">
-                                <div class="px-3 py-2 text-muted">
+                            <div class="dropdown-menu dropdown-menu-end user-dropdown" style="width: 240px; border-radius: 12px; border: none; box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.12);">
+                                <div class="px-3 py-2" style="color: #272727; font-size: 17px; font-weight: 500;">
                                     Мой профиль
                                 </div>
-                                <div class="px-3 py-3 d-flex align-items-center border-bottom">
-                                    <x-user-avatar :user="Auth::user()" :size="48" class="me-2" />
-                                    <div>
-                                        <div class="fw-medium">{{ Auth::user()->name }}</div>
-                                        <div class="text-muted small">Пользователь</div>
+                                <a href="{{ route('users.show', Auth::user()) }}" class="text-decoration-none dropdown-item">
+                                    <div class="px-3 py-3 d-flex align-items-center" style="background: transparent;">
+                                        <x-user-avatar :user="Auth::user()" :size="40" />
+                                        <div style="margin-left: 12px;">
+                                            <div style="color: #272727; font-weight: 500;">{{ Auth::user()->name }}</div>
+                                            <div style="color: #808080; font-size: 13px;">Эксперт</div>
+                                        </div>
                                     </div>
-                                </div>
-                                <a class="dropdown-item py-2 d-flex align-items-center" href="{{ route('profile.show') }}">
-                                    <svg class="me-2" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M7.5 16.875H3.75C3.58424 16.875 3.42527 16.8092 3.30806 16.6919C3.19085 16.5747 3.125 16.4158 3.125 16.25V15.7031C3.125 14.7391 3.50089 13.8145 4.17085 13.1445C4.84082 12.4746 5.76536 12.0987 6.72937 12.0987H7.27063C7.61211 12.0987 7.95033 12.1481 8.27563 12.2452M13.125 11.875C15.2341 11.875 16.875 10.2341 16.875 8.125C16.875 6.01586 15.2341 4.375 13.125 4.375C11.0159 4.375 9.375 6.01586 9.375 8.125C9.375 10.2341 11.0159 11.875 13.125 11.875ZM11.875 14.375H14.375C15.3391 14.375 16.2637 14.7509 16.9336 15.4209C17.6036 16.0908 17.9795 17.0154 17.9795 17.9794V18.5206C17.9795 18.6864 17.9136 18.8454 17.7964 18.9626C17.6792 19.0798 17.5203 19.1456 17.3544 19.1456H8.89563C8.72986 19.1456 8.57089 19.0798 8.45368 18.9626C8.33647 18.8454 8.27063 18.6864 8.27063 18.5206V17.9794C8.27063 17.0154 8.64652 16.0908 9.31648 15.4209C9.98645 14.7509 10.9109 14.375 11.875 14.375Z" stroke="#272727" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                    </svg>
+                                </a>
+                                <a class="dropdown-item py-2 d-flex align-items-center" href="{{ route('profile.edit') }}" style="color: #272727;">
+                                    <img src="{{ asset('images/settings.svg') }}" alt="Настройки" width="20" height="20" class="me-2">
                                     Настройки
                                 </a>
-                                <div class="dropdown-divider"></div>
                                 <form action="{{ route('logout') }}" method="POST">
                                     @csrf
-                                    <button type="submit" class="dropdown-item py-2 d-flex align-items-center text-danger">
+                                    <button type="submit" class="dropdown-item py-2 d-flex align-items-center" style="color: #272727;">
                                         <svg class="me-2" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M13.75 6.875L16.875 10L13.75 13.125M8.75 10H16.875M8.75 16.875H3.75C3.58424 16.875 3.42527 16.8092 3.30806 16.6919C3.19085 16.5747 3.125 16.4158 3.125 16.25V3.75C3.125 3.58424 3.19085 3.42527 3.30806 3.30806C3.42527 3.19085 3.58424 3.125 3.75 3.125H8.75" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                         </svg>
-                                        Выйти
+                                        Выход
                                     </button>
                                 </form>
                             </div>
@@ -178,5 +180,19 @@
     @endauth
     
     @stack('scripts')
+
+    <style>
+    .user-dropdown .dropdown-item {
+        padding: 0;
+        margin: 0;
+    }
+    .user-dropdown .dropdown-item:hover {
+        background-color: #F5F5F5;
+    }
+    .user-dropdown .dropdown-item:active {
+        background-color: #F5F5F5;
+        color: #272727;
+    }
+    </style>
 </body>
 </html> 

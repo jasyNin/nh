@@ -175,14 +175,14 @@
                     <!-- Теги -->
                     <div class="input-section tag-input-container">
                         <label for="tag-input" class="form-label">Теги</label>
-                        <input type="text" class="form-control" id="tag-input" placeholder="Добавьте теги">
+                        <input type="text" class="form-control" id="tag-input" placeholder="Введите теги через запятую">
                         <input type="hidden" name="tags" id="tags" value="{{ old('tags') }}">
                         <div class="selected-tags"></div>
                         <div class="tag-suggestions"></div>
                         @error('tags')
                             <div class="invalid-feedback d-block">{{ $message }}</div>
                         @enderror
-                        <div class="form-text">Введите и нажмите Enter для добавления тега</div>
+                        <div class="form-text">Введите теги через запятую</div>
                     </div>
 
                     <!-- Изображение -->
@@ -256,93 +256,56 @@
         
         // Система тегов
         const tagInput = document.getElementById('tag-input');
-        const tagsHiddenInput = document.getElementById('tags');
+        const tagsHidden = document.getElementById('tags');
         const selectedTagsContainer = document.querySelector('.selected-tags');
         const popularTags = {!! json_encode($popularTags->pluck('name')->toArray()) !!};
         let selectedTags = [];
         
-        // Если есть сохраненные теги, загружаем их
-        const savedTags = tagsHiddenInput.value;
-        if (savedTags) {
-            selectedTags = savedTags.split(',').map(tag => tag.trim());
-            renderSelectedTags();
+        // Если есть старые значения, загружаем их
+        if (tagsHidden.value) {
+            selectedTags = tagsHidden.value.split(',');
+            renderTags();
         }
         
-        tagInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' || e.key === ',') {
-                e.preventDefault();
-                
-                const tagValue = this.value.trim();
-                if (tagValue && !selectedTags.includes(tagValue)) {
-                    selectedTags.push(tagValue);
-                    tagsHiddenInput.value = selectedTags.join(',');
-                    renderSelectedTags();
-                }
-                
-                this.value = '';
-            }
-        });
-        
+        // Обработка ввода тегов
         tagInput.addEventListener('input', function() {
-            const value = this.value.trim().toLowerCase();
-            const suggestionsContainer = document.querySelector('.tag-suggestions');
-            
-            if (value.length < 2) {
-                suggestionsContainer.style.display = 'none';
-                return;
-            }
-            
-            const filteredTags = popularTags.filter(tag => 
-                tag.toLowerCase().includes(value) && !selectedTags.includes(tag)
-            );
-            
-            if (filteredTags.length > 0) {
-                suggestionsContainer.innerHTML = '';
-                filteredTags.forEach(tag => {
-                    const suggestionEl = document.createElement('div');
-                    suggestionEl.className = 'tag-suggestion';
-                    suggestionEl.textContent = tag;
-                    suggestionEl.addEventListener('click', function() {
+            const value = this.value;
+            if (value.includes(',')) {
+                const newTags = value.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
+                
+                newTags.forEach(tag => {
+                    if (!selectedTags.includes(tag) && tag.length > 0) {
                         selectedTags.push(tag);
-                        tagsHiddenInput.value = selectedTags.join(',');
-                        renderSelectedTags();
-                        tagInput.value = '';
-                        suggestionsContainer.style.display = 'none';
-                    });
-                    suggestionsContainer.appendChild(suggestionEl);
+                    }
                 });
-                suggestionsContainer.style.display = 'block';
-            } else {
-                suggestionsContainer.style.display = 'none';
+                
+                this.value = ''; // Очищаем поле ввода
+                renderTags();
             }
         });
         
-        document.addEventListener('click', function(e) {
-            if (!e.target.closest('.tag-input-container')) {
-                document.querySelector('.tag-suggestions').style.display = 'none';
+        // Удаление тега
+        selectedTagsContainer.addEventListener('click', function(e) {
+            if (e.target.classList.contains('tag-remove')) {
+                const tagToRemove = e.target.parentElement.querySelector('span').textContent;
+                selectedTags = selectedTags.filter(tag => tag !== tagToRemove);
+                renderTags();
             }
         });
         
-        function renderSelectedTags() {
+        // Отображение выбранных тегов
+        function renderTags() {
             selectedTagsContainer.innerHTML = '';
+            tagsHidden.value = selectedTags.join(',');
             
-            selectedTags.forEach((tag, index) => {
-                const tagEl = document.createElement('div');
-                tagEl.className = 'selected-tag';
-                tagEl.innerHTML = `
-                    ${tag}
-                    <span class="tag-remove" data-index="${index}">×</span>
+            selectedTags.forEach(tag => {
+                const tagElement = document.createElement('div');
+                tagElement.className = 'selected-tag';
+                tagElement.innerHTML = `
+                    <span>${tag}</span>
+                    <i class="fas fa-times tag-remove"></i>
                 `;
-                selectedTagsContainer.appendChild(tagEl);
-            });
-            
-            document.querySelectorAll('.tag-remove').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const index = parseInt(this.dataset.index);
-                    selectedTags.splice(index, 1);
-                    tagsHiddenInput.value = selectedTags.join(',');
-                    renderSelectedTags();
-                });
+                selectedTagsContainer.appendChild(tagElement);
             });
         }
     });

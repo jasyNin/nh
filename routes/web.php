@@ -98,6 +98,7 @@ Route::middleware('auth')->group(function () {
     Route::post('admin/users/{id}/restore', [AdminUserController::class, 'restore'])->name('admin.users.restore');
     Route::put('admin/users/{user}/role', [AdminUserController::class, 'updateRole'])->name('admin.users.updateRole');
     Route::get('admin/posts', [AdminPostController::class, 'index'])->name('admin.posts.index');
+    Route::delete('admin/posts/{post}', [AdminPostController::class, 'destroy'])->name('admin.posts.destroy');
     Route::get('admin/tags', [AdminTagController::class, 'index'])->name('admin.tags.index');
     Route::delete('admin/tags/{tag}', [AdminTagController::class, 'destroy'])->name('admin.tags.destroy');
     Route::get('admin/complaints', [ComplaintController::class, 'index'])->name('admin.complaints.index');
@@ -137,3 +138,5 @@ Route::get('tags/{tag}', [TagController::class, 'show'])->name('tags.show');
 Route::get('search', [SearchController::class, 'index'])->name('search.index');
 
 Route::get('/answers', [AnswerController::class, 'index'])->name('answers.index');
+
+Route::post('complaints', [ComplaintController::class, 'store'])->name('complaints.store');

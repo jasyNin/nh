@@ -1,4 +1,4 @@
-@props(['popularTags' => [], 'topUsers' => [], 'recentAnswers' => [], 'isTagsPage' => false, 'isHomePage' => false])
+@props(['popularTags' => [], 'topUsers' => [], 'recentAnswers' => [], 'isTagsPage' => false, 'isHomePage' => false, 'userStats' => null])
 
 <div class="col-md-3 right-sidebar" style="margin-top: 20px;">
     @if($isTagsPage)
@@ -61,6 +61,52 @@
                 @endif
             @endif
         @endauth
+
+        @if($userStats)
+            <div class="card mb-4 border-0">
+                <div class="card-header bg-transparent border-0 py-3">
+                    <h6 class="card-title">Статистика</h6>
+                </div>
+                <div class="list-group list-group-flush">
+                    <div class="list-group-item border-0 py-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="fas fa-file-alt text-primary me-2"></i>
+                                <span>Постов</span>
+                            </div>
+                            <span class="badge bg-primary rounded-pill">{{ $userStats['posts_count'] }}</span>
+                        </div>
+                    </div>
+                    <div class="list-group-item border-0 py-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="fas fa-comments text-primary me-2"></i>
+                                <span>Комментариев</span>
+                            </div>
+                            <span class="badge bg-primary rounded-pill">{{ $userStats['comments_count'] }}</span>
+                        </div>
+                    </div>
+                    <div class="list-group-item border-0 py-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="fas fa-heart text-danger me-2"></i>
+                                <span>Лайков</span>
+                            </div>
+                            <span class="badge bg-primary rounded-pill">{{ $userStats['likes_received'] }}</span>
+                        </div>
+                    </div>
+                    <div class="list-group-item border-0 py-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="fas fa-bookmark text-primary me-2"></i>
+                                <span>Закладок</span>
+                            </div>
+                            <span class="badge bg-primary rounded-pill">{{ $userStats['bookmarks_count'] }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
 
         @if(count($popularTags) > 0)
             <div class="card mb-4 border-0">
