@@ -12,7 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('posts', function (Blueprint $table) {
-            $table->enum('status', ['draft', 'published'])->default('published');
+            if (!Schema::hasColumn('posts', 'status')) {
+                $table->enum('status', ['draft', 'published'])->default('published');
+            }
         });
     }
 
@@ -22,7 +24,9 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('posts', function (Blueprint $table) {
-            $table->dropColumn('status');
+            if (Schema::hasColumn('posts', 'status')) {
+                $table->dropColumn('status');
+            }
         });
     }
 };
