@@ -32,14 +32,24 @@ class Post extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function comments(): HasMany
+    public function comments()
     {
-        return $this->hasMany(Comment::class);
+        try {
+            return $this->hasMany(Comment::class);
+        } catch (\Exception $e) {
+            \Log::error('Ошибка в методе comments: ' . $e->getMessage());
+            return $this->hasMany(Comment::class)->whereRaw('1=0'); // Возвращаем пустой запрос
+        }
     }
 
-    public function tags(): BelongsToMany
+    public function tags()
     {
-        return $this->belongsToMany(Tag::class);
+        try {
+            return $this->belongsToMany(Tag::class);
+        } catch (\Exception $e) {
+            \Log::error('Ошибка в методе tags: ' . $e->getMessage());
+            return $this->belongsToMany(Tag::class)->whereRaw('1=0'); // Возвращаем пустой запрос
+        }
     }
 
     public function bookmarks(): BelongsToMany
@@ -52,10 +62,14 @@ class Post extends Model
         return $this->hasMany(Rating::class);
     }
 
-    public function notifications(): HasMany
+    public function notifications()
     {
-        return $this->hasMany(Notification::class, 'notifiable_id')
-            ->where('notifiable_type', self::class);
+        try {
+            return $this->hasMany(Notification::class);
+        } catch (\Exception $e) {
+            \Log::error('Ошибка в методе notifications: ' . $e->getMessage());
+            return $this->hasMany(Notification::class)->whereRaw('1=0'); // Возвращаем пустой запрос
+        }
     }
 
     public function isBookmarkedBy(User $user)
@@ -96,12 +110,22 @@ class Post extends Model
     // Метод для использования с withCount
     public function likesCount()
     {
-        return $this->morphMany(Like::class, 'likeable');
+        try {
+            return $this->morphMany(Like::class, 'likeable');
+        } catch (\Exception $e) {
+            \Log::error('Ошибка в методе likesCount: ' . $e->getMessage());
+            return $this->morphMany(Like::class, 'likeable')->whereRaw('1=0'); // Возвращаем пустой запрос
+        }
     }
 
     public function answers()
     {
-        return $this->hasMany(Answer::class);
+        try {
+            return $this->hasMany(Answer::class);
+        } catch (\Exception $e) {
+            \Log::error('Ошибка в методе answers: ' . $e->getMessage());
+            return $this->hasMany(Answer::class)->whereRaw('1=0'); // Возвращаем пустой запрос
+        }
     }
 
     public function getAnswersCountAttribute()
@@ -116,7 +140,12 @@ class Post extends Model
 
     public function views()
     {
-        return $this->hasMany(PostView::class);
+        try {
+            return $this->hasMany(PostView::class);
+        } catch (\Exception $e) {
+            \Log::error('Ошибка в методе views: ' . $e->getMessage());
+            return $this->hasMany(PostView::class)->whereRaw('1=0'); // Возвращаем пустой запрос
+        }
     }
 
     public function viewedBy(User $user)
@@ -129,7 +158,12 @@ class Post extends Model
 
     public function reposts()
     {
-        return $this->hasMany(Repost::class);
+        try {
+            return $this->hasMany(Repost::class);
+        } catch (\Exception $e) {
+            \Log::error('Ошибка в методе reposts: ' . $e->getMessage());
+            return $this->hasMany(Repost::class)->whereRaw('1=0'); // Возвращаем пустой запрос
+        }
     }
 
     public function getRepostsCountAttribute()
@@ -140,5 +174,15 @@ class Post extends Model
     public function getUrl()
     {
         return route('posts.show', $this);
+    }
+
+    public function bookmarkedByUsers()
+    {
+        try {
+            return $this->belongsToMany(User::class, 'bookmarks', 'post_id', 'user_id');
+        } catch (\Exception $e) {
+            \Log::error('Ошибка в методе bookmarkedByUsers: ' . $e->getMessage());
+            return $this->belongsToMany(User::class, 'bookmarks', 'post_id', 'user_id')->whereRaw('1=0'); // Возвращаем пустой запрос
+        }
     }
 }
