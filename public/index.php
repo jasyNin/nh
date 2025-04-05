@@ -3,6 +3,24 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
 
+/**
+ * Laravel - A PHP Framework For Web Artisans
+ *
+ * @package  Laravel
+ * @author   Taylor Otwell <taylor@laravel.com>
+ */
+
+// Включаем отображение ошибок для отладки
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+// Увеличиваем лимит памяти для обработки больших запросов
+ini_set('memory_limit', '256M');
+
+// Увеличиваем время выполнения скрипта
+set_time_limit(60);
+
 define('LARAVEL_START', microtime(true));
 
 // Determine if the application is in maintenance mode...
