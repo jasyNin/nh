@@ -32,7 +32,7 @@ class Post extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function comments()
+    public function comments(): HasMany
     {
         try {
             return $this->hasMany(Comment::class);
@@ -42,7 +42,7 @@ class Post extends Model
         }
     }
 
-    public function tags()
+    public function tags(): BelongsToMany
     {
         try {
             return $this->belongsToMany(Tag::class);
@@ -59,13 +59,19 @@ class Post extends Model
 
     public function ratings(): HasMany
     {
-        return $this->hasMany(Rating::class);
+        try {
+            return $this->hasMany(Rating::class);
+        } catch (\Exception $e) {
+            \Log::error('Ошибка в методе ratings: ' . $e->getMessage());
+            return $this->hasMany(Rating::class)->whereRaw('1=0'); // Возвращаем пустой запрос
+        }
     }
 
-    public function notifications()
+    public function notifications(): HasMany
     {
         try {
-            return $this->hasMany(Notification::class);
+            return $this->hasMany(Notification::class, 'notifiable_id')
+                ->where('notifiable_type', self::class);
         } catch (\Exception $e) {
             \Log::error('Ошибка в методе notifications: ' . $e->getMessage());
             return $this->hasMany(Notification::class)->whereRaw('1=0'); // Возвращаем пустой запрос
@@ -108,7 +114,7 @@ class Post extends Model
     }
 
     // Метод для использования с withCount
-    public function likesCount()
+    public function likesCount(): MorphMany
     {
         try {
             return $this->morphMany(Like::class, 'likeable');
@@ -118,7 +124,7 @@ class Post extends Model
         }
     }
 
-    public function answers()
+    public function answers(): HasMany
     {
         try {
             return $this->hasMany(Answer::class);
@@ -138,7 +144,7 @@ class Post extends Model
         return $this->comments()->count();
     }
 
-    public function views()
+    public function views(): HasMany
     {
         try {
             return $this->hasMany(PostView::class);
@@ -156,7 +162,7 @@ class Post extends Model
         );
     }
 
-    public function reposts()
+    public function reposts(): HasMany
     {
         try {
             return $this->hasMany(Repost::class);
@@ -176,7 +182,7 @@ class Post extends Model
         return route('posts.show', $this);
     }
 
-    public function bookmarkedByUsers()
+    public function bookmarkedByUsers(): BelongsToMany
     {
         try {
             return $this->belongsToMany(User::class, 'bookmarks', 'post_id', 'user_id');

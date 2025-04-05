@@ -43,12 +43,17 @@ class HomeController extends Controller
                 ]);
             }
             
-            $query = Post::with(['user', 'tags', 'comments.user', 'answers.user'])
-                ->withCount(['comments', 'views', 'answers']);
+            // Упрощаем запрос для отладки
+            $query = Post::query();
             
-            // Проверяем существование таблицы polymorphic_likes перед использованием
-            if ($tablesExist['polymorphic_likes']) {
-                $query->withCount(['likesCount as likes_count', 'reposts']);
+            // Добавляем только базовые связи
+            if ($tablesExist['users']) {
+                $query->with('user');
+            }
+            
+            // Добавляем только базовые подсчеты
+            if ($tablesExist['posts']) {
+                $query->withCount('comments');
             }
             
             $query->latest();
