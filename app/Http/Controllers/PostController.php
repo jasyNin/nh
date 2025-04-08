@@ -229,7 +229,7 @@ class PostController extends Controller
         }
 
         $post->delete();
-        return redirect()->back()->with('success', 'Пост успешно удален');
+        return redirect()->route('home')->with('success', 'Пост успешно удален');
     }
 
     public function bookmark(Post $post)
