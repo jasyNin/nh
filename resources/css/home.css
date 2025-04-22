@@ -1,0 +1,309 @@
+/* Основные стили для главной страницы */
+.right-sidebar {
+    margin-top: 20px;
+}
+
+.comment-textarea {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    resize: none;
+}
+
+.comment-submit-btn {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    background-color: #1682FD;
+    color: white;
+    font-size: 14px;
+    padding: 6px 16px;
+}
+
+.card-header {
+    background-color: transparent;
+    border-bottom: none;
+    padding: 1rem 1.5rem;
+}
+
+.nav-tabs {
+    border-bottom: none;
+}
+
+.nav-tabs .nav-link.active {
+    color: #1682FD;
+    border: none;
+    border-bottom: 2px solid #1682FD;
+    background-color: transparent;
+}
+
+/* Стили для комментариев */
+.comments-section {
+    border-top: 1px solid #e9ecef;
+    margin-top: 1rem;
+    padding-top: 1rem;
+}
+
+.comments-section.show {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.comments-list {
+    opacity: 0;
+    transform: translateY(-5px);
+    transition: all 0.3s ease;
+}
+
+.comments-section.show .comments-list {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.comment {
+    margin-bottom: 15px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+}
+
+.comment:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.comment-content {
+    margin: 8px 0;
+    font-size: 14px;
+}
+
+.comment-form-container {
+    margin-top: 15px;
+}
+
+.input-group {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.replies-toggle {
+    color: #1682FD;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: normal;
+}
+
+.replies-toggle:hover {
+    text-decoration: underline !important;
+}
+
+.replies-toggle.active {
+    font-weight: bold;
+}
+
+/* Стили для кнопок взаимодействия */
+.like-button,
+.comment-toggle,
+.share-button {
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.like-button::after,
+.comment-toggle::after,
+.share-button::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background-color: rgba(22, 130, 253, 0.1);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.3s ease, height 0.3s ease;
+}
+
+.like-button:hover::after,
+.comment-toggle:hover::after,
+.share-button:hover::after {
+    width: 100px;
+    height: 100px;
+}
+
+.like-button:active::after,
+.comment-toggle:active::after,
+.share-button:active::after {
+    width: 120px;
+    height: 120px;
+}
+
+.like-button:hover,
+.comment-toggle:hover,
+.share-button:hover {
+    opacity: 0.8;
+    transform: scale(1.1);
+}
+
+.like-button.active,
+.comment-toggle.active,
+.share-button.active {
+    transform: scale(1.05);
+}
+
+.like-button img.liked,
+.share-button img.shared {
+    filter: invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%);
+}
+
+.likes-count.liked {
+    color: #e74c3c;
+}
+
+/* Стили для форм ответов */
+.reply-form-container,
+.reply-to-reply-form-container {
+    margin-top: 10px;
+    margin-left: 20px;
+    display: none;
+    transition: all 0.3s ease;
+    opacity: 0;
+    transform: translateY(-10px);
+}
+
+.reply-form-container.show,
+.reply-to-reply-form-container.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Стили для модального окна жалоб */
+.modal-content {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.modal-header {
+    border-bottom: 1px solid #eee;
+    padding: 1rem 1.5rem;
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.modal-footer {
+    border-top: 1px solid #eee;
+    padding: 1rem 1.5rem;
+}
+
+.form-select:focus,
+.form-control:focus {
+    border-color: #1682FD;
+    box-shadow: 0 0 0 0.2rem rgba(22, 130, 253, 0.25);
+}
+
+/* Стили для уведомлений */
+.toast-message {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 1rem;
+    border-radius: 4px;
+    background-color: #28a745;
+    color: white;
+    z-index: 1050;
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: all 0.3s ease;
+}
+
+.toast-message.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.toast-message.error {
+    background-color: #dc3545;
+}
+
+/* Стили для ответов */
+.reply,
+.reply-to-reply {
+    position: relative;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 8px;
+    background-color: #f8f9fa;
+    transition: all 0.3s ease;
+}
+
+.reply:hover,
+.reply-to-reply:hover {
+    background-color: #f1f3f5;
+}
+
+.reply::before,
+.reply-to-reply::before {
+    content: '';
+    position: absolute;
+    left: -2px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background-color: #e5e7eb;
+    transition: background-color 0.3s ease;
+}
+
+.reply:hover::before,
+.reply-to-reply:hover::before {
+    background-color: #1682FD;
+}
+
+/* Стили для ответов на комментарии */
+.replies-container {
+    display: none;
+    opacity: 0;
+    transform: translateY(-5px);
+    transition: all 0.3s ease;
+    margin-left: 2rem;
+    padding-left: 1rem;
+    border-left: 2px solid #eee;
+}
+
+.replies-container.show {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.post-card {
+    transition: transform 0.2s ease;
+}
+
+.post-card:hover {
+    transform: translateY(-2px);
+}
+
+.hover-card {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: box-shadow 0.2s ease;
+}
+
+.hover-card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.like-button.active .likes-count {
+    color: #dc3545;
+}
+
+/* Стили для тегов */
+.post-tags .badge {
+    transition: background-color 0.2s ease;
+}
+
+.post-tags .badge:hover {
+    background-color: #e9ecef !important;
+} 

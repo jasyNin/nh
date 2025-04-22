@@ -86,11 +86,6 @@ class User extends Authenticatable
         return $this->hasMany(Rating::class);
     }
 
-    public function answers(): HasMany
-    {
-        return $this->hasMany(Answer::class)->latest();
-    }
-
     public function likes(): HasMany
     {
         return $this->hasMany(Like::class);
@@ -143,13 +138,6 @@ class User extends Authenticatable
         });
     }
 
-    public function getAnswersCountAttribute(): int
-    {
-        return Cache::remember("user_{$this->id}_answers_count", 300, function () {
-            return $this->answers()->count();
-        });
-    }
-
     public function getRepostsCountAttribute(): int
     {
         return Cache::remember("user_{$this->id}_reposts_count", 300, function () {
@@ -194,7 +182,6 @@ class User extends Authenticatable
             Cache::forget("user_{$user->id}_posts_count");
             Cache::forget("user_{$user->id}_comments_count");
             Cache::forget("user_{$user->id}_bookmarks_count");
-            Cache::forget("user_{$user->id}_answers_count");
             Cache::forget("user_{$user->id}_reposts_count");
         });
 
@@ -203,7 +190,6 @@ class User extends Authenticatable
             Cache::forget("user_{$user->id}_posts_count");
             Cache::forget("user_{$user->id}_comments_count");
             Cache::forget("user_{$user->id}_bookmarks_count");
-            Cache::forget("user_{$user->id}_answers_count");
             Cache::forget("user_{$user->id}_reposts_count");
         });
     }

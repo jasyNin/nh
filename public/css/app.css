@@ -68,7 +68,7 @@ h5 {
 }
 
 h6 {
-    font-size: 1rem;
+    font-size: 17px;
     margin-bottom: var(--spacing-xs);
 }
 
@@ -613,11 +613,20 @@ select:focus,
 
 .post-card {
     width: 100%;
+    margin-bottom: 0;
+}
+
+.post-with-comments {
+    background-color: var(--white);
+    border-radius: 8px;
+    margin-bottom: 1rem;
 }
 
 .hover-card {
     transition: all 0.3s ease;
     background-color: var(--white);
+    border-radius: 8px 8px 0 0;
+    margin-bottom: 0;
 }
 
 .card-title {
@@ -823,98 +832,95 @@ main > .container {
     margin-top: 2rem;
 }
 
-.comment {
-    border-bottom: 1px solid #eee;
-    padding-bottom: 1rem;
-    font-family: var(--font-family-base);
+.comments-section h6 {
+    padding-left: 24px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 15px;
 }
 
-.comment:last-child {
+.comment-form-container {
+    padding-left: 24px;
+    margin-bottom: 24px;
+}
+
+.comment {
+    position: relative;
+    padding-left: 24px;
+    margin-bottom: 20px;
+}
+
+.comment-replies {
+    position: relative;
+    margin-left: 24px;
+    margin-top: 15px;
+    padding-left: 0;
+    border-left: 2px solid #e5e7eb;
+}
+
+.comment-replies .comment-replies {
+    margin-left: 20px;
+}
+
+.reply {
+    position: relative;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    padding-left: 20px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.reply:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
     border-bottom: none;
 }
 
-.comment-content {
-    font-size: 1rem;
-    line-height: 1.6;
-    font-family: var(--font-family-base);
+.reply .reply-form {
+    margin-left: 24px;
 }
 
-.comments-list {
-    margin-top: 1.5rem;
-}
-
-.btn-link {
-    text-decoration: none;
-}
-
-.btn-link:hover {
-    color: var(--primary-color) !important;
-}
-
-/* Стили для кнопок взаимодействия с постом */
-.like-button, .comment-button, .repost-button, .bookmark-button, .comment-toggle {
-    cursor: pointer;
-    transition: all 0.2s ease;
+.comment-actions, 
+.reply-actions {
     display: flex;
     align-items: center;
+    gap: 12px;
+    margin-top: 8px;
 }
 
-/* Позиционирование закладки справа */
-.bookmark-button {
-    margin-left: auto;
+.like-button, 
+.reply-button {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: #6b7280;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s ease;
 }
 
-/* Стили для обеспечения правильного цвета иконок */
-.like-button img, .comment-button img, .comment-toggle img, .repost-button img, .bookmark-button img {
-    transition: filter 0.2s ease;
-}
-
-/* Иконки при наведении */
-.like-button:hover img {
-    filter: brightness(0) saturate(100%) invert(45%) sepia(85%) saturate(2262%) hue-rotate(318deg) brightness(95%) contrast(96%);
-}
-
-.comment-button:hover img, .comment-toggle:hover img, 
-.repost-button:hover img, .bookmark-button:hover img {
-    filter: brightness(0) saturate(100%) invert(37%) sepia(74%) saturate(1115%) hue-rotate(194deg) brightness(101%) contrast(101%);
-}
-
-/* Иконки в активном состоянии */
-.like-button.active img, .like-button img.liked {
-    filter: brightness(0) saturate(100%) invert(45%) sepia(85%) saturate(2262%) hue-rotate(318deg) brightness(95%) contrast(96%);
-}
-
-.comment-button.active img, .comment-toggle.active img,
-.repost-button.active img, .bookmark-button.active img,
-.bookmark-button img.bookmarked {
-    filter: brightness(0) saturate(100%) invert(37%) sepia(74%) saturate(1115%) hue-rotate(194deg) brightness(101%) contrast(101%);
-}
-
-/* Активные состояния счетчиков */
-.likes-count.active {
-    color: #E65C77;
-    font-weight: 500;
-}
-
-.comments-count.active, 
-.comment-toggle.active span, 
-.reposts-count.active {
-    color: #1682FD;
-    font-weight: 500;
-}
-
-/* Счетчики при наведении */
-.like-button:hover .likes-count {
-    color: #E65C77;
-}
-
-.comment-button:hover .comments-count,
-.comment-toggle:hover span,
-.repost-button:hover .reposts-count {
+.like-button:hover, 
+.reply-button:hover {
     color: #1682FD;
 }
 
-/* Плавные переходы стилей */
+.like-button.active {
+    color: #dc3545;
+}
+
+.replies-count {
+    color: #1682FD;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.replies-count:hover {
+    text-decoration: underline;
+}
+
+/* Стили для счетчиков комментариев и лайков */
 .likes-count, .comments-count, .reposts-count {
     color: #888;
     font-size: 13px;
@@ -1284,10 +1290,10 @@ main > .container {
 /* Новые стили для блока комментариев */
 .comments-container {
     background-color: transparent;
-    border-radius: 0;
-    border-top: 1px solid #eee !important;
-    padding: 20px 0;
-    margin-top: 15px !important;
+    border-radius: 0 0 8px 8px;
+    border-top: none !important;
+    padding: 20px;
+    margin-top: 0 !important;
 }
 
 .comments-container h6 {
@@ -1295,13 +1301,14 @@ main > .container {
     font-weight: 600;
     color: #333;
     margin-bottom: 15px;
+    padding-left: 24px;
 }
 
 .comment {
     margin-bottom: 20px;
     background-color: transparent;
     border-radius: 0;
-    padding: 0 0 15px 0;
+    padding: 0 0 15px 24px;
     box-shadow: none;
     border-bottom: 1px solid #eee;
 }
@@ -1342,37 +1349,44 @@ main > .container {
     box-shadow: none;
 }
 
-.comment-form textarea {
-    border: 1px solid #E0E0E0;
-    border-radius: 10px;
-    resize: none;
-    padding: 12px 15px;
-    padding-right: 100px;
-    font-size: 14px;
-    background-color: #FFFFFF;
+.comment-form {
+    position: relative;
+    width: 600px;
+    margin: 0 auto;
+    margin-bottom: 20px;
 }
 
 .comment-form button[type="submit"] {
-    background-color: #1682FD;
-    border-color: #1682FD;
-    border-radius: 8px;
-    font-weight: 500;
-    padding: 8px 20px;
-    font-size: 14px;
+    position: absolute;
+    bottom: -40px;
+    right: 10px;
+    padding: 6px 16px;
+    font-size: 0.9rem;
+    border-radius: 6px;
 }
 
-.comment-form button[type="submit"]:hover {
-    background-color: #0D6EFD;
-    border-color: #0D6EFD;
-}
-
-.like-button, .comment-button, .repost-button, .bookmark-button, .comment-toggle {
-    cursor: pointer;
-    padding: 5px 10px;
-    border-radius: 20px;
-    transition: all 0.2s ease;
+.comment-actions {
     display: flex;
+    justify-content: space-between;
     align-items: center;
+    margin-top: 10px;
+}
+
+.comment-replies {
+    margin-left: 24px;
+    margin-top: 15px;
+}
+
+.replies-count {
+    color: #1682FD;
+    font-size: 13px;
+    cursor: pointer;
+    margin-left: 10px;
+    transition: all 0.2s ease;
+}
+
+.replies-count:hover {
+    text-decoration: underline;
 }
 
 /* Стили для счетчиков комментариев и лайков */

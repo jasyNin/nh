@@ -6,6 +6,7 @@ use App\Models\Post;
 use App\Models\Tag;
 use App\Models\User;
 use App\Models\Answer;
+use App\Models\Comment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -26,30 +27,36 @@ class HomeController extends Controller
 
             // Кэшируем топ пользователей на 1 час
             $topUsers = Cache::remember('top_users', 3600, function () {
-                return User::withCount('posts')
+                return User::withCount(['posts', 'comments'])
                     ->orderBy('posts_count', 'desc')
                     ->take(5)
                     ->get();
             });
 
-            // Кэшируем последние ответы на 5 минут
+            // Кэшируем последние комментарии на 5 минут
             $recentAnswers = Cache::remember('recent_answers', 300, function () {
-                return Answer::with(['user', 'post'])
+                return Comment::with(['user', 'post'])
                     ->orderBy('created_at', 'desc')
                     ->take(3)
                     ->get();
             });
 
             // Запрос постов с фильтрацией по типу
-            $query = Post::with(['user', 'tags'])
-                ->withCount(['comments', 'views', 'likesCount as likes_count', 'reposts', 'answers'])
-                ->latest();
+            $query = Post::with(['user', 'tags', 'likes'])
+                ->withCount(['comments', 'likes'])
+                ->orderBy('created_at', 'desc');
 
             if ($request->has('type')) {
                 $query->where('type', $request->type);
             }
 
             $posts = $query->paginate(10);
+
+            // Получаем просмотренные посты для авторизованного пользователя
+            $viewedPosts = collect();
+            if (auth()->check()) {
+                $viewedPosts = auth()->user()->viewedPosts()->take(5)->get();
+            }
 
             // Логируем успешный запрос
             Log::info('Home page loaded successfully', [
@@ -61,7 +68,7 @@ class HomeController extends Controller
                 'answers_count' => $recentAnswers->count()
             ]);
 
-            return view('home', compact('posts', 'popularTags', 'topUsers', 'recentAnswers'));
+            return view('home', compact('posts', 'popularTags', 'topUsers', 'recentAnswers', 'viewedPosts'));
 
         } catch (\Exception $e) {
             // Подробное логирование ошибки
@@ -80,6 +87,7 @@ class HomeController extends Controller
                 'popularTags' => collect([]),
                 'topUsers' => collect([]),
                 'recentAnswers' => collect([]),
+                'viewedPosts' => collect([]),
                 'error' => 'Произошла ошибка при загрузке данных. Пожалуйста, попробуйте позже.'
             ]);
         }

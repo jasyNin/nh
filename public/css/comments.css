@@ -1,0 +1,183 @@
+.comments-section {
+    margin-top: 0;
+    padding-top: 1rem;
+    background-color: #fff;
+    border-radius: 0 0 8px 8px;
+}
+
+.comment {
+    position: relative;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.comment-content {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-bottom: 0.5rem;
+    color: #1f2937;
+}
+
+.reply {
+    margin-left: 25px;
+    position: relative;
+    padding: 0.75rem;
+    margin-top: 0.75rem;
+}
+
+.reply-content {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: #1f2937;
+}
+
+.comment-actions {
+    font-size: 0.875rem;
+}
+
+.comment-toggle.active {
+    color: #0d6efd !important;
+}
+
+.comment-toggle.active img {
+    filter: invert(31%) sepia(98%) saturate(1936%) hue-rotate(210deg) brightness(97%) contrast(96%);
+}
+
+.reply-button:hover,
+.like-button:hover {
+    color: #0d6efd !important;
+}
+
+.toggle-replies {
+    font-size: 0.875rem;
+}
+
+.toggle-replies:hover {
+    color: #0d6efd !important;
+}
+
+.replies-list {
+    margin: 0;
+}
+
+.comment-form {
+    position: relative;
+    width: 600px;
+    margin: 0 auto;
+    margin-left: 15px;
+}
+
+.comment-form textarea {
+    resize: none;
+    width: 100%;
+    height: 96px !important;
+    padding: 12px 15px;
+    font-size: 0.95rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    margin-bottom: 0;
+    padding-right: 100px;
+}
+
+.comment-form textarea:focus {
+    box-shadow: none;
+    border-color: #0d6efd;
+}
+
+.comment-form .btn-primary {
+    position: absolute;
+    top: 55px;
+    right: 10px;
+    padding: 6px 16px;
+    font-size: 0.9rem;
+    border-radius: 6px;
+    height: 30px;
+    line-height: 1;
+}
+
+.reply-form textarea {
+    font-size: 0.9rem;
+    resize: none;
+    overflow: hidden;
+    min-height: 36px;
+    border-radius: 8px;
+}
+
+.like-button.active,
+.like-button.active:hover {
+    color: #dc3545 !important;
+}
+
+.comment-form-container {
+    margin-bottom: 1.5rem;
+}
+
+.bi-heart-fill.text-danger {
+    color: #dc3545 !important;
+}
+
+/* Анимации */
+.comments-section {
+    transition: all 0.3s ease;
+}
+
+.reply-form,
+.replies-list {
+    transition: all 0.2s ease-in-out;
+}
+
+/* Стили для аватаров */
+.comment .flex-shrink-0 img,
+.reply .flex-shrink-0 img {
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* Стили для имени пользователя */
+.comment .user-name,
+.reply .user-name {
+    font-weight: 600;
+    color: #1f2937;
+}
+
+/* Стили для времени */
+.text-muted.small {
+    font-size: 0.8rem;
+    color: #6b7280 !important;
+}
+
+/* Стили для кнопок действий */
+.btn-link {
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.btn-link:hover {
+    text-decoration: none;
+}
+
+/* Стили для иконки трех точек */
+.bi-three-dots {
+    font-size: 1.2rem;
+    color: #6b7280;
+}
+
+/* Стили для счетчика лайков */
+.likes-count {
+    font-size: 0.9rem;
+    color: #6b7280;
+}
+
+/* Стили для кнопки ответов */
+.toggle-replies {
+    color: #6b7280;
+    transition: color 0.2s ease;
+}
+
+.toggle-replies i {
+    transition: transform 0.2s ease;
+}
+
+.toggle-replies.active i {
+    transform: rotate(180deg);
+} 

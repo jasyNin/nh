@@ -1,0 +1,133 @@
+.comments-section {
+    margin-top: 1rem;
+    border-top: 1px solid #e5e7eb;
+    padding-top: 1rem;
+}
+
+.replies-container {
+    margin-top: 0.5rem;
+    margin-left: 2rem;
+}
+
+.comment {
+    position: relative;
+    border-left: 3px solid #e2e8f0;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    background-color: #f8fafc;
+}
+
+.comment-content {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-bottom: 0.5rem;
+}
+
+.comment-meta {
+    font-size: 0.875rem;
+    color: #64748b;
+}
+
+.comment-author {
+    font-weight: 600;
+    margin-right: 0.5rem;
+}
+
+.reply {
+    margin-left: 2.5rem;
+    position: relative;
+    border-left: 2px solid #e2e8f0;
+    padding: 0.75rem;
+    margin-top: 0.75rem;
+    background-color: #ffffff;
+}
+
+.reply-content {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin-bottom: 0.5rem;
+}
+
+.reply-meta {
+    font-size: 0.875rem;
+    color: #64748b;
+}
+
+.reply-author {
+    font-weight: 600;
+    margin-right: 0.5rem;
+}
+
+.comment-actions {
+    font-size: 0.875rem;
+}
+
+.comment-toggle.active {
+    color: #0d6efd !important;
+}
+
+.comment-toggle.active img {
+    filter: invert(31%) sepia(98%) saturate(1936%) hue-rotate(210deg) brightness(97%) contrast(96%);
+}
+
+.reply-button:hover,
+.like-button:hover {
+    color: #0d6efd !important;
+}
+
+.toggle-replies {
+    font-size: 0.875rem;
+}
+
+.toggle-replies:hover {
+    color: #0d6efd !important;
+}
+
+.replies-list {
+    margin-left: 2.5rem;
+}
+
+.comment-form textarea {
+    resize: none;
+    overflow: hidden;
+    min-height: 40px;
+}
+
+.comment-form textarea:focus {
+    box-shadow: none;
+    border-color: #0d6efd;
+}
+
+.reply-form textarea {
+    font-size: 0.9rem;
+    resize: none;
+    overflow: hidden;
+    min-height: 36px;
+}
+
+.like-button.active,
+.like-button.active:hover {
+    color: #dc3545 !important;
+}
+
+.comment-form-container {
+    margin-bottom: 1.5rem;
+}
+
+.bi-heart-fill.text-danger {
+    color: #dc3545 !important;
+}
+
+.toggle-replies-btn {
+    background: none;
+    border: none;
+    color: #3b82f6;
+    padding: 0;
+    font-size: 0.875rem;
+    cursor: pointer;
+    margin-top: 0.5rem;
+}
+
+.toggle-replies-btn:hover {
+    text-decoration: underline;
+} 

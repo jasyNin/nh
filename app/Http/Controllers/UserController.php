@@ -42,7 +42,7 @@ class UserController extends Controller
 
     public function rating()
     {
-        $users = User::withCount(['posts', 'comments', 'answers'])
+        $users = User::withCount(['posts', 'comments'])
             ->orderByDesc('posts_count')
             ->paginate(20);
 

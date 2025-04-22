@@ -20,6 +20,8 @@
     
     <!-- Основные стили -->
     <link href="{{ asset('css/app.css') }}?v={{ time() }}" rel="stylesheet">
+    <link href="{{ asset('css/comments.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
     
     <!-- Дополнительные стили из секций -->
     @stack('styles')
@@ -152,6 +154,7 @@
     
     <!-- Основной скрипт приложения -->
     <script src="{{ asset('js/app.js') }}?v={{ time() }}"></script>
+    <script src="{{ asset('js/comments.js') }}"></script>
     
     <!-- Скрипт поиска только для авторизованных пользователей -->
     @auth

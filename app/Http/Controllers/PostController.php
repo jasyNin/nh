@@ -20,7 +20,7 @@ class PostController extends Controller
     public function index(Request $request)
     {
         $query = Post::with(['user', 'tags'])
-            ->withCount(['comments', 'views', 'likesCount as likes_count', 'reposts', 'answers'])
+            ->withCount(['comments', 'views', 'likesCount as likes_count', 'reposts'])
             ->latest();
 
         if ($request->has('type')) {
@@ -35,9 +35,13 @@ class PostController extends Controller
             ->get();
 
         $topUsers = User::withCount('posts')
-            ->orderBy('posts_count', 'desc')
+            ->orderByDesc('posts_count')
             ->limit(5)
-            ->get();
+            ->get()
+            ->map(function ($user) {
+                $user->posts_count = (int)$user->posts_count;
+                return $user;
+            });
 
         return view('home', compact('posts', 'popularTags', 'topUsers'));
     }
@@ -104,7 +108,19 @@ class PostController extends Controller
 
         // Обработка тегов
         if (!empty($validated['tags'])) {
-            $tagNames = array_map('trim', explode(',', $validated['tags']));
+            \Log::info('Tags before processing:', [
+                'type' => gettype($validated['tags']),
+                'value' => $validated['tags']
+            ]);
+            
+            $tags = is_array($validated['tags']) ? implode(',', $validated['tags']) : $validated['tags'];
+            
+            \Log::info('Tags after processing:', [
+                'type' => gettype($tags),
+                'value' => $tags
+            ]);
+            
+            $tagNames = array_map('trim', explode(',', $tags));
             $tagIds = [];
             
             foreach ($tagNames as $tagName) {
@@ -141,37 +157,22 @@ class PostController extends Controller
 
     public function show(Post $post)
     {
-        if (auth()->check()) {
-            $post->viewedBy(auth()->user());
-        }
-        
+        // Отслеживаем просмотр поста
+        $post->viewedBy(auth()->user());
+
         // Получаем популярные теги
         $popularTags = Tag::withCount('posts')
-            ->orderByDesc('posts_count')
-            ->limit(10)
+            ->orderBy('posts_count', 'desc')
+            ->take(10)
             ->get();
-            
+
         // Получаем топ пользователей
         $topUsers = User::withCount('posts')
-            ->orderByDesc('posts_count')
-            ->limit(5)
-            ->get();
-            
-        // Получаем последние ответы для правой колонки
-        $recentAnswers = Answer::with(['user', 'post'])
-            ->orderBy('created_at', 'desc')
-            ->take(3)
+            ->orderBy('posts_count', 'desc')
+            ->take(5)
             ->get();
 
-        $post->load(['user', 'tags', 'comments.user']);
-        $similarPosts = Post::whereHas('tags', function ($query) use ($post) {
-            $query->whereIn('tags.id', $post->tags->pluck('id'));
-        })
-        ->where('posts.id', '!=', $post->id)
-        ->take(3)
-        ->get();
-
-        return view('posts.show', compact('post', 'similarPosts', 'popularTags', 'topUsers', 'recentAnswers'));
+        return view('posts.show', compact('post', 'popularTags', 'topUsers'));
     }
 
     public function edit(Post $post)
@@ -200,7 +201,8 @@ class PostController extends Controller
         $post->tags()->detach();
         
         if (!empty($validated['tags'])) {
-            $tagNames = array_map('trim', explode(',', $validated['tags']));
+            $tags = is_array($validated['tags']) ? implode(',', $validated['tags']) : $validated['tags'];
+            $tagNames = array_map('trim', explode(',', $tags));
             $tagIds = [];
             
             foreach ($tagNames as $tagName) {
@@ -241,15 +243,30 @@ class PostController extends Controller
                 ->where('post_id', $post->id)
                 ->delete();
             $message = 'Пост удален из закладок';
+            $bookmarked = false;
         } else {
             Bookmark::create([
                 'user_id' => $user->id,
                 'post_id' => $post->id
             ]);
             $message = 'Пост добавлен в закладки';
+            $bookmarked = true;
+            
+            // Создаем уведомление для автора поста
+            if ($post->user_id !== $user->id) {
+                $post->user->notifications()->create([
+                    'from_user_id' => $user->id,
+                    'type' => 'bookmark',
+                    'notifiable_type' => Post::class,
+                    'notifiable_id' => $post->id
+                ]);
+            }
         }
         
-        return back()->with('success', $message);
+        return response()->json([
+            'message' => $message,
+            'bookmarked' => $bookmarked
+        ]);
     }
 
     public function rate(Request $request, Post $post)
@@ -283,6 +300,31 @@ class PostController extends Controller
         return response()->json([
             'likes_count' => $post->likes_count,
             'liked' => $liked
+        ]);
+    }
+
+    public function repost(Post $post)
+    {
+        $user = Auth::user();
+        
+        // Создаем репост
+        $post->reposts()->create([
+            'user_id' => $user->id
+        ]);
+        
+        // Создаем уведомление для автора поста
+        if ($post->user_id !== $user->id) {
+            $post->user->notifications()->create([
+                'from_user_id' => $user->id,
+                'type' => 'repost',
+                'notifiable_type' => Post::class,
+                'notifiable_id' => $post->id
+            ]);
+        }
+        
+        return response()->json([
+            'message' => 'Пост успешно репостнут',
+            'reposts_count' => $post->reposts_count
         ]);
     }
 } 

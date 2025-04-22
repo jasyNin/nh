@@ -10,7 +10,7 @@ class UserRatingController extends Controller
 {
     public function index()
     {
-        $users = User::withCount(['posts', 'answers'])
+        $users = User::withCount(['posts', 'comments'])
             ->orderBy('rating', 'desc')
             ->paginate(20);
 

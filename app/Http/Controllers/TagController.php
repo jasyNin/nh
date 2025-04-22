@@ -31,7 +31,7 @@ class TagController extends Controller
     {
         $posts = $tag->posts()
             ->with(['user', 'tags'])
-            ->withCount(['answers', 'comments'])
+            ->withCount(['comments'])
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 

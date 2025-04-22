@@ -30,7 +30,12 @@ class Post extends Model
 
     protected $with = ['user']; // Автоматически загружаем пользователя
 
-    protected $withCount = ['comments', 'views', 'likes', 'reposts', 'answers']; // Автоматически подсчитываем количество
+    protected $withCount = [
+        'comments',
+        'views',
+        'likes',
+        'reposts'
+    ];
 
     public function user(): BelongsTo
     {
@@ -100,7 +105,7 @@ class Post extends Model
         });
     }
 
-    public function likes(): MorphMany
+    public function likes()
     {
         return $this->morphMany(Like::class, 'likeable');
     }
@@ -114,28 +119,14 @@ class Post extends Model
         });
     }
 
-    public function getLikesCountAttribute(): int
+    public function getLikesCountAttribute()
     {
-        return Cache::remember("post_{$this->id}_likes_count", 300, function () {
-            return $this->likes()->count();
-        });
+        return $this->likes()->count();
     }
 
     public function likesCount()
     {
         return $this->morphMany(Like::class, 'likeable');
-    }
-
-    public function answers(): HasMany
-    {
-        return $this->hasMany(Answer::class)->latest();
-    }
-
-    public function getAnswersCountAttribute(): int
-    {
-        return Cache::remember("post_{$this->id}_answers_count", 300, function () {
-            return $this->answers()->count();
-        });
     }
 
     public function getCommentsCountAttribute(): int
@@ -194,7 +185,7 @@ class Post extends Model
             Cache::forget("post_{$post->id}_rating");
             Cache::forget("post_{$post->id}_likes_count");
             Cache::forget("post_{$post->id}_comments_count");
-            Cache::forget("post_{$post->id}_answers_count");
+            Cache::forget("post_{$post->id}_views_count");
             Cache::forget("post_{$post->id}_reposts_count");
         });
 
@@ -203,7 +194,7 @@ class Post extends Model
             Cache::forget("post_{$post->id}_rating");
             Cache::forget("post_{$post->id}_likes_count");
             Cache::forget("post_{$post->id}_comments_count");
-            Cache::forget("post_{$post->id}_answers_count");
+            Cache::forget("post_{$post->id}_views_count");
             Cache::forget("post_{$post->id}_reposts_count");
         });
     }

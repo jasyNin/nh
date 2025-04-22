@@ -19,10 +19,11 @@ class CommentReplyController extends Controller
             'user_id' => auth()->id()
         ]);
 
-        return response()->json([
-            'html' => view('components.comment-reply', ['reply' => $reply])->render(),
-            'replies_count' => $comment->replies_count
-        ]);
+        if ($request->ajax()) {
+            return view('components.comment-reply', ['reply' => $reply])->render();
+        }
+
+        return back()->with('success', 'Ответ успешно добавлен');
     }
 
     public function update(Request $request, CommentReply $reply)
@@ -37,9 +38,11 @@ class CommentReplyController extends Controller
             'content' => $request->content
         ]);
 
-        return response()->json([
-            'content' => $reply->content
-        ]);
+        if ($request->ajax()) {
+            return $reply->content;
+        }
+
+        return back()->with('success', 'Ответ успешно обновлен');
     }
 
     public function destroy(CommentReply $reply)
@@ -48,8 +51,10 @@ class CommentReplyController extends Controller
 
         $reply->delete();
 
-        return response()->json([
-            'replies_count' => $reply->comment->replies_count
-        ]);
+        if (request()->ajax()) {
+            return response()->json(['success' => true]);
+        }
+
+        return back()->with('success', 'Ответ успешно удален');
     }
 } 

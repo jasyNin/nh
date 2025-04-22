@@ -125,6 +125,7 @@ Route::middleware('auth')->group(function () {
 Route::get('posts/{post}', [PostController::class, 'show'])->name('posts.show');
 Route::post('/posts/{post}/like', [LikeController::class, 'toggle'])->name('posts.like');
 Route::post('posts/{post}/bookmark', [PostController::class, 'bookmark'])->name('posts.bookmark');
+Route::post('posts/{post}/repost', [PostController::class, 'repost'])->name('posts.repost');
 
 // Пользователи
 Route::get('users/rating', [UserController::class, 'rating'])->name('users.rating');

@@ -1,4 +1,4 @@
-@props(['popularTags' => [], 'topUsers' => [], 'recentAnswers' => [], 'isTagsPage' => false, 'isHomePage' => false, 'userStats' => null])
+@props(['popularTags' => [], 'topUsers' => [], 'recentAnswers' => [], 'isTagsPage' => false, 'isHomePage' => false, 'userStats' => null, 'viewedPosts' => []])
 
 <div class="col-md-3 right-sidebar" style="margin-top: 20px;">
     @if($isTagsPage)
@@ -39,9 +39,6 @@
     @else
         @auth
             @if($isHomePage)
-                @php
-                    $viewedPosts = auth()->user()->viewedPosts()->take(5)->get();
-                @endphp
                 @if($viewedPosts->isNotEmpty())
                     <div class="card mb-4 border-0">
                         <div class="card-header bg-transparent border-0 py-3">
