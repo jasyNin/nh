@@ -11,11 +11,12 @@ use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use App\Traits\HasRank;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
+    use HasApiTokens, HasFactory, Notifiable, SoftDeletes, HasRank;
 
     /**
      * The attributes that are mass assignable.
@@ -30,6 +31,7 @@ class User extends Authenticatable
         'avatar',
         'rating',
         'rank',
+        'last_notification_view',
     ];
 
     /**
@@ -53,6 +55,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'rating' => 'integer',
+            'last_notification_view' => 'datetime',
         ];
     }
 
@@ -91,11 +94,14 @@ class User extends Authenticatable
         return $this->hasMany(Like::class);
     }
 
+    public function postLikes(): HasMany
+    {
+        return $this->hasMany(PostLike::class);
+    }
+
     public function likedPosts(): BelongsToMany
     {
-        return $this->belongsToMany(Post::class, 'polymorphic_likes', 'user_id', 'likeable_id')
-            ->where('likeable_type', Post::class)
-            ->withTimestamps();
+        return $this->belongsToMany(Post::class, 'post_likes', 'user_id', 'post_id')->withTimestamps();
     }
     
     public function likedComments(): BelongsToMany
@@ -159,18 +165,6 @@ class User extends Authenticatable
             return asset('images/default-avatar.png');
         }
         return asset('storage/' . $this->avatar);
-    }
-
-    public function getRankNameAttribute(): string
-    {
-        return match($this->rank) {
-            1 => 'Новичок',
-            2 => 'Активист',
-            3 => 'Эксперт',
-            4 => 'Мастер',
-            5 => 'Легенда',
-            default => 'Новичок'
-        };
     }
 
     protected static function boot()

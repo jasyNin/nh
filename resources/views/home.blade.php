@@ -17,6 +17,7 @@
 
         <!-- Основной контент (посты) -->
         <div class="col-md-7">
+            <!-- Посты -->
             <div class="card border-0 bg-transparent">
                 <div class="card-header bg-transparent border-0">
                     <ul class="nav nav-tabs card-header-tabs border-0">
@@ -61,22 +62,16 @@
                                 </div>
                             @endforeach
                         </div>
-
-                        <!-- Пагинация -->
-                        <div class="d-flex justify-content-center mt-4">
-                            {{ $posts->links() }}
-                        </div>
                     @endif
                 </div>
             </div>
         </div>
-                                                
+        
         <!-- Правая колонка -->
         <x-right-sidebar 
+            :popularTags="$popularTags"
             :viewedPosts="$viewedPosts" 
-            :popularTags="$popularTags" 
             :topUsers="$topUsers" 
-            :recentAnswers="$recentAnswers"
             :isHomePage="true"
         />
     </div>
@@ -84,6 +79,7 @@
 
 @push('scripts')
 <script src="{{ asset('js/home.js') }}"></script>
+<script src="{{ asset('js/infinite-scroll.js') }}"></script>
 @endpush
 
 <x-modals :posts="$posts" />

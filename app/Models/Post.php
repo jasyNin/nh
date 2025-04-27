@@ -20,7 +20,8 @@ class Post extends Model
         'content',
         'type',
         'user_id',
-        'status'
+        'status',
+        'image'
     ];
 
     protected $casts = [
@@ -107,26 +108,18 @@ class Post extends Model
 
     public function likes()
     {
-        return $this->morphMany(Like::class, 'likeable');
+        return $this->hasMany(PostLike::class);
     }
 
     public function likedBy(?User $user): bool
     {
         if (!$user) return false;
-        
-        return Cache::remember("post_{$this->id}_liked_by_{$user->id}", 300, function () use ($user) {
-            return $this->likes()->where('user_id', $user->id)->exists();
-        });
+        return $this->likes()->where('user_id', $user->id)->exists();
     }
 
-    public function getLikesCountAttribute()
+    public function getLikesCountAttribute(): int
     {
         return $this->likes()->count();
-    }
-
-    public function likesCount()
-    {
-        return $this->morphMany(Like::class, 'likeable');
     }
 
     public function getCommentsCountAttribute(): int
@@ -197,5 +190,26 @@ class Post extends Model
             Cache::forget("post_{$post->id}_views_count");
             Cache::forget("post_{$post->id}_reposts_count");
         });
+    }
+
+    public function scopeWithCounts($query)
+    {
+        return $query->select('posts.*')
+            ->selectSub(
+                'select count(*) from comments where posts.id = comments.post_id',
+                'comments_count'
+            )
+            ->selectSub(
+                'select count(*) from post_views where posts.id = post_views.post_id',
+                'views_count'
+            )
+            ->selectSub(
+                'select count(*) from polymorphic_likes where posts.id = polymorphic_likes.likeable_id and polymorphic_likes.likeable_type = ?',
+                'likes_count'
+            )->addBinding('App\\Models\\Post', 'select')
+            ->selectSub(
+                'select count(*) from reposts where posts.id = reposts.post_id',
+                'reposts_count'
+            );
     }
 }

@@ -10,9 +10,13 @@ return new class extends Migration
     {
         Schema::create('neuronchik_bots', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->string('name')->nullable();
             $table->string('avatar')->nullable();
-            $table->string('description')->nullable();
+            $table->text('description')->nullable();
+            $table->boolean('is_active')->default(true);
+            $table->json('settings')->nullable();
+            $table->timestamp('last_activity')->nullable();
             $table->timestamps();
         });
     }

@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Facades\Storage;
 
 class PostController extends Controller
 {
@@ -43,7 +44,18 @@ class PostController extends Controller
                 return $user;
             });
 
-        return view('home', compact('posts', 'popularTags', 'topUsers'));
+        // Получаем историю просмотров для авторизованного пользователя
+        $viewedPosts = collect();
+        if (auth()->check()) {
+            $viewedPosts = auth()->user()->viewedPosts()
+                ->with('post')
+                ->latest('viewed_at')
+                ->take(5)
+                ->get()
+                ->pluck('post');
+        }
+
+        return view('home', compact('posts', 'popularTags', 'topUsers', 'viewedPosts'));
     }
 
     public function create()
@@ -65,94 +77,51 @@ class PostController extends Controller
 
     public function store(Request $request)
     {
-        // Отладочная информация
-        \Log::info('Request data:', $request->all());
-        \Log::info('Tags type:', ['type' => gettype($request->tags)]);
-
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'required|string',
-            'type' => 'required|in:post,question',
-            'tags' => 'nullable|string',
-            'is_draft' => 'nullable|in:0,1',
-            'redirect_to' => 'nullable|string'
+            'type' => 'required|string|in:question,post',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'is_draft' => 'boolean'
         ]);
 
-        // Отладочная информация после валидации
-        \Log::info('Validated data:', $validated);
-        \Log::info('Validated tags type:', ['type' => gettype($validated['tags'])]);
+        $validated['user_id'] = auth()->id();
+        $validated['status'] = $request->is_draft ? 'draft' : 'published';
 
-        // Создаем базовый пост
-        $post = new Post([
-            'user_id' => auth()->id(),
-            'title' => $validated['title'],
-            'content' => $validated['content'],
-            'type' => $validated['type']
-        ]);
-
-        // Определяем и устанавливаем статус, если это поле существует в таблице
-        $isDraft = isset($validated['is_draft']) && $validated['is_draft'] == '1';
-        
-        try {
-            if ($isDraft) {
-                $post->setAttribute('status', 'draft');
-            }
-            $post->save();
-        } catch (\Exception $e) {
-            // Если статус не поддерживается, просто сохраняем пост без него
-            \Log::error('Error setting status: ' . $e->getMessage());
-            if (!$post->exists) {
-                $post->save();
-            }
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $filename = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+            $path = $image->storeAs('posts', $filename, 'public');
+            
+            // Устанавливаем публичную видимость для файла
+            Storage::disk('public')->setVisibility($path, 'public');
+            
+            $validated['image'] = $path;
         }
 
-        // Обработка тегов
-        if (!empty($validated['tags'])) {
-            \Log::info('Tags before processing:', [
-                'type' => gettype($validated['tags']),
-                'value' => $validated['tags']
-            ]);
-            
-            $tags = is_array($validated['tags']) ? implode(',', $validated['tags']) : $validated['tags'];
-            
-            \Log::info('Tags after processing:', [
-                'type' => gettype($tags),
-                'value' => $tags
-            ]);
-            
-            $tagNames = array_map('trim', explode(',', $tags));
-            $tagIds = [];
-            
-            foreach ($tagNames as $tagName) {
-                if (!empty($tagName)) {
-                    $tag = Tag::firstOrCreate(
-                        ['name' => $tagName],
-                        ['slug' => Str::slug($tagName)]
-                    );
-                    $tagIds[] = $tag->id;
+        $post = Post::create($validated);
+
+        // Синхронизируем теги
+        if ($request->has('tags')) {
+            $tagIds = collect($request->tags)->map(function ($tag) {
+                // Если тег - строка, создаем новый тег
+                if (is_string($tag)) {
+                    return Tag::firstOrCreate(['name' => trim($tag)])->id;
                 }
-            }
+                // Если тег - число, используем его как есть
+                return is_numeric($tag) ? (int)$tag : null;
+            })->filter()->values()->toArray();
             
-            if (!empty($tagIds)) {
-                $post->tags()->attach($tagIds);
-            }
+            $post->tags()->sync($tagIds);
         }
 
-        // Определяем куда перенаправить пользователя
-        if (!empty($validated['redirect_to'])) {
-            $route = $validated['redirect_to'];
-            $message = 'Пост сохранен как черновик.';
-            
-            // Если это абсолютный URL-путь, преобразуем его в относительный
-            if (strpos($route, '/') === 0) {
-                return redirect($route)->with('success', $message);
-            }
-            return redirect()->to($route)->with('success', $message);
+        if ($request->is_draft) {
+            return redirect()->route('drafts.index')
+                ->with('success', 'Черновик успешно сохранен');
         }
 
-        // По умолчанию переходим на страницу поста
         return redirect()->route('posts.show', $post)
-            ->with('success', $isDraft ? 'Черновик успешно создан.' : 'Пост успешно опубликован.');
+            ->with('success', 'Пост успешно создан');
     }
 
     public function show(Post $post)
@@ -183,45 +152,50 @@ class PostController extends Controller
 
     public function update(Request $request, Post $post)
     {
-        $this->authorize('update', $post);
-
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'required|string',
-            'type' => 'required|in:post,question',
-            'tags' => 'nullable|string'
+            'type' => 'required|string|in:question,post',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'is_draft' => 'boolean'
         ]);
 
-        $post->update([
-            'title' => $validated['title'],
-            'content' => $validated['content'],
-            'type' => $validated['type']
-        ]);
-
-        $post->tags()->detach();
-        
-        if (!empty($validated['tags'])) {
-            $tags = is_array($validated['tags']) ? implode(',', $validated['tags']) : $validated['tags'];
-            $tagNames = array_map('trim', explode(',', $tags));
-            $tagIds = [];
+        if ($request->hasFile('image')) {
+            // Удаляем старое изображение
+            if ($post->image) {
+                Storage::delete('public/' . $post->image);
+            }
             
-            foreach ($tagNames as $tagName) {
-                if (!empty($tagName)) {
-                    $tag = Tag::firstOrCreate(
-                        ['name' => $tagName],
-                        ['slug' => Str::slug($tagName)]
-                    );
-                    $tagIds[] = $tag->id;
+            $image = $request->file('image');
+            $filename = time() . '.' . $image->getClientOriginalExtension();
+            $image->storeAs('public/posts', $filename);
+            $validated['image'] = 'posts/' . $filename;
+        }
+
+        $validated['status'] = $request->is_draft ? 'draft' : 'published';
+        $post->update($validated);
+
+        // Синхронизируем теги
+        if ($request->has('tags')) {
+            $tagIds = collect($request->tags)->map(function ($tag) {
+                // Если тег - строка, создаем новый тег
+                if (is_string($tag)) {
+                    return Tag::firstOrCreate(['name' => trim($tag)])->id;
                 }
-            }
+                // Если тег - число, используем его как есть
+                return is_numeric($tag) ? (int)$tag : null;
+            })->filter()->values()->toArray();
             
-            if (!empty($tagIds)) {
-                $post->tags()->attach($tagIds);
-            }
+            $post->tags()->sync($tagIds);
+        }
+
+        if ($request->is_draft) {
+            return redirect()->route('drafts.index')
+                ->with('success', 'Черновик успешно обновлен');
         }
 
         return redirect()->route('posts.show', $post)
-            ->with('success', 'Пост успешно обновлен.');
+            ->with('success', 'Пост успешно обновлен');
     }
 
     public function destroy(Post $post)

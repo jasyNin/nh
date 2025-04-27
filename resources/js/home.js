@@ -17,9 +17,13 @@ document.addEventListener('DOMContentLoaded', function() {
     // Обработка лайков
     document.querySelectorAll('.like-button').forEach(button => {
         button.addEventListener('click', function() {
-            if (!this.dataset.postId) return;
-
             const postId = this.dataset.postId;
+            if (!postId) {
+                console.error('Post ID is missing');
+                showToast('Ошибка: ID поста не найден', 'error');
+                return;
+            }
+
             const likesCount = this.querySelector('.likes-count');
             const likeIcon = this.querySelector('img');
             
@@ -106,7 +110,20 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             
             const formData = new FormData(this);
-            const postId = this.closest('.post-card').querySelector('.like-button').dataset.postId;
+            const likeButton = this.closest('.post-card').querySelector('.like-button');
+            if (!likeButton) {
+                console.error('Like button not found');
+                showToast('Ошибка: кнопка лайка не найдена', 'error');
+                return;
+            }
+            
+            const postId = likeButton.dataset.postId;
+            if (!postId) {
+                console.error('Post ID is missing');
+                showToast('Ошибка: ID поста не найден', 'error');
+                return;
+            }
+            
             const commentsList = this.closest('.comments-section').querySelector('.comments-list');
             const commentsCount = this.closest('.post-card').querySelector('.comments-count');
             

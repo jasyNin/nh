@@ -15,12 +15,15 @@ class Comment extends Model
     protected $fillable = [
         'content',
         'user_id',
-        'post_id'
+        'post_id',
+        'parent_id',
+        'is_bot'
     ];
 
     protected $casts = [
         'created_at' => 'datetime',
-        'updated_at' => 'datetime'
+        'updated_at' => 'datetime',
+        'is_bot' => 'boolean'
     ];
 
     public function user(): BelongsTo

@@ -41,18 +41,26 @@
                                 <div class="list-group-item {{ $notification->read_at ? '' : 'list-group-item-primary' }}">
                                     <div class="d-flex align-items-start">
                                         <div class="flex-shrink-0 me-3">
-                                            <x-user-avatar :user="$notification->data['user']" :size="40" />
+                                            <x-user-avatar :user="$notification->fromUser" :size="40" />
                                         </div>
                                         <div class="flex-grow-1">
                                             <div class="d-flex justify-content-between align-items-center mb-2">
                                                 <div>
-                                                    <a href="{{ route('users.show', $notification->data['user']['id']) }}" class="text-decoration-none text-dark fw-bold">{{ $notification->data['user']['name'] }}</a>
-                                                    <span class="text-muted ms-2">{{ $notification->data['message'] }}</span>
+                                                    <a href="{{ route('users.show', $notification->fromUser->id) }}" class="text-decoration-none text-dark fw-bold">{{ $notification->fromUser->name }}</a>
+                                                    <span class="text-muted ms-2">
+                                                        @if($notification->type === 'like')
+                                                            поставил(а) лайк
+                                                        @elseif($notification->type === 'comment')
+                                                            оставил(а) комментарий
+                                                        @elseif($notification->type === 'rating')
+                                                            оценил(а)
+                                                        @endif
+                                                    </span>
                                                 </div>
                                                 <small class="text-muted">{{ $notification->created_at->diffForHumans() }}</small>
                                             </div>
                                             <div class="text-muted">
-                                                <small>К посту: <a href="{{ route('posts.show', $notification->data['post']['id']) }}" class="text-decoration-none">{{ $notification->data['post']['title'] }}</a></small>
+                                                <small>К посту: <a href="{{ route('posts.show', $notification->notifiable_id) }}" class="text-decoration-none">{{ $notification->notifiable->title }}</a></small>
                                             </div>
                                         </div>
                                     </div>

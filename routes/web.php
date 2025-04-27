@@ -29,6 +29,8 @@ use App\Http\Controllers\Admin\PostController as AdminPostController;
 use App\Http\Controllers\Admin\TagController as AdminTagController;
 use App\Http\Controllers\ComplaintController;
 use App\Http\Controllers\Admin\SettingController as AdminSettingController;
+use App\Http\Controllers\CommentLikeController;
+use App\Http\Controllers\PostLikeController;
 
 // Главная страница
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -75,7 +77,7 @@ Route::middleware('auth')->group(function () {
     Route::post('posts/{post}/comments', [CommentController::class, 'store'])->name('posts.comments.store');
     Route::put('comments/{comment}', [CommentController::class, 'update'])->name('comments.update');
     Route::delete('comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
-    Route::post('comments/{comment}/like', [CommentController::class, 'like'])->name('comments.like');
+    Route::post('/comments/{comment}/like', [CommentLikeController::class, 'toggle'])->name('comments.like')->middleware('auth');
     Route::post('comments/{comment}/dislike', [CommentController::class, 'dislike'])->name('comments.dislike');
     Route::post('comments/{comment}/replies', [CommentReplyController::class, 'store'])->name('comments.replies.store');
     Route::put('comments/replies/{reply}', [CommentReplyController::class, 'update'])->name('comments.replies.update');
@@ -85,6 +87,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/replies/{reply}/replies', [ReplyToReplyController::class, 'store'])->name('replies.replies.store');
 
     Route::get('drafts', [DraftController::class, 'index'])->name('drafts.index');
+    Route::get('drafts/{post}', [DraftController::class, 'show'])->name('drafts.show');
 
     // Жалобы
     Route::post('posts/{post}/report', [ReportController::class, 'reportPost'])->name('posts.report');
@@ -120,10 +123,12 @@ Route::middleware('auth')->group(function () {
     Route::get('posts/{post}/edit', [PostController::class, 'edit'])->name('posts.edit');
     Route::put('posts/{post}', [PostController::class, 'update'])->name('posts.update');
     Route::delete('posts/{post}', [PostController::class, 'destroy'])->name('posts.destroy');
+    Route::get('drafts', [DraftController::class, 'index'])->name('drafts.index');
+    Route::get('drafts/{post}', [DraftController::class, 'show'])->name('drafts.show');
 });
 
 Route::get('posts/{post}', [PostController::class, 'show'])->name('posts.show');
-Route::post('/posts/{post}/like', [LikeController::class, 'toggle'])->name('posts.like');
+Route::post('/posts/{post}/like', [PostLikeController::class, 'toggle'])->middleware('auth')->name('posts.like');
 Route::post('posts/{post}/bookmark', [PostController::class, 'bookmark'])->name('posts.bookmark');
 Route::post('posts/{post}/repost', [PostController::class, 'repost'])->name('posts.repost');
 
@@ -137,7 +142,13 @@ Route::get('tags/{tag}', [TagController::class, 'show'])->name('tags.show');
 
 // Поиск
 Route::get('search', [SearchController::class, 'index'])->name('search.index');
+Route::get('/search/posts', [SearchController::class, 'searchPosts'])->name('search.posts');
 
 Route::get('/answers', [AnswerController::class, 'index'])->name('answers.index');
 
 Route::post('complaints', [ComplaintController::class, 'store'])->name('complaints.store');
+
+Route::middleware(['auth'])->group(function () {
+    Route::post('/notifications/mark-as-viewed', [NotificationController::class, 'markAsViewed']);
+    Route::get('/notifications/unviewed-count', [NotificationController::class, 'getUnviewedCount']);
+});

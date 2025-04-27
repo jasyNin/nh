@@ -50,7 +50,17 @@ class HomeController extends Controller
                 $query->where('type', $request->type);
             }
 
-            $posts = $query->paginate(10);
+            // Для AJAX-запросов возвращаем только посты
+            if ($request->ajax()) {
+                $posts = $query->take(10)->skip($request->input('skip', 0))->get();
+                return response()->json([
+                    'posts' => $posts,
+                    'hasMore' => $posts->count() === 10
+                ]);
+            }
+
+            // Для первого запроса загружаем первые 10 постов
+            $posts = $query->take(10)->get();
 
             // Получаем просмотренные посты для авторизованного пользователя
             $viewedPosts = collect();

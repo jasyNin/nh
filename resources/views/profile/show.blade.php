@@ -10,6 +10,7 @@
     }
     .hover-card {
         background-color: transparent;
+        border: none !important;
     }
     .hover-card:hover {
         transform: none;
@@ -121,9 +122,9 @@
         <div class="col-md-7">
             <!-- Профиль -->
             <div class="card mb-4 border-0 shadow-sm" style="margin-top: 20px;">
-                <div class="card-body p-4">
+                <div class="card-body p-4" style="background-color: #dsdsf;">
                     <div class="d-flex align-items-center mb-4">
-                        <x-user-avatar :user="$user" :size="112" class="rounded-circle border border-3 border-primary" />
+                        <x-user-avatar :user="$user" :size="112" class="rounded-circle border border-3 border-primary" style="margin-right: 12px !important;" />
                         <div class="ms-4">
                             <h3 class="mb-1" style="font-size: 36px;">{{ $user->name }}</h3>
                             <p class="text-muted mb-2" style="font-size: 22.5px;">{{ $user->email }}</p>

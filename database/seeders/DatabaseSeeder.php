@@ -24,6 +24,8 @@ class DatabaseSeeder extends Seeder
             TagSeeder::class,
             UserSeeder::class,
             PostSeeder::class,
+            NeuronchikBotSeeder::class,
+            ModeratorSeeder::class,
         ]);
     }
 }

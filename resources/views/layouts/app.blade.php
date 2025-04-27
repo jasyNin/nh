@@ -69,12 +69,81 @@
                         <li class="nav-item dropdown me-3">
                             <a class="nav-link position-relative" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown">
                                 <img src="{{ asset('images/bell.svg') }}" alt="Уведомления" width="24" height="24">
-                                <span class="notification-badge">0</span>
+                                <span class="notification-badge" id="notificationIndicator" style="display: none; width: 8px; height: 8px; top: 8px; right: 12px; border: 1px solid white;"></span>
                             </a>
-                            <div class="dropdown-menu dropdown-menu-end notifications-dropdown">
-                                <div class="notifications-list"></div>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item text-center" href="{{ route('notifications.index') }}">Все уведомления</a>
+                            <div class="dropdown-menu dropdown-menu-end notifications-dropdown" style="width: 400px; max-height: 500px; overflow-y: auto;">
+                                <div class="notifications-list">
+                                    @php
+                                        $likeNotifications = \App\Models\PostLike::whereHas('post', function($query) {
+                                            $query->where('user_id', auth()->id());
+                                        })
+                                        ->with(['user', 'post'])
+                                        ->latest()
+                                        ->take(5)
+                                        ->get();
+
+                                        $commentNotifications = \App\Models\Comment::whereHas('post', function($query) {
+                                            $query->where('user_id', auth()->id());
+                                        })
+                                        ->with(['user', 'post'])
+                                        ->latest()
+                                        ->take(5)
+                                        ->get();
+
+                                        $replyNotifications = \App\Models\CommentReply::whereHas('comment', function($query) {
+                                            $query->where('user_id', auth()->id());
+                                        })
+                                        ->with(['user', 'comment.post'])
+                                        ->latest()
+                                        ->take(5)
+                                        ->get();
+
+                                        $allNotifications = $likeNotifications
+                                            ->concat($commentNotifications)
+                                            ->concat($replyNotifications)
+                                            ->sortByDesc('created_at')
+                                            ->take(5);
+                                    @endphp
+
+                                    @forelse($allNotifications as $notification)
+                                        <div class="dropdown-item" style="cursor: pointer; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='#E9ECEF'" onmouseout="this.style.backgroundColor='transparent'">
+                                            <div class="d-flex align-items-start">
+                                                <div class="flex-shrink-0 me-3 position-relative">
+                                                    <x-user-avatar :user="$notification->user" :size="40" />
+                                                    <x-rank-icon :user="$notification->user" />
+                                                </div>
+                                                <div class="flex-grow-1">
+                                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                                        <div>
+                                                            <a href="{{ route('users.show', $notification->user->id) }}" class="text-decoration-none text-dark fw-bold">{{ $notification->user->name }}</a>
+                                                            <span class="text-muted ms-2">
+                                                                @if($notification instanceof \App\Models\PostLike)
+                                                                    поставил(а) лайк
+                                                                @elseif($notification instanceof \App\Models\Comment)
+                                                                    оставил(а) комментарий
+                                                                @else
+                                                                    ответил(а) на ваш комментарий
+                                                                @endif
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="text-muted">
+                                                        <small>К посту: <a href="{{ route('posts.show', $notification instanceof \App\Models\CommentReply ? $notification->comment->post->id : $notification->post->id) }}" class="text-decoration-none">{{ $notification instanceof \App\Models\CommentReply ? $notification->comment->post->title : $notification->post->title }}</a></small>
+                                                        @if($notification instanceof \App\Models\Comment || $notification instanceof \App\Models\CommentReply)
+                                                            <div class="mt-1 small text-muted" style="max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: normal; word-wrap: break-word;">
+                                                                {{ $notification->content }}
+                                                            </div>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @empty
+                                        <div class="dropdown-item text-muted text-center py-3">
+                                            Нет новых уведомлений
+                                        </div>
+                                    @endforelse
+                                </div>
                             </div>
                         </li>
                         <li class="nav-item me-3">
@@ -95,21 +164,26 @@
                                     Мой профиль
                                 </div>
                                 <a href="{{ route('users.show', Auth::user()) }}" class="text-decoration-none dropdown-item">
-                                    <div class="px-3 py-3 d-flex align-items-center" style="background: transparent;">
-                                        <x-user-avatar :user="Auth::user()" :size="40" />
+                                    <div class="px-3 py-2 d-flex align-items-center" style="background: transparent;">
+                                        <div class="position-relative">
+                                            <x-user-avatar :user="Auth::user()" :size="40" />
+                                            <x-rank-icon :user="Auth::user()" />
+                                        </div>
                                         <div style="margin-left: 12px;">
                                             <div style="color: #272727; font-weight: 500;">{{ Auth::user()->name }}</div>
-                                            <div style="color: #808080; font-size: 13px;">Эксперт</div>
+                                            <div class="d-flex align-items-center">
+                                                <div style="color: #808080; font-size: 13px;" class="me-2">{{ Auth::user()->rank_name }}</div>
+                                            </div>
                                         </div>
                                     </div>
                                 </a>
-                                <a class="dropdown-item py-2 d-flex align-items-center" href="{{ route('profile.edit') }}" style="color: #272727;">
+                                <a class="dropdown-item py-2 d-flex align-items-center settings-btn" href="{{ route('profile.edit') }}" style="color: #272727;">
                                     <img src="{{ asset('images/settings.svg') }}" alt="Настройки" width="20" height="20" class="me-2">
                                     Настройки
                                 </a>
                                 <form action="{{ route('logout') }}" method="POST">
                                     @csrf
-                                    <button type="submit" class="dropdown-item py-2 d-flex align-items-center" style="color: #272727;">
+                                    <button type="submit" class="dropdown-item py-2 d-flex align-items-center logout-btn" style="color: #272727;">
                                         <svg class="me-2" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M13.75 6.875L16.875 10L13.75 13.125M8.75 10H16.875M8.75 16.875H3.75C3.58424 16.875 3.42527 16.8092 3.30806 16.6919C3.19085 16.5747 3.125 16.4158 3.125 16.25V3.75C3.125 3.58424 3.19085 3.42527 3.30806 3.30806C3.42527 3.19085 3.58424 3.125 3.75 3.125H8.75" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                         </svg>
@@ -155,6 +229,7 @@
     <!-- Основной скрипт приложения -->
     <script src="{{ asset('js/app.js') }}?v={{ time() }}"></script>
     <script src="{{ asset('js/comments.js') }}"></script>
+    <script src="{{ asset('js/search.js') }}"></script>
     
     <!-- Скрипт поиска только для авторизованных пользователей -->
     @auth
@@ -187,15 +262,59 @@
     <style>
     .user-dropdown .dropdown-item {
         padding: 0;
-        margin: 0;
+        margin: 0 ;
+
     }
     .user-dropdown .dropdown-item:hover {
-        background-color: #F5F5F5;
+        background-color: #F9F9F9;
     }
     .user-dropdown .dropdown-item:active {
-        background-color: #F5F5F5;
+        background-color: #E9ECEF;
         color: #272727;
     }
+    .user-dropdown .dropdown-item.settings-btn,
+    .user-dropdown .dropdown-item.logout-btn {
+        border-radius: 12px;
+        padding: 8px 12px;
+        height: 46px;
+    }
+    .user-dropdown .dropdown-item.settings-btn {
+        margin-bottom: 4px;
+    }
+    
     </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const dropdown = document.getElementById('notificationsDropdown');
+            const indicator = document.getElementById('notificationIndicator');
+            
+            // Проверяем наличие новых уведомлений при загрузке страницы
+            checkUnviewedNotifications();
+            
+            // Проверяем каждые 30 секунд
+            setInterval(checkUnviewedNotifications, 30000);
+            
+            // При открытии дропдауна отмечаем уведомления как просмотренные
+            dropdown.addEventListener('show.bs.dropdown', function() {
+                fetch('/notifications/mark-as-viewed', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    }
+                }).then(() => {
+                    indicator.style.display = 'none';
+                });
+            });
+            
+            function checkUnviewedNotifications() {
+                fetch('/notifications/unviewed-count')
+                    .then(response => response.json())
+                    .then(data => {
+                        indicator.style.display = data.has_unviewed ? 'flex' : 'none';
+                    });
+            }
+        });
+    </script>
 </body>
 </html> 

@@ -11,13 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('likes', function (Blueprint $table) {
+        Schema::create('polymorphic_likes', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->morphs('likeable');
             $table->timestamps();
-
-            // Убедимся, что пользователь может лайкнуть объект только один раз
+            
             $table->unique(['user_id', 'likeable_id', 'likeable_type']);
         });
     }
@@ -27,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('likes');
+        Schema::dropIfExists('polymorphic_likes');
     }
 };

@@ -36,4 +36,33 @@ class SearchController extends Controller
 
         return view('search.index', compact('posts', 'popularTags', 'topUsers'));
     }
+
+    public function searchPosts(Request $request)
+    {
+        $query = $request->get('q');
+        
+        if (empty($query)) {
+            return response()->json([]);
+        }
+
+        $posts = Post::with(['user', 'tags'])
+            ->where('title', 'like', "%{$query}%")
+            ->latest()
+            ->take(5)
+            ->get()
+            ->map(function ($post) {
+                return [
+                    'id' => $post->id,
+                    'title' => $post->title,
+                    'url' => route('posts.show', $post),
+                    'user' => [
+                        'name' => $post->user->name,
+                        'avatar' => $post->user->avatar ? asset('storage/' . $post->user->avatar) : asset('images/default-avatar.png')
+                    ],
+                    'created_at' => $post->created_at->diffForHumans()
+                ];
+            });
+
+        return response()->json($posts);
+    }
 } 

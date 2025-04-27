@@ -10,18 +10,27 @@
         @include('components.side-menu-styles')
 
         <!-- Основной контент -->
-        <div class="col-md-7">
+        <div class="col-md-9">
             <div class="card border-0">
                 <div class="card-body p-4">
                     <!-- Информация о пользователе -->
                     <div class="d-flex align-items-center mb-4">
                         <div class="d-flex align-items-center flex-grow-1">
-                            <a href="{{ route('users.show', $post->user) }}" class="text-decoration-none">
-                                <x-user-avatar :user="$post->user" :size="48" class="me-3" />
-                            </a>
-                            <div>
-                                <a href="{{ route('users.show', $post->user) }}" class="text-decoration-none text-dark fw-bold">{{ $post->user->name }}</a>
-                                <div class="text-muted small">{{ $post->created_at->diffForHumans() }}</div>
+                            <div class="position-relative" style="margin-right: 12px !important;">
+                                <a href="{{ route('users.show', $post->user) }}" class="text-decoration-none">
+                                    <x-user-avatar :user="$post->user" :size="48" class="me-2" />
+                                </a>
+                                <x-rank-icon :user="$post->user" />
+                            </div>
+                            <div class="d-flex flex-column">
+                                <div class="d-flex align-items-center">
+                                    <a href="{{ route('users.show', $post->user) }}" class="text-decoration-none text-dark fw-bold me-2">{{ $post->user->name }}</a>
+                                    <small class="text-muted">{{ $post->created_at->diffForHumans() }}</small>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <small class="text-muted me-2">{{ $post->user->rank_name }}</small>
+                                    
+                                </div>
                             </div>
                         </div>
                         <div class="dropdown">
@@ -67,17 +76,13 @@
                         {{ $post->title }}
                     </h1>
                     <div class="post-content mb-4">
+                        @if($post->image)
+                            <div class="mb-4">
+                                <img src="{{ url('storage/' . $post->image) }}" alt="Изображение поста" class="img-fluid rounded">
+                            </div>
+                        @endif
                         {!! $post->content !!}
                     </div>
-
-                    <!-- Изображение -->
-                    @if($post->image)
-                        <div class="post-image mb-4">
-                            <img src="{{ asset('storage/' . $post->image) }}" 
-                                 class="img-fluid rounded" 
-                                 alt="{{ $post->title }}">
-                        </div>
-                    @endif
 
                     <!-- Теги -->
                     @if($post->tags->isNotEmpty())
@@ -95,14 +100,22 @@
                     <div class="d-flex align-items-center justify-content-between mb-4">
                         <div class="d-flex align-items-center">
                             @auth
-                            <button class="btn btn-link text-dark p-0 me-4 like-button" data-post-id="{{ $post->id }}">
-                                <img src="{{ asset('images/like.svg') }}" alt="Лайк" width="18" height="16" class="{{ $post->likedBy(auth()->user()) ? 'liked' : '' }}">
-                                <span class="ms-1 likes-count" style="pointer-events: none;">{{ $post->likes_count }}</span>
+                            <button class="like-button {{ $post->likedBy(auth()->user()) ? 'active' : '' }} me-4" data-post-id="{{ $post->id }}">
+                                <span class="like-icon-wrapper">
+                                    <svg class="like-icon" width="20" height="19" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </span>
+                                <span class="likes-count">{{ $post->likes_count }}</span>
                             </button>
                             @else
-                            <a href="{{ route('login') }}" class="btn btn-link text-dark p-0 me-4">
-                                <img src="{{ asset('images/like.svg') }}" alt="Лайк" width="18" height="16">
-                                <span class="ms-1">{{ $post->likes_count }}</span>
+                            <a href="{{ route('login') }}" class="like-button me-4">
+                                <span class="like-icon-wrapper">
+                                    <svg class="like-icon" width="20" height="19" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </span>
+                                <span class="likes-count">{{ $post->likes_count }}</span>
                             </a>
                             @endauth
 
@@ -203,9 +216,9 @@
                                         <div class="comment-actions">
                                             <div class="d-flex align-items-center">
                                                 @auth
-                                                <button class="btn btn-link text-muted p-0 me-3 like-button" data-comment-id="{{ $comment->id }}">
-                                                    <i class="bi bi-heart{{ $comment->likedBy(auth()->user()) ? '-fill text-danger' : '' }}"></i>
-                                                    <span class="ms-1">{{ $comment->likes_count }}</span>
+                                                <button class="btn btn-link text-muted p-0 me-3 comment-like-button" data-comment-id="{{ $comment->id }}">
+                                                    <i class="bi bi-heart{{ $comment->likedBy(auth()->user()) ? '-fill text-danger' : '' }} like-icon"></i>
+                                                    <span class="like-count ms-1">{{ $comment->likes_count }}</span>
                                                 </button>
                                                 <button class="btn btn-link text-muted p-0 reply-button" data-comment-id="{{ $comment->id }}">
                                                     Ответить
@@ -300,9 +313,9 @@
                                                             <div class="comment-actions">
                                                                 <div class="d-flex align-items-center">
                                                                     @auth
-                                                                    <button class="btn btn-link text-muted p-0 me-3 like-button" data-comment-id="{{ $reply->id }}">
-                                                                        <i class="bi bi-heart{{ $reply->likedBy(auth()->user()) ? '-fill text-danger' : '' }}"></i>
-                                                                        <span class="ms-1">{{ $reply->likes_count }}</span>
+                                                                    <button class="btn btn-link text-muted p-0 me-3 comment-like-button" data-comment-id="{{ $reply->id }}">
+                                                                        <i class="bi bi-heart{{ $reply->likedBy(auth()->user()) ? '-fill text-danger' : '' }} like-icon"></i>
+                                                                        <span class="like-count ms-1">{{ $reply->likes_count }}</span>
                                                                     </button>
                                                                     <button class="btn btn-link text-muted p-0 reply-button" data-comment-id="{{ $reply->id }}">
                                                                         Ответить
@@ -357,9 +370,6 @@
                 </div>
             </div>
         </div>
-        
-        <!-- Правая колонка -->
-        <x-right-sidebar :popularTags="$popularTags" :topUsers="$topUsers" :recentAnswers="$recentAnswers ?? null" />
     </div>
 </div>
 
@@ -404,6 +414,84 @@
 
 @push('styles')
 <link href="{{ asset('css/comments.css') }}" rel="stylesheet">
+<style>
+    .like-button {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 8px;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        background: none;
+        border: none;
+        color: inherit;
+    }
+
+    .like-button:hover {
+        background-color: rgba(255, 59, 48, 0.1);
+    }
+
+    .like-icon-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 20px;
+        height: 19px;
+        position: relative;
+    }
+
+    .like-icon {
+        width: 20px;
+        height: 19px;
+        transition: all 0.2s ease;
+    }
+
+    .like-button.active .like-icon path {
+        stroke: #ff3b30;
+        fill: #ff3b30;
+    }
+
+    .likes-count {
+        font-size: 0.9rem;
+        color: #1a1a1a;
+        min-width: 20px;
+        text-align: left;
+        line-height: 1;
+        transition: color 0.2s ease;
+    }
+
+    .like-button.active .likes-count {
+        color: #ff3b30;
+        font-weight: 500;
+    }
+
+    .like-button.animate .like-icon {
+        animation: likeAnimation 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes likeAnimation {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.4); }
+        100% { transform: scale(1); }
+    }
+
+    /* Стили для неактивной кнопки */
+    .like-button:not(.active) .like-icon path {
+        stroke: #595959;
+        fill: transparent;
+    }
+
+    /* Эффект при наведении на неактивную кнопку */
+    .like-button:not(.active):hover .like-icon path {
+        stroke: #ff3b30;
+    }
+
+    /* Эффект при нажатии */
+    .like-button:active .like-icon {
+        transform: scale(0.95);
+    }
+</style>
 @endpush
 
 @push('scripts')

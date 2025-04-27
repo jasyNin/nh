@@ -16,7 +16,49 @@ class NotificationController extends Controller
             ->notifications()
             ->with(['fromUser', 'notifiable'])
             ->latest()
-            ;
+            ->paginate(10);
+
+        // Получаем уведомления о лайках
+        $likeNotifications = \App\Models\PostLike::whereHas('post', function($query) {
+                $query->where('user_id', auth()->id());
+            })
+            ->with(['user', 'post'])
+            ->latest()
+            ->get()
+            ->map(function($like) {
+                return [
+                    'id' => $like->id,
+                    'type' => 'like',
+                    'read' => false,
+                    'created_at' => $like->created_at,
+                    'fromUser' => $like->user,
+                    'notifiable' => $like->post
+                ];
+            });
+
+        // Получаем уведомления о комментариях
+        $commentNotifications = \App\Models\Comment::whereHas('post', function($query) {
+                $query->where('user_id', auth()->id());
+            })
+            ->with(['user', 'post'])
+            ->latest()
+            ->get()
+            ->map(function($comment) {
+                return [
+                    'id' => $comment->id,
+                    'type' => 'comment',
+                    'read' => false,
+                    'created_at' => $comment->created_at,
+                    'fromUser' => $comment->user,
+                    'notifiable' => $comment->post
+                ];
+            });
+
+        // Объединяем уведомления
+        $allNotifications = $notifications
+            ->concat($likeNotifications)
+            ->concat($commentNotifications)
+            ->sortByDesc('created_at');
 
         // Получаем популярные теги
         $popularTags = Tag::withCount('posts')
@@ -30,7 +72,7 @@ class NotificationController extends Controller
             ->limit(5)
             ->get();
 
-        return view('notifications.index', compact('notifications', 'popularTags', 'topUsers'));
+        return view('notifications.index', compact('allNotifications', 'popularTags', 'topUsers'));
     }
 
     public function markAsRead(Notification $notification)
@@ -62,5 +104,40 @@ class NotificationController extends Controller
     {
         auth()->user()->unreadNotifications->markAsRead();
         return back();
+    }
+
+    public function markAsViewed()
+    {
+        $user = auth()->user();
+        $user->last_notification_view = now();
+        $user->save();
+        
+        return response()->json(['success' => true]);
+    }
+
+    public function getUnviewedCount()
+    {
+        $user = auth()->user();
+        $lastView = $user->last_notification_view;
+        
+        $likeCount = \App\Models\PostLike::whereHas('post', function($query) use ($user) {
+            $query->where('user_id', $user->id);
+        })
+        ->when($lastView, function($query) use ($lastView) {
+            return $query->where('created_at', '>', $lastView);
+        })
+        ->count();
+
+        $commentCount = \App\Models\Comment::whereHas('post', function($query) use ($user) {
+            $query->where('user_id', $user->id);
+        })
+        ->when($lastView, function($query) use ($lastView) {
+            return $query->where('created_at', '>', $lastView);
+        })
+        ->count();
+
+        return response()->json([
+            'has_unviewed' => ($likeCount + $commentCount) > 0
+        ]);
     }
 } 

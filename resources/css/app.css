@@ -9,3 +9,23 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+.like-button {
+    padding: 0.25rem 0.5rem;
+    color: inherit;
+    text-decoration: none;
+    transition: all 0.2s ease-in-out;
+}
+
+.like-button:hover {
+    transform: scale(1.1);
+}
+
+.like-icon {
+    transition: all 0.2s ease-in-out;
+}
+
+.like-count {
+    margin-left: 0.25rem;
+    font-size: 0.875rem;
+}

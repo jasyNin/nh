@@ -10,7 +10,7 @@
         @include('components.side-menu-styles')
 
         <!-- Основной контент -->
-        <div class="col-md-10">
+        <div class="col-md-10 mb-5" style="margin-bottom: 60px;">
             <!-- Главный баннер -->
             <div class="text-center mb-5">
                 <img src="{{ asset('images/help-circle.svg') }}" alt="Помощь" class="mb-3" style="width: 64px; height: 64px; filter: invert(31%) sepia(98%) saturate(1234%) hue-rotate(212deg) brightness(98%) contrast(101%);">
@@ -83,6 +83,177 @@
                             <h5 class="mb-0 fw-light">Как редактировать профиль?</h5>
                         </div>
                         <p class="text-muted mb-0">Перейдите в свой профиль и нажмите кнопку "Редактировать". Здесь вы можете изменить информацию о себе, добавить аватар и настроить уведомления.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Секция рангов -->
+            <div class="mt-5">
+                <div class="text-center mb-5">
+                    <h2 class="display-5 fw-light mb-3">Система рангов</h2>
+                    <p class="lead text-muted">Узнайте о рангах и их преимуществах</p>
+                </div>
+
+                <!-- Описание системы рангов -->
+                <div class="card mb-5" style="border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                    <div class="card-body p-4">
+                        <h4 class="fw-light mb-4">О системе рангов</h4>
+                        <p class="text-muted mb-0">
+                            Ранги отражают ваш вклад в сообщество. Чем больше качественных ответов вы даете и чем больше лайков получаете, тем выше ваш ранг. 
+                            Каждый ранг открывает новые возможности и показывает ваш авторитет в сообществе. 
+                            Специальные роли (администратор, модератор) назначаются администрацией за особые заслуги и активное участие в жизни сообщества.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Иерархическая лестница рангов -->
+                <div class="ranks-ladder mb-5">
+                    <!-- Сверхразум -->
+                    <div class="rank-item mb-4" style="background: linear-gradient(135deg, #CC0000, #990000); border-radius: 15px; padding: 25px; position: relative; box-shadow: 0 8px 20px rgba(204, 0, 0, 0.3); transition: transform 0.3s ease;">
+                        <div class="d-flex align-items-center">
+                            <div class="rank-icon-wrapper" style="background: rgba(255, 255, 255, 0.2); border-radius: 50%; padding: 10px; margin-right: 25px;">
+                                <img src="{{ asset('images/ruby.svg') }}" alt="Сверхразум" style="width: 80px; height: 80px; border: 5px solid white; border-radius: 50%;">
+                            </div>
+                            <div>
+                                <h4 class="fw-light text-white mb-2" style="font-size: 1.5rem; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);">Сверхразум</h4>
+                                <div class="mb-2">
+                                    <img src="{{ asset('images/star.png') }}" alt="star" style="width: 24px;" repeat="6">
+                                    <img src="{{ asset('images/star.png') }}" alt="star" style="width: 24px;">
+                                    <img src="{{ asset('images/star.png') }}" alt="star" style="width: 24px;">
+                                    <img src="{{ asset('images/star.png') }}" alt="star" style="width: 24px;">
+                                    <img src="{{ asset('images/star.png') }}" alt="star" style="width: 24px;">
+                                    <img src="{{ asset('images/star.png') }}" alt="star" style="width: 24px;">
+                                </div>
+                                <p class="text-white mb-1" style="font-size: 1.1rem; opacity: 0.9;">240+ баллов</p>
+                                <p class="small text-white mb-0" style="opacity: 0.8;">Вы достигли вершины знаний и являетесь примером для всего сообщества.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Эксперт -->
+                    <div class="rank-item mb-4" style="background: linear-gradient(135deg, #008B8B, #006666); border-radius: 15px; padding: 25px; position: relative; box-shadow: 0 8px 20px rgba(0, 139, 139, 0.3); transition: transform 0.3s ease;">
+                        <div class="d-flex align-items-center">
+                            <div class="rank-icon-wrapper" style="background: rgba(255, 255, 255, 0.2); border-radius: 50%; padding: 10px; margin-right: 25px;">
+                                <img src="{{ asset('images/dimond.svg') }}" alt="Эксперт" style="width: 80px; height: 80px; border: 5px solid white; border-radius: 50%;">
+                            </div>
+                            <div>
+                                <h4 class="fw-light text-white mb-2" style="font-size: 1.5rem; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);">Эксперт</h4>
+                                <div class="mb-2">
+                                    <img src="{{ asset('images/star.png') }}" alt="star" style="width: 24px;">
+                                    <img src="{{ asset('images/star.png') }}" alt="star" style="width: 24px;">
+                                    <img src="{{ asset('images/star.png') }}" alt="star" style="width: 24px;">
+                                    <img src="{{ asset('images/star.png') }}" alt="star" style="width: 24px;">
+                                    <img src="{{ asset('images/star.png') }}" alt="star" style="width: 24px;">
+                                </div>
+                                <p class="text-white mb-1" style="font-size: 1.1rem; opacity: 0.9;">120-239 баллов</p>
+                                <p class="small text-white mb-0" style="opacity: 0.8;">Вы - один из лучших специалистов в сообществе, к вашим ответам прислушиваются.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Эрудит -->
+                    <div class="rank-item mb-4" style="background: linear-gradient(135deg, #660066, #4D004D); border-radius: 15px; padding: 25px; position: relative; box-shadow: 0 8px 20px rgba(102, 0, 102, 0.3); transition: transform 0.3s ease;">
+                        <div class="d-flex align-items-center">
+                            <div class="rank-icon-wrapper" style="background: rgba(255, 255, 255, 0.2); border-radius: 50%; padding: 10px; margin-right: 25px;">
+                                <img src="{{ asset('images/purple.svg') }}" alt="Эрудит" style="width: 80px; height: 80px; border: 5px solid white; border-radius: 50%;">
+                            </div>
+                            <div>
+                                <h4 class="fw-light text-white mb-2" style="font-size: 1.5rem; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);">Эрудит</h4>
+                                <div class="mb-2">
+                                    <img src="{{ asset('images/star.png') }}" alt="star" style="width: 24px;">
+                                    <img src="{{ asset('images/star.png') }}" alt="star" style="width: 24px;">
+                                    <img src="{{ asset('images/star.png') }}" alt="star" style="width: 24px;">
+                                    <img src="{{ asset('images/star.png') }}" alt="star" style="width: 24px;">
+                                </div>
+                                <p class="text-white mb-1" style="font-size: 1.1rem; opacity: 0.9;">60-119 баллов</p>
+                                <p class="small text-white mb-0" style="opacity: 0.8;">Ваши знания и опыт помогают развиваться всему сообществу.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Знаток -->
+                    <div class="rank-item mb-4" style="background: linear-gradient(135deg, #DAA520, #B8860B); border-radius: 15px; padding: 25px; position: relative; box-shadow: 0 8px 20px rgba(218, 165, 32, 0.3); transition: transform 0.3s ease;">
+                        <div class="d-flex align-items-center">
+                            <div class="rank-icon-wrapper" style="background: rgba(255, 255, 255, 0.2); border-radius: 50%; padding: 10px; margin-right: 25px;">
+                                <img src="{{ asset('images/gold.svg') }}" alt="Знаток" style="width: 80px; height: 80px; border: 5px solid white; border-radius: 50%;">
+                            </div>
+                            <div>
+                                <h4 class="fw-light text-white mb-2" style="font-size: 1.5rem; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);">Знаток</h4>
+                                <div class="mb-2">
+                                    <img src="{{ asset('images/star.png') }}" alt="star" style="width: 24px;">
+                                    <img src="{{ asset('images/star.png') }}" alt="star" style="width: 24px;">
+                                    <img src="{{ asset('images/star.png') }}" alt="star" style="width: 24px;">
+                                </div>
+                                <p class="text-white mb-1" style="font-size: 1.1rem; opacity: 0.9;">30-59 баллов</p>
+                                <p class="small text-white mb-0" style="opacity: 0.8;">Ваши ответы ценятся сообществом, вы становитесь авторитетом в своей области.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ученик -->
+                    <div class="rank-item mb-4" style="background: linear-gradient(135deg, #A9A9A9, #808080); border-radius: 15px; padding: 25px; position: relative; box-shadow: 0 8px 20px rgba(169, 169, 169, 0.3); transition: transform 0.3s ease;">
+                        <div class="d-flex align-items-center">
+                            <div class="rank-icon-wrapper" style="background: rgba(255, 255, 255, 0.2); border-radius: 50%; padding: 10px; margin-right: 25px;">
+                                <img src="{{ asset('images/silver.svg') }}" alt="Ученик" style="width: 80px; height: 80px; border: 5px solid white; border-radius: 50%;">
+                            </div>
+                            <div>
+                                <h4 class="fw-light text-white mb-2" style="font-size: 1.5rem; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);">Ученик</h4>
+                                <div class="mb-2">
+                                    <img src="{{ asset('images/star.png') }}" alt="star" style="width: 24px;">
+                                    <img src="{{ asset('images/star.png') }}" alt="star" style="width: 24px;">
+                                </div>
+                                <p class="text-white mb-1" style="font-size: 1.1rem; opacity: 0.9;">10-29 баллов</p>
+                                <p class="small text-white mb-0" style="opacity: 0.8;">Вы уже освоили основы и начинаете помогать другим участникам.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Новичок -->
+                    <div class="rank-item" style="background: linear-gradient(135deg, #7B3F00, #5A2D00); border-radius: 15px; padding: 25px; position: relative; box-shadow: 0 8px 20px rgba(123, 63, 0, 0.3); transition: transform 0.3s ease;">
+                        <div class="d-flex align-items-center">
+                            <div class="rank-icon-wrapper" style="background: rgba(255, 255, 255, 0.2); border-radius: 50%; padding: 10px; margin-right: 25px;">
+                                <img src="{{ asset('images/novichec.svg') }}" alt="Новичок" style="width: 80px; height: 80px; border: 5px solid white; border-radius: 50%;">
+                            </div>
+                            <div>
+                                <h4 class="fw-light text-white mb-2" style="font-size: 1.5rem; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);">Новичок</h4>
+                                <div class="mb-2">
+                                    <img src="{{ asset('images/star.png') }}" alt="star" style="width: 24px;">
+                                </div>
+                                <p class="text-white mb-1" style="font-size: 1.1rem; opacity: 0.9;">0-9 баллов</p>
+                                <p class="small text-white mb-0" style="opacity: 0.8;">Начальный ранг для всех новых участников. Время учиться и задавать вопросы!</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Специальные роли -->
+                <div class="row mt-5">
+                    <div class="col-md-4">
+                        <div class="card h-100" style="border: none;">
+                            <div class="card-body text-center p-4">
+                                <img src="{{ asset('images/adminicon.svg') }}" alt="Администратор" class="mb-3" style="width: 80px; height: 80px;">
+                                <h4 class="fw-light mb-3">Администратор</h4>
+                                <p class="text-muted">Управляет сайтом и имеет полный доступ ко всем функциям. Отвечает за развитие сообщества и поддержание порядка.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card h-100" style="border: none;">
+                            <div class="card-body text-center p-4">
+                                <img src="{{ asset('images/moder.svg') }}" alt="Модератор" class="mb-3" style="width: 80px; height: 80px;">
+                                <h4 class="fw-light mb-3">Модератор</h4>
+                                <p class="text-muted">Следит за порядком, проверяет контент на соответствие правилам и помогает пользователям.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card h-100" style="border: none;">
+                            <div class="card-body text-center p-4">
+                                <img src="{{ asset('images/bot.svg') }}" alt="Бот Нейрончик" class="mb-3" style="width: 80px; height: 80px;">
+                                <h4 class="fw-light mb-3">Бот Нейрончик</h4>
+                                <p class="text-muted">Искусственный интеллект, который помогает пользователям находить ответы и решать задачи.</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

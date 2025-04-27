@@ -32,7 +32,10 @@
             <div class="d-flex">
                 <div class="flex-shrink-0 me-2">
                     <a href="{{ route('users.show', $comment->user) }}">
-                        <x-user-avatar :user="$comment->user" :size="40" />
+                        <div class="position-relative">
+                            <x-user-avatar :user="$comment->user" :size="40" />
+                            <x-rank-icon :user="$comment->user" />
+                        </div>
                     </a>
                 </div>
                 <div class="flex-grow-1">
@@ -40,6 +43,7 @@
                         <div>
                             <a href="{{ route('users.show', $comment->user) }}" class="text-decoration-none text-dark fw-bold">{{ $comment->user->name }}</a>
                             <span class="text-muted ms-2 small">{{ $comment->created_at->diffForHumans() }}</span>
+                            <div class="text-muted small">{{ $comment->user->rank_name }}</div>
                         </div>
                         @auth
                         <div class="dropdown">
@@ -71,9 +75,9 @@
                     <div class="comment-actions">
                         <div class="d-flex align-items-center">
                             @auth
-                            <button class="btn btn-link text-muted p-0 me-3 like-button" data-comment-id="{{ $comment->id }}">
-                                <i class="bi bi-heart{{ $comment->likedBy(auth()->user()) ? '-fill text-danger' : '' }}"></i>
-                                <span class="ms-1">{{ $comment->likes_count }}</span>
+                            <button class="btn btn-link text-muted p-0 me-3 comment-like-button" data-comment-id="{{ $comment->id }}">
+                                <i class="bi bi-heart{{ $comment->likedBy(auth()->user()) ? '-fill text-danger' : '' }} like-icon"></i>
+                                <span class="like-count ms-1">{{ $comment->likes_count }}</span>
                             </button>
                             <button class="btn btn-link text-muted p-0 reply-button" data-comment-id="{{ $comment->id }}">
                                 Ответить
@@ -127,7 +131,10 @@
                                 <div class="d-flex">
                                     <div class="flex-shrink-0 me-2">
                                         <a href="{{ route('users.show', $reply->user) }}">
-                                            <x-user-avatar :user="$reply->user" :size="32" />
+                                            <div class="position-relative">
+                                                <x-user-avatar :user="$reply->user" :size="32" />
+                                                <x-rank-icon :user="$reply->user" />
+                                            </div>
                                         </a>
                                     </div>
                                     <div class="flex-grow-1">
@@ -135,6 +142,7 @@
                                             <div>
                                                 <a href="{{ route('users.show', $reply->user) }}" class="text-decoration-none text-dark fw-bold">{{ $reply->user->name }}</a>
                                                 <span class="text-muted ms-2 small">{{ $reply->created_at->diffForHumans() }}</span>
+                                                <div class="text-muted small">{{ $reply->user->rank_name }}</div>
                                             </div>
                                             <div class="d-flex align-items-center">
                                                 @auth
@@ -168,9 +176,9 @@
                                         <div class="comment-actions">
                                             <div class="d-flex align-items-center">
                                                 @auth
-                                                <button class="btn btn-link text-muted p-0 me-3 like-button" data-comment-id="{{ $reply->id }}">
-                                                    <i class="bi bi-heart{{ $reply->likedBy(auth()->user()) ? '-fill text-danger' : '' }}"></i>
-                                                    <span class="ms-1">{{ $reply->likes_count }}</span>
+                                                <button class="btn btn-link text-muted p-0 me-3 comment-like-button" data-comment-id="{{ $reply->id }}">
+                                                    <i class="bi bi-heart{{ $reply->likedBy(auth()->user()) ? '-fill text-danger' : '' }} like-icon"></i>
+                                                    <span class="like-count ms-1">{{ $reply->likes_count }}</span>
                                                 </button>
                                                 <button class="btn btn-link text-muted p-0 reply-button" data-comment-id="{{ $reply->id }}">
                                                     Ответить

@@ -1,17 +1,25 @@
 @props(['post'])
 
-<div class="post-card mb-4">
+<div class="post-card">
     <div class="card border-0">
         <div class="card-body p-4">
             <!-- Информация о пользователе -->
             <div class="d-flex align-items-center mb-4">
                 <div class="d-flex align-items-center flex-grow-1">
-                    <a href="{{ route('users.show', $post->user) }}" class="text-decoration-none">
-                        <x-user-avatar :user="$post->user" :size="48" class="me-3" />
-                    </a>
-                    <div>
-                        <a href="{{ route('users.show', $post->user) }}" class="text-decoration-none text-dark fw-bold">{{ $post->user->name }}</a>
-                        <div class="text-muted small">{{ $post->created_at->diffForHumans() }}</div>
+                    <div class="position-relative" style="margin-right: 12px !important;">
+                        <a href="{{ route('users.show', $post->user) }}" class="text-decoration-none">
+                            <x-user-avatar :user="$post->user" :size="48" class="me-2" />
+                        </a>
+                        <x-rank-icon :user="$post->user" />
+                    </div>
+                    <div class="d-flex flex-column">
+                        <div class="d-flex align-items-center">
+                            <a href="{{ route('users.show', $post->user) }}" class="text-decoration-none text-dark fw-bold me-2">{{ $post->user->name }}</a>
+                            <small class="text-muted">{{ $post->created_at->diffForHumans() }}</small>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <small class="text-muted me-2">{{ $post->user->rank_name }}</small>
+                        </div>
                     </div>
                 </div>
                 <div class="d-flex align-items-center">
@@ -92,14 +100,22 @@
             <div class="d-flex align-items-center justify-content-between">
                 <div class="d-flex align-items-center">
                     @auth
-                    <button class="btn btn-link text-dark p-0 me-4 like-button" data-post-id="{{ $post->id }}">
-                        <img src="{{ asset('images/like.svg') }}" alt="Лайк" width="18" height="16" class="{{ $post->likedBy(auth()->user()) ? 'liked' : '' }}">
-                        <span class="ms-1 likes-count" style="pointer-events: none;">{{ $post->likes_count }}</span>
+                    <button class="like-button {{ $post->likedBy(auth()->user()) ? 'active' : '' }}" data-post-id="{{ $post->id }}">
+                        <span class="like-icon-wrapper">
+                            <svg class="like-icon" width="20" height="19" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </span>
+                        <span class="likes-count">{{ $post->likes_count }}</span>
                     </button>
                     @else
-                    <a href="{{ route('login') }}" class="btn btn-link text-dark p-0 me-4">
-                        <img src="{{ asset('images/like.svg') }}" alt="Лайк" width="18" height="16">
-                        <span class="ms-1">{{ $post->likes_count }}</span>
+                    <a href="{{ route('login') }}" class="like-button">
+                        <span class="like-icon-wrapper">
+                            <svg class="like-icon" width="20" height="19" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </span>
+                        <span class="likes-count">{{ $post->likes_count }}</span>
                     </a>
                     @endauth
 
@@ -131,7 +147,9 @@
     </div>
 </div>
 
-<x-comments-section :post="$post" />
+<div style="margin-top: -24px;">
+    <x-comments-section :post="$post" />
+</div>
 
 <!-- Модальное окно для жалобы на пост -->
 <div class="modal fade" id="reportModal{{ $post->id }}" tabindex="-1">

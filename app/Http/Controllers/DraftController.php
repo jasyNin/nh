@@ -13,6 +13,7 @@ class DraftController extends Controller
     {
         $drafts = Post::where('user_id', auth()->id())
             ->where('status', 'draft')
+            ->with(['tags'])
             ->orderBy('updated_at', 'desc')
             ->paginate(20);
 
@@ -27,5 +28,11 @@ class DraftController extends Controller
             ->get();
 
         return view('drafts.index', compact('drafts', 'popularTags', 'topUsers'));
+    }
+
+    public function show(Post $post)
+    {
+        $this->authorize('update', $post);
+        return redirect()->route('posts.edit', $post);
     }
 }

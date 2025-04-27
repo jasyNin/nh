@@ -122,14 +122,21 @@
             <!-- Профиль -->
             <div class="card mb-4 border-0 shadow-sm">
                 <div class="card-body p-4">
-                    <div class="d-flex align-items-center mb-4">
+                    <div class="d-flex align-items-start mb-4">
+                        <div class="position-relative">
                         <x-user-avatar :user="$user" :size="112" class="rounded-circle border border-3 border-primary" />
-                        <div class="ms-4">
+                        </div>
+                        <div class="ms-4 flex-grow-1">
                             <h3 class="mb-1" style="font-size: 36px;">{{ $user->name }}</h3>
                             <p class="text-muted mb-2" style="font-size: 22.5px;">{{ $user->email }}</p>
                             @if($user->bio)
                                 <p class="mb-3" style="font-size: 22.5px;">{{ $user->bio }}</p>
                             @endif
+                        </div>
+                        <div class="text-center" style="min-width: 120px;">
+                            <img src="{{ asset('images/' . $user->rank_icon) }}" alt="{{ $user->rank_name }}" width="58" height="58" class="mb-2">
+                            <div style="font-size: 22px; color: #272727; white-space: nowrap;">{{ $user->rank_name }}</div>
+                            <div style="font-size: 15px; color: #272727;">{{ $user->rating }} баллов</div>
                         </div>
                     </div>
                     
@@ -157,221 +164,142 @@
             </div>
 
             <!-- Контент -->
-            <div class="card border-0 shadow-sm">
-                <div class="card-body p-4">
-                    <div class="tab-content">
-                        <div class="tab-pane fade show active" id="posts">
-                            @if($posts->isEmpty())
-                                <div class="text-center py-5">
-                                    <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
-                                    <p class="text-muted">У пользователя пока нет записей</p>
+            <div class="tab-content">
+                <div class="tab-pane fade show active" id="posts">
+                    @if($posts->isEmpty())
+                        <div class="text-center py-5">
+                            <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">У пользователя пока нет записей</p>
+                        </div>
+                    @else
+                        <div class="posts-container">
+                            @foreach($posts as $post)
+                                <div class="post-with-comments">
+                                    <div class="card border-0">
+                                        <div class="card-body p-4 pb-0">
+                                            <x-post-card :post="$post" />
+                                        </div>
+                                        <div class="comments-wrapper">
+                                            <x-comments-section :post="$post" />
+                                        </div>
+                                    </div>
                                 </div>
-                            @else
-                                <div class="posts-container">
-                                @foreach($posts as $post)
-                                    <div class="post-card">
-                                        <div class="card border-0 hover-card">
-                                            <div class="card-body p-4">
-                                                <!-- Информация о пользователе -->
-                                                <div class="d-flex align-items-center mb-2">
-                                                    <div class="me-2">
-                                                        <a href="{{ route('users.show', $post->user) }}" class="text-decoration-none">
-                                                            <x-user-avatar :user="$post->user" :size="40" />
+                            @endforeach
+                        </div>
+                    @endif
+                </div>
+
+                <style>
+                    .post-with-comments {
+                        margin-bottom: 24px;
+                    }
+                    .post-with-comments .post-card {
+                        margin-bottom: 0;
+                    }
+                    .post-with-comments .post-card .card {
+                        border-bottom-left-radius: 0;
+                        border-bottom-right-radius: 0;
+                    }
+                    .post-with-comments .comments-wrapper {
+                        background: white;
+                        border-bottom-left-radius: 12px;
+                        border-bottom-right-radius: 12px;
+                    }
+                    .post-with-comments .card-body {
+                        padding-bottom: 0 !important;
+                    }
+                </style>
+
+                <div class="tab-pane fade" id="comments">
+                    @if($comments->isEmpty())
+                        <div class="text-center py-5">
+                            <i class="fas fa-comments fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">У пользователя пока нет комментариев</p>
+                        </div>
+                    @else
+                        <div class="comments-list">
+                            @foreach($comments as $comment)
+                                <div class="comment-card mb-3">
+                                    <div class="card border-0">
+                                        <div class="card-body p-4">
+                                            <div class="d-flex align-items-start">
+                                                <div class="position-relative me-3">
+                                                    <a href="{{ route('users.show', $comment->user) }}" class="text-decoration-none">
+                                                        <x-user-avatar :user="$comment->user" :size="48" />
+                                                    </a>
+                                                    <x-rank-icon :user="$comment->user" />
+                                                </div>
+                                                <div class="flex-grow-1">
+                                                    <div class="d-flex align-items-center mb-2">
+                                                        <a href="{{ route('users.show', $comment->user) }}" class="text-decoration-none">
+                                                            <span class="fw-bold text-dark">{{ $comment->user->name }}</span>
                                                         </a>
+                                                        <span class="text-muted ms-2" style="font-size: 14px;">{{ $comment->created_at->diffForHumans() }}</span>
                                                     </div>
+                                                    <div class="mb-2" style="font-size: 14px;">{{ $comment->content }}</div>
                                                     <div>
-                                                        <a href="{{ route('users.show', $post->user) }}" class="text-decoration-none text-dark">
-                                                            <h6 class="mb-0">{{ $post->user->name }}</h6>
+                                                        <a href="{{ route('posts.show', $comment->post) }}" class="text-decoration-none">
+                                                            <span class="text-muted" style="font-size: 14px;">К посту: {{ $comment->post->title }}</span>
                                                         </a>
-                                                        <small class="text-muted">{{ $post->created_at->diffForHumans() }}</small>
                                                     </div>
-                                                    <div class="ms-auto d-flex align-items-center">
-                                                        <span class="badge bg-{{ $post->type === 'post' ? 'primary' : 'success' }} rounded-pill px-3 py-1 me-2">
-                                                            {{ $post->type === 'post' ? 'Запись' : 'Вопрос' }}
-                                                        </span>
-                                                        
-                                                        <!-- Добавляем меню управления -->
-                                                        @auth
-                                                        <div class="dropdown">
-                                                            <button class="btn btn-link text-dark p-0" type="button" data-bs-toggle="dropdown">
-                                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                                                                    <path d="M12 13C12.5523 13 13 12.5523 13 12C13 11.4477 12.5523 11 12 11C11.4477 11 11 11.4477 11 12C11 12.5523 11.4477 13 12 13Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                                                    <path d="M12 6C12.5523 6 13 5.55228 13 5C13 4.44772 12.5523 4 12 4C11.4477 4 11 4.44772 11 5C11 5.55228 11.4477 6 12 6Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                                                    <path d="M12 20C12.5523 20 13 19.5523 13 19C13 18.4477 12.5523 18 12 18C11.4477 18 11 18.4477 11 19C11 19.5523 11.4477 20 12 20Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                                                </svg>
-                                                            </button>
-                                                            <ul class="dropdown-menu dropdown-menu-end">
-                                                                @if(auth()->id() === $post->user_id)
-                                                                <li><a class="dropdown-item" href="{{ route('posts.edit', $post) }}">Редактировать</a></li>
-                                                                <li>
-                                                                    <form action="{{ route('posts.destroy', $post) }}" method="POST" onsubmit="return confirm('Вы уверены, что хотите удалить этот пост?');">
-                                                                        @csrf
-                                                                        @method('DELETE')
-                                                                        <button type="submit" class="dropdown-item text-danger">Удалить</button>
-                                                                    </form>
-                                                                </li>
-                                                                @else
-                                                                <li><a class="dropdown-item text-danger" href="#" data-bs-toggle="modal" data-bs-target="#reportPostModal{{ $post->id }}">Пожаловаться</a></li>
-                                                                @endif
-                                                            </ul>
-                                                        </div>
-                                                        @endauth
-                                                    </div>
-                                                </div>
-
-                                                <!-- Заголовок и контент -->
-                                                <div class="post-content">
-                                                    <a href="{{ route('posts.show', $post) }}" class="text-decoration-none">
-                                                        <h5 class="card-title mb-3 text-dark">
-                                                            {{ $post->title }}
-                                                        </h5>
-                                                        
-                                                        <p class="card-text text-muted mb-3">{{ Str::limit($post->content, 200) }}</p>
-
-                                                        <!-- Изображение, если есть -->
-                                                        @if($post->image)
-                                                            <div class="post-image mb-3">
-                                                                <img src="{{ asset('storage/' . $post->image) }}" 
-                                                                     class="img-fluid rounded" 
-                                                                     alt="{{ $post->title }}">
-                                                            </div>
-                                                        @endif
-
-                                                        <!-- Теги -->
-                                                        @if($post->tags->isNotEmpty())
-                                                            <div class="tags mb-3">
-                                                                @foreach($post->tags as $tag)
-                                                                    <a href="{{ route('tags.show', $tag) }}" 
-                                                                       class="badge bg-light text-dark text-decoration-none me-1">
-                                                                        #{{ $tag->name }}
-                                                                    </a>
-                                                                @endforeach
-                                                            </div>
-                                                        @endif
-                                                    </a>
-                                                </div>
-
-                                                <!-- Действия с постом -->
-                                                <div class="d-flex align-items-center justify-content-between mb-4">
-                                                    <div class="d-flex align-items-center">
-                                                        @auth
-                                                        <button class="btn btn-link text-dark p-0 me-4 like-button" data-post-id="{{ $post->id }}">
-                                                            <img src="{{ asset('images/like.svg') }}" alt="Лайк" width="18" height="16" class="{{ $post->likedBy(auth()->user()) ? 'liked' : '' }}">
-                                                            <span class="ms-1 likes-count" style="pointer-events: none;">{{ $post->likes_count }}</span>
-                                                        </button>
-                                                        @else
-                                                        <a href="{{ route('login') }}" class="btn btn-link text-dark p-0 me-4">
-                                                            <img src="{{ asset('images/like.svg') }}" alt="Лайк" width="18" height="16">
-                                                            <span class="ms-1">{{ $post->likes_count }}</span>
-                                                        </a>
-                                                        @endauth
-
-                                                        <button class="btn btn-link text-dark p-0 me-4 comment-toggle">
-                                                            <img src="{{ asset('images/comment.svg') }}" alt="Комментарии" width="20" height="19">
-                                                            <span class="ms-1">{{ $post->comments_count }}</span>
-                                                        </button>
-
-                                                        <button class="btn btn-link text-dark p-0 me-4 repost-button" id="copy-post-link">
-                                                            <img src="{{ asset('images/reply.svg') }}" alt="Поделиться" width="20" height="21">
-                                                            <span class="ms-1">{{ $post->reposts_count }}</span>
-                                                        </button>
-                                                    </div>
-
-                                                    @auth
-                                                    <form action="{{ route('posts.bookmark', $post) }}" method="POST" class="ms-auto">
-                                                        @csrf
-                                                        <button type="submit" class="btn btn-link text-dark p-0 bookmark-button {{ $post->isBookmarkedBy(auth()->user()) ? 'active' : '' }}">
-                                                            <img src="{{ asset('images/bookmark-mini.svg') }}" alt="Закладка" width="20" height="20" class="{{ $post->isBookmarkedBy(auth()->user()) ? 'bookmarked' : '' }}">
-                                                        </button>
-                                                    </form>
-                                                    @else
-                                                    <a href="{{ route('login') }}" class="btn btn-link text-dark p-0 ms-auto">
-                                                        <img src="{{ asset('images/bookmark-mini.svg') }}" alt="Закладка" width="20" height="20">
-                                                    </a>
-                                                    @endauth
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                @endforeach
                                 </div>
-                                {{ $posts->links() }}
-                            @endif
+                            @endforeach
                         </div>
+                    @endif
+                </div>
 
-                        <div class="tab-pane fade" id="comments">
-                            @if($comments->isEmpty())
-                                <div class="text-center py-5">
-                                    <i class="fas fa-comments fa-3x text-muted mb-3"></i>
-                                    <p class="text-muted">У пользователя пока нет комментариев</p>
-                                </div>
-                            @else
-                                @foreach($comments as $comment)
-                                    <div class="comment">
-                                        <div class="d-flex align-items-center mb-2">
-                                            <div class="me-2">
-                                                <x-user-avatar :user="$comment->user" :size="32" />
-                                            </div>
-                                            <div>
-                                                <h6 class="mb-0">{{ $comment->user->name }}</h6>
-                                                <small class="text-muted">{{ $comment->created_at->diffForHumans() }}</small>
-                                            </div>
-                                        </div>
-                                        <p class="comment-content">{{ $comment->content }}</p>
-                                        <div class="d-flex align-items-center">
-                                            <a href="{{ route('posts.show', $comment->post) }}" class="text-decoration-none">
-                                                <small class="text-muted">
-                                                    К посту: {{ $comment->post->title }}
-                                                </small>
-                                            </a>
-                                        </div>
-                                    </div>
-                                @endforeach
-                                {{ $comments->links() }}
-                            @endif
+                <style>
+                    .comment-card .card {
+                        background: #FFFFFF;
+                        border-radius: 12px;
+                        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+                    }
+                </style>
+
+                <div class="tab-pane fade" id="bookmarks">
+                    @if($bookmarks->isEmpty())
+                        <div class="text-center py-5">
+                            <i class="fas fa-bookmark fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">У пользователя пока нет закладок</p>
                         </div>
-
-                        <div class="tab-pane fade" id="bookmarks">
-                            @if($bookmarks->isEmpty())
-                                <div class="text-center py-5">
-                                    <i class="fas fa-bookmark fa-3x text-muted mb-3"></i>
-                                    <p class="text-muted">У пользователя пока нет закладок</p>
-                                </div>
-                            @else
-                                @foreach($bookmarks as $bookmark)
-                                    <div class="post-card">
-                                        <div class="card border-0 hover-card">
-                                            <div class="card-body p-4">
-                                                <div class="d-flex align-items-center mb-2">
-                                                    <div class="me-2">
+                    @else
+                        <div class="bookmarks-list">
+                            @foreach($bookmarks as $bookmark)
+                                <div class="bookmark-card mb-3">
+                                    <div class="card border-0">
+                                        <div class="card-body p-4">
+                                            <div class="d-flex align-items-start">
+                                                <div class="position-relative me-3">
+                                                    <a href="{{ route('users.show', $bookmark->post->user) }}" class="text-decoration-none">
+                                                        <x-user-avatar :user="$bookmark->post->user" :size="48" />
+                                                    </a>
+                                                    <x-rank-icon :user="$bookmark->post->user" />
+                                                </div>
+                                                <div class="flex-grow-1">
+                                                    <div class="d-flex align-items-center mb-2">
                                                         <a href="{{ route('users.show', $bookmark->post->user) }}" class="text-decoration-none">
-                                                            <x-user-avatar :user="$bookmark->post->user" :size="40" />
+                                                            <span class="fw-bold text-dark">{{ $bookmark->post->user->name }}</span>
+                                                        </a>
+                                                        <span class="text-muted ms-2" style="font-size: 14px;">{{ $bookmark->created_at->diffForHumans() }}</span>
+                                                    </div>
+                                                    <div class="post-content">
+                                                        <a href="{{ route('posts.show', $bookmark->post) }}" class="text-decoration-none">
+                                                            <h5 class="card-title mb-3 text-dark">{{ $bookmark->post->title }}</h5>
+                                                            <p class="text-muted mb-0" style="font-size: 14px;">{{ Str::limit($bookmark->post->content, 200) }}</p>
                                                         </a>
                                                     </div>
-                                                    <div>
-                                                        <a href="{{ route('users.show', $bookmark->post->user) }}" class="text-decoration-none text-dark">
-                                                            <h6 class="mb-0">{{ $bookmark->post->user->name }}</h6>
-                                                        </a>
-                                                        <small class="text-muted">{{ $bookmark->created_at->diffForHumans() }}</small>
-                                                    </div>
-                                                </div>
-
-                                                <div class="post-content">
-                                                    <a href="{{ route('posts.show', $bookmark->post) }}" class="text-decoration-none">
-                                                        <h5 class="card-title mb-3 text-dark">
-                                                            {{ $bookmark->post->title }}
-                                                        </h5>
-                                                        <p class="card-text text-muted mb-3">{{ Str::limit($bookmark->post->content, 200) }}</p>
-                                                    </a>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                @endforeach
-                                {{ $bookmarks->links() }}
-                            @endif
+                                </div>
+                            @endforeach
                         </div>
-                    </div>
+                    @endif
                 </div>
             </div>
         </div>
