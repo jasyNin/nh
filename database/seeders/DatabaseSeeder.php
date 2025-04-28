@@ -22,9 +22,9 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             TagSeeder::class,
+            NeuronchikSeeder::class,
             UserSeeder::class,
             PostSeeder::class,
-            NeuronchikBotSeeder::class,
             ModeratorSeeder::class,
         ]);
     }

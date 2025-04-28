@@ -6,18 +6,18 @@ use Illuminate\Database\Seeder;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
-class ModeratorSeeder extends Seeder
+class NeuronchikSeeder extends Seeder
 {
     public function run(): void
     {
         User::create([
-            'name' => 'Модератор',
-            'email' => 'moderator@example.com',
+            'name' => 'Нейрончик',
+            'email' => 'neuronchik@example.com',
             'password' => Hash::make('password'),
-            'avatar' => 'images/moderator.png',
-            'rank' => 'moderator',
+            'avatar' => 'images/neuronchik.png',
+            'rank' => 'bot',
             'rating' => 0,
-            'is_moderator' => true,
+            'is_bot' => true,
             'email_verified_at' => now(),
         ]);
     }

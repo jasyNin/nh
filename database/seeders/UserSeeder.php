@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 use Illuminate\Database\Seeder;
+use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
 class UserSeeder extends Seeder
@@ -12,21 +12,17 @@ class UserSeeder extends Seeder
     {
         // Создаем администратора
         User::create([
-            'name' => 'Admin',
+            'name' => 'Администратор',
             'email' => 'admin@example.com',
             'password' => Hash::make('password'),
+            'avatar' => 'images/admin.png',
+            'rank' => 'admin',
+            'rating' => 0,
             'is_admin' => true,
+            'email_verified_at' => now(),
         ]);
 
-        // Создаем тестового пользователя
-        User::create([
-            'name' => 'User',
-            'email' => 'user@example.com',
-            'password' => Hash::make('password'),
-            'is_admin' => false,
-        ]);
-
-        // Создаем еще несколько пользователей
-        User::factory(5)->create();
+        // Создаем тестовых пользователей
+        User::factory(10)->create();
     }
 } 

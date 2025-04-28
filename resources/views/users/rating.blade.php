@@ -70,10 +70,6 @@
                                 </a>
                             @endforeach
                         </div>
-
-                        <div class="mt-4 px-3">
-                            {{ $users->links() }}
-                        </div>
                     @endif
                 </div>
             </div>

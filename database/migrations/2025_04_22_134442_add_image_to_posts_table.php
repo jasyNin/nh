@@ -8,15 +8,25 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('posts', function (Blueprint $table) {
-            $table->string('image')->nullable()->after('content');
-        });
+        if (Schema::hasTable('posts')) {
+            // Добавляем колонку image, если её нет
+            if (!Schema::hasColumn('posts', 'image')) {
+                Schema::table('posts', function (Blueprint $table) {
+                    $table->string('image')->nullable()->after('content');
+                });
+            }
+        }
     }
 
     public function down(): void
     {
-        Schema::table('posts', function (Blueprint $table) {
-            $table->dropColumn('image');
-        });
+        if (Schema::hasTable('posts')) {
+            // Удаляем колонку image, если она существует
+            if (Schema::hasColumn('posts', 'image')) {
+                Schema::table('posts', function (Blueprint $table) {
+                    $table->dropColumn('image');
+                });
+            }
+        }
     }
 }; 

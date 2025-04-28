@@ -38,7 +38,7 @@ class UserRatingController extends Controller
                 WHEN 'bot' THEN 0
                 ELSE 7 END")
             ->orderBy('rating', 'desc')
-            ->paginate(20);
+            ->get();
 
         $popularTags = Tag::withCount('posts')
             ->orderBy('posts_count', 'desc')

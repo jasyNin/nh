@@ -44,7 +44,7 @@ class UserController extends Controller
     {
         $users = User::withCount(['posts', 'comments'])
             ->orderByDesc('posts_count')
-            ->paginate(20);
+            ->get();
 
         // Получаем популярные теги
         $popularTags = Tag::withCount('posts')

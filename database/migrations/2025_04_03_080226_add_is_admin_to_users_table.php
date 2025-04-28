@@ -6,19 +6,23 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('avatar')->nullable();
-            $table->integer('rating')->default(0);
-            $table->string('rank')->default('Новичок');
+            $table->boolean('is_admin')->default(false);
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn(['avatar', 'rating', 'rank']);
+            $table->dropColumn('is_admin');
         });
     }
-}; 
+};
