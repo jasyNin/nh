@@ -126,7 +126,9 @@
                                                         </div>
                                                     </div>
                                                     <div class="text-muted">
-                                                        <small>К посту: <a href="{{ route('posts.show', $notification->post->id) }}" class="text-decoration-none">{{ $notification->post->title }}</a></small>
+                                                        @if($notification->post)
+                                                            <small>К посту: <a href="{{ route('posts.show', $notification->post->id) }}" class="text-decoration-none">{{ $notification->post->title }}</a></small>
+                                                        @endif
                                                         @if(isset($notification->content))
                                                             <div class="mt-1 small text-muted" style="max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: normal; word-wrap: break-word;">
                                                                 {{ $notification->content }}

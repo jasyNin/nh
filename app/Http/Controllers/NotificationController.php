@@ -14,7 +14,7 @@ class NotificationController extends Controller
     {
         $notifications = auth()->user()
             ->notifications()
-            ->with(['fromUser', 'notifiable'])
+            ->with(['fromUser', 'notifiable', 'post'])
             ->latest()
             ->paginate(10);
 
