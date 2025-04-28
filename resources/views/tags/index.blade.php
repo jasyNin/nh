@@ -58,7 +58,7 @@
                                                                 #{{ $tag->name }}
                                                             </h5>
                                                             <span class="badge bg-light text-dark rounded-pill px-3 py-1">
-                                                                {{ $tag->posts_count }} {{ __('posts.posts.' . min($tag->posts_count, 20)) }}
+                                                                {{ $tag->posts_count }} постов
                                                             </span>
                                                         </div>
                                                         @if($tag->description)
@@ -97,7 +97,7 @@
                                                             #{{ $tag->name }}
                                                         </h5>
                                                         <span class="badge bg-light text-dark rounded-pill px-3 py-1">
-                                                            {{ $tag->posts_count }} {{ __('posts.posts.' . min($tag->posts_count, 20)) }}
+                                                            {{ $tag->posts_count }} постов
                                                         </span>
                                                     </div>
                                                     @if($tag->description)

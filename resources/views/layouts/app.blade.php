@@ -69,7 +69,7 @@
                         <li class="nav-item dropdown me-3">
                             <a class="nav-link position-relative" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown">
                                 <img src="{{ asset('images/bell.svg') }}" alt="Уведомления" width="24" height="24">
-                                <span class="notification-badge" id="notificationIndicator" style="display: none; width: 8px; height: 8px; top: 8px; right: 12px; border: 1px solid white;"></span>
+                                <span class="notification-badge" id="notificationIndicator" style="display: none; position: absolute; width: 8px; height: 8px; top: 8px; right: 12px; background-color: #0d6efd; border-radius: 50%; border: 1px solid white;"></span>
                             </a>
                             <div class="dropdown-menu dropdown-menu-end notifications-dropdown" style="width: 400px; max-height: 500px; overflow-y: auto;">
                                 <div class="notifications-list">
@@ -117,19 +117,17 @@
                                                         <div>
                                                             <a href="{{ route('users.show', $notification->user->id) }}" class="text-decoration-none text-dark fw-bold">{{ $notification->user->name }}</a>
                                                             <span class="text-muted ms-2">
-                                                                @if($notification instanceof \App\Models\PostLike)
+                                                                @if($notification->type === 'like')
                                                                     поставил(а) лайк
-                                                                @elseif($notification instanceof \App\Models\Comment)
+                                                                @elseif($notification->type === 'comment')
                                                                     оставил(а) комментарий
-                                                                @else
-                                                                    ответил(а) на ваш комментарий
                                                                 @endif
                                                             </span>
                                                         </div>
                                                     </div>
                                                     <div class="text-muted">
-                                                        <small>К посту: <a href="{{ route('posts.show', $notification instanceof \App\Models\CommentReply ? $notification->comment->post->id : $notification->post->id) }}" class="text-decoration-none">{{ $notification instanceof \App\Models\CommentReply ? $notification->comment->post->title : $notification->post->title }}</a></small>
-                                                        @if($notification instanceof \App\Models\Comment || $notification instanceof \App\Models\CommentReply)
+                                                        <small>К посту: <a href="{{ route('posts.show', $notification->post->id) }}" class="text-decoration-none">{{ $notification->post->title }}</a></small>
+                                                        @if(isset($notification->content))
                                                             <div class="mt-1 small text-muted" style="max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: normal; word-wrap: break-word;">
                                                                 {{ $notification->content }}
                                                             </div>
@@ -289,11 +287,11 @@
             const dropdown = document.getElementById('notificationsDropdown');
             const indicator = document.getElementById('notificationIndicator');
             
-            // Проверяем наличие новых уведомлений при загрузке страницы
-            checkUnviewedNotifications();
-            
-            // Проверяем каждые 30 секунд
-            setInterval(checkUnviewedNotifications, 30000);
+            // Проверяем уведомления только если мы не на главной странице
+            if (window.location.pathname !== '/') {
+                checkUnviewedNotifications();
+                setInterval(checkUnviewedNotifications, 30000);
+            }
             
             // При открытии дропдауна отмечаем уведомления как просмотренные
             dropdown.addEventListener('show.bs.dropdown', function() {
@@ -309,9 +307,18 @@
             
             function checkUnviewedNotifications() {
                 fetch('/notifications/unviewed-count')
-                    .then(response => response.json())
-                    .then(data => {
-                        indicator.style.display = data.has_unviewed ? 'flex' : 'none';
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.text();
+                    })
+                    .then(hasUnviewed => {
+                        indicator.style.display = hasUnviewed === 'true' ? 'block' : 'none';
+                    })
+                    .catch(error => {
+                        console.error('Ошибка при проверке уведомлений:', error);
+                        indicator.style.display = 'none';
                     });
             }
         });

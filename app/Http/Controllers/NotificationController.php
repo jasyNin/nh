@@ -26,13 +26,13 @@ class NotificationController extends Controller
             ->latest()
             ->get()
             ->map(function($like) {
-                return [
+                return (object)[
                     'id' => $like->id,
                     'type' => 'like',
                     'read' => false,
                     'created_at' => $like->created_at,
-                    'fromUser' => $like->user,
-                    'notifiable' => $like->post
+                    'user' => $like->user,
+                    'post' => $like->post
                 ];
             });
 
@@ -44,13 +44,14 @@ class NotificationController extends Controller
             ->latest()
             ->get()
             ->map(function($comment) {
-                return [
+                return (object)[
                     'id' => $comment->id,
                     'type' => 'comment',
                     'read' => false,
                     'created_at' => $comment->created_at,
-                    'fromUser' => $comment->user,
-                    'notifiable' => $comment->post
+                    'user' => $comment->user,
+                    'post' => $comment->post,
+                    'content' => $comment->content
                 ];
             });
 
@@ -120,6 +121,15 @@ class NotificationController extends Controller
         $user = auth()->user();
         $lastView = $user->last_notification_view;
         
+        // Проверяем стандартные уведомления
+        $notificationCount = $user->notifications()
+            ->where('read', false)
+            ->when($lastView, function($query) use ($lastView) {
+                return $query->where('created_at', '>', $lastView);
+            })
+            ->count();
+
+        // Проверяем лайки
         $likeCount = \App\Models\PostLike::whereHas('post', function($query) use ($user) {
             $query->where('user_id', $user->id);
         })
@@ -128,6 +138,7 @@ class NotificationController extends Controller
         })
         ->count();
 
+        // Проверяем комментарии
         $commentCount = \App\Models\Comment::whereHas('post', function($query) use ($user) {
             $query->where('user_id', $user->id);
         })
@@ -136,8 +147,12 @@ class NotificationController extends Controller
         })
         ->count();
 
-        return response()->json([
-            'has_unviewed' => ($likeCount + $commentCount) > 0
-        ]);
+        $totalCount = $notificationCount + $likeCount + $commentCount;
+        
+        if ($totalCount > 0) {
+            return 'true';
+        }
+        
+        return '';
     }
 } 

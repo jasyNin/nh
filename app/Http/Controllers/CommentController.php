@@ -13,12 +13,16 @@ class CommentController extends Controller
     public function store(Request $request, Post $post)
     {
         $validated = $request->validate([
-            'content' => 'required|string|max:1000'
+            'content' => 'required|string|max:1000|regex:/^[\p{L}\p{N}\p{P}\p{Z}\p{Sm}\p{Sc}\p{Sk}\p{So}\s]+$/u'
         ]);
+
+        // Очищаем контент от потенциально опасных HTML-тегов
+        $content = strip_tags($validated['content']);
+        $content = htmlspecialchars($content, ENT_QUOTES, 'UTF-8');
 
         $comment = $post->comments()->create([
             'user_id' => Auth::id(),
-            'content' => $validated['content']
+            'content' => $content
         ]);
 
         // Создаем уведомление для автора поста
@@ -36,13 +40,12 @@ class CommentController extends Controller
             $user = Auth::user();
             return response()->json([
                 'success' => true,
-                'comment_id' => $comment->id,
-                'user_name' => $user->name,
-                'user_avatar' => $user->avatar ? asset('storage/' . $user->avatar) : asset('images/default-avatar.png'),
-                'user_url' => route('users.show', $user),
-                'content' => $comment->content,
-                'likes_count' => 0,
-                'comments_count' => $post->comments_count
+                'post_id' => $post->id,
+                'comments_count' => $post->comments()->count(),
+                'comment_html' => view('components.comment', [
+                    'comment' => $comment,
+                    'post' => $post
+                ])->render()
             ]);
         }
 

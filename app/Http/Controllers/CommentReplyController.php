@@ -11,11 +11,15 @@ class CommentReplyController extends Controller
     public function store(Request $request, Comment $comment)
     {
         $request->validate([
-            'content' => 'required|string|min:1|max:1000'
+            'content' => 'required|string|min:1|max:1000|regex:/^[\p{L}\p{N}\p{P}\p{Z}\p{Sm}\p{Sc}\p{Sk}\p{So}\s]+$/u'
         ]);
 
+        // Очищаем контент от потенциально опасных HTML-тегов
+        $content = strip_tags($request->content);
+        $content = htmlspecialchars($content, ENT_QUOTES, 'UTF-8');
+
         $reply = $comment->replies()->create([
-            'content' => $request->content,
+            'content' => $content,
             'user_id' => auth()->id()
         ]);
 

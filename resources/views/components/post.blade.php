@@ -7,7 +7,7 @@
         @foreach($post->comments as $comment)
             <div class="comment">
                 <div class="comment-content">
-                    {{ $comment->content }}
+                    {!! nl2br(e($comment->content)) !!}
                 </div>
                 <div class="comment-meta">
                     <span class="comment-author">{{ $comment->user->name }}</span>
@@ -22,7 +22,7 @@
                             @foreach($comment->replies as $reply)
                                 <div class="reply">
                                     <div class="reply-content">
-                                        {{ $reply->content }}
+                                        {!! nl2br(e($reply->content)) !!}
                                     </div>
                                     <div class="reply-meta">
                                         <span class="reply-author">{{ $reply->user->name }}</span>

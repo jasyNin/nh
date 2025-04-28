@@ -150,5 +150,4 @@ Route::post('complaints', [ComplaintController::class, 'store'])->name('complain
 
 Route::middleware(['auth'])->group(function () {
     Route::post('/notifications/mark-as-viewed', [NotificationController::class, 'markAsViewed']);
-    Route::get('/notifications/unviewed-count', [NotificationController::class, 'getUnviewedCount']);
 });

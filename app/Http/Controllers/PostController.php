@@ -78,12 +78,19 @@ class PostController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'content' => 'required|string',
+            'title' => 'required|string|max:255|regex:/^[\p{L}\p{N}\p{P}\p{Z}\p{Sm}\p{Sc}\p{Sk}\p{So}\s]+$/u',
+            'content' => 'required|string|regex:/^[\p{L}\p{N}\p{P}\p{Z}\p{Sm}\p{Sc}\p{Sk}\p{So}\s]+$/u',
             'type' => 'required|string|in:question,post',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'is_draft' => 'boolean'
         ]);
+
+        // Очищаем контент от потенциально опасных HTML-тегов
+        $validated['title'] = strip_tags($validated['title']);
+        $validated['title'] = htmlspecialchars($validated['title'], ENT_QUOTES, 'UTF-8');
+        
+        $validated['content'] = strip_tags($validated['content']);
+        $validated['content'] = htmlspecialchars($validated['content'], ENT_QUOTES, 'UTF-8');
 
         $validated['user_id'] = auth()->id();
         $validated['status'] = $request->is_draft ? 'draft' : 'published';

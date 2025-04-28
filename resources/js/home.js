@@ -110,22 +110,7 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             
             const formData = new FormData(this);
-            const likeButton = this.closest('.post-card').querySelector('.like-button');
-            if (!likeButton) {
-                console.error('Like button not found');
-                showToast('Ошибка: кнопка лайка не найдена', 'error');
-                return;
-            }
-            
-            const postId = likeButton.dataset.postId;
-            if (!postId) {
-                console.error('Post ID is missing');
-                showToast('Ошибка: ID поста не найден', 'error');
-                return;
-            }
-            
-            const commentsList = this.closest('.comments-section').querySelector('.comments-list');
-            const commentsCount = this.closest('.post-card').querySelector('.comments-count');
+            const postId = this.closest('.post-card').querySelector('.like-button').dataset.postId;
             
             fetch(this.action, {
                 method: 'POST',
@@ -138,18 +123,8 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Очищаем форму
-                    this.reset();
-                    
-                    // Обновляем счетчик комментариев
-                    commentsCount.textContent = data.comments_count;
-                    
-                    // Добавляем новый комментарий в начало списка
-                    const newComment = document.createElement('div');
-                    newComment.innerHTML = data.comment_html;
-                    commentsList.insertBefore(newComment.firstElementChild, commentsList.firstChild);
-                    
-                    showToast('Комментарий добавлен');
+                    // Перенаправляем на страницу поста
+                    window.location.href = `/posts/${postId}?success=Комментарий успешно добавлен`;
                 }
             })
             .catch(error => {
