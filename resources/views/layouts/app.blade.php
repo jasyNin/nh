@@ -283,45 +283,34 @@
     </style>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const dropdown = document.getElementById('notificationsDropdown');
-            const indicator = document.getElementById('notificationIndicator');
-            
-            // Проверяем уведомления только если мы не на главной странице
-            if (window.location.pathname !== '/') {
-                checkUnviewedNotifications();
-                setInterval(checkUnviewedNotifications, 30000);
-            }
-            
-            // При открытии дропдауна отмечаем уведомления как просмотренные
-            dropdown.addEventListener('show.bs.dropdown', function() {
-                fetch('/notifications/mark-as-viewed', {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        function checkUnviewedNotifications() {
+            fetch('{{ route("notifications.unviewed-count") }}')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
                     }
-                }).then(() => {
-                    indicator.style.display = 'none';
-                });
-            });
-            
-            function checkUnviewedNotifications() {
-                fetch('/notifications/unviewed-count')
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Network response was not ok');
-                        }
-                        return response.text();
-                    })
-                    .then(hasUnviewed => {
-                        indicator.style.display = hasUnviewed === 'true' ? 'block' : 'none';
-                    })
-                    .catch(error => {
-                        console.error('Ошибка при проверке уведомлений:', error);
+                    return response.json();
+                })
+                .then(data => {
+                    const indicator = document.getElementById('notificationIndicator');
+                    if (indicator) {
+                        indicator.style.display = data.has_unviewed ? 'block' : 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error('Ошибка при проверке уведомлений:', error);
+                    const indicator = document.getElementById('notificationIndicator');
+                    if (indicator) {
                         indicator.style.display = 'none';
-                    });
-            }
-        });
+                    }
+                });
+        }
+
+        // Проверяем уведомления каждые 30 секунд
+        setInterval(checkUnviewedNotifications, 30000);
+
+        // Проверяем сразу при загрузке страницы
+        document.addEventListener('DOMContentLoaded', checkUnviewedNotifications);
     </script>
 </body>
 </html> 

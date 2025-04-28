@@ -118,41 +118,19 @@ class NotificationController extends Controller
 
     public function getUnviewedCount()
     {
-        $user = auth()->user();
-        $lastView = $user->last_notification_view;
-        
-        // Проверяем стандартные уведомления
-        $notificationCount = $user->notifications()
-            ->where('read', false)
-            ->when($lastView, function($query) use ($lastView) {
-                return $query->where('created_at', '>', $lastView);
-            })
-            ->count();
+        try {
+            if (!auth()->check()) {
+                return response()->json(['has_unviewed' => false]);
+            }
 
-        // Проверяем лайки
-        $likeCount = \App\Models\PostLike::whereHas('post', function($query) use ($user) {
-            $query->where('user_id', $user->id);
-        })
-        ->when($lastView, function($query) use ($lastView) {
-            return $query->where('created_at', '>', $lastView);
-        })
-        ->count();
+            $hasUnviewed = auth()->user()->notifications()
+                ->where('viewed', false)
+                ->exists();
 
-        // Проверяем комментарии
-        $commentCount = \App\Models\Comment::whereHas('post', function($query) use ($user) {
-            $query->where('user_id', $user->id);
-        })
-        ->when($lastView, function($query) use ($lastView) {
-            return $query->where('created_at', '>', $lastView);
-        })
-        ->count();
-
-        $totalCount = $notificationCount + $likeCount + $commentCount;
-        
-        if ($totalCount > 0) {
-            return 'true';
+            return response()->json(['has_unviewed' => $hasUnviewed]);
+        } catch (\Exception $e) {
+            \Log::error('Ошибка при проверке уведомлений: ' . $e->getMessage());
+            return response()->json(['has_unviewed' => false]);
         }
-        
-        return '';
     }
 } 
