@@ -63,24 +63,13 @@
                 <h5 class="modal-title">Пожаловаться на ответ</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form action="{{ route('replies.report', $reply) }}" method="POST" data-remote="true">
+            <form action="{{ route('replies.report', $reply) }}" method="POST">
                 @csrf
-                <input type="hidden" name="_token" value="{{ csrf_token() }}">
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label">Тип жалобы</label>
-                        <select name="type" class="form-select" required>
-                            <option value="">Выберите тип жалобы</option>
-                            <option value="спам">Спам</option>
-                            <option value="оскорбление">Оскорбление</option>
-                            <option value="неприемлемый контент">Неприемлемый контент</option>
-                            <option value="нарушение авторских прав">Нарушение авторских прав</option>
-                            <option value="другое">Другое</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
                         <label class="form-label">Причина жалобы</label>
-                        <textarea name="reason" class="form-control" rows="3" required placeholder="Опишите подробнее причину жалобы..."></textarea>
+                        <textarea name="reason" class="form-control" rows="3" required placeholder="Опишите причину жалобы..." minlength="10" maxlength="1000"></textarea>
+                        <div class="form-text">Минимум 10 символов</div>
                     </div>
                 </div>
                 <div class="modal-footer">

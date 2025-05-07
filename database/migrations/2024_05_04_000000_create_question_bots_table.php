@@ -8,12 +8,10 @@ return new class extends Migration
 {
     public function up()
     {
-        Schema::create('neuronchik_bots', function (Blueprint $table) {
+        Schema::create('question_bots', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->string('name')->nullable();
-            $table->string('avatar')->nullable();
-            $table->text('description')->nullable();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->string('name');
             $table->boolean('is_active')->default(true);
             $table->json('settings')->nullable();
             $table->timestamp('last_activity')->nullable();
@@ -23,6 +21,6 @@ return new class extends Migration
 
     public function down()
     {
-        Schema::dropIfExists('neuronchik_bots');
+        Schema::dropIfExists('question_bots');
     }
 }; 

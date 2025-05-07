@@ -9,20 +9,20 @@ use Illuminate\Support\Facades\Auth;
 
 class PostLikeController extends Controller
 {
-    public function toggle(Request $request, $postId)
+    public function toggle(Post $post)
     {
-        $user = Auth::user();
-        $post = Post::findOrFail($postId);
+        $user = auth()->user();
+        $like = $post->likes()->where('user_id', $user->id)->first();
 
-        $like = PostLike::where('user_id', $user->id)->where('post_id', $post->id)->first();
         if ($like) {
             $like->delete();
+            // Уменьшаем рейтинг пользователя при отмене лайка
+            $user->update(['rating' => $user->rating - 1]);
             $liked = false;
         } else {
-            PostLike::create([
-                'user_id' => $user->id,
-                'post_id' => $post->id,
-            ]);
+            $post->likes()->create(['user_id' => $user->id]);
+            // Увеличиваем рейтинг пользователя при лайке
+            $user->update(['rating' => $user->rating + 1]);
             $liked = true;
 
             // Создаем уведомление для автора поста
@@ -36,11 +36,9 @@ class PostLikeController extends Controller
             }
         }
 
-        $likesCount = $post->likes()->count();
-
         return response()->json([
-            'liked' => $liked,
-            'likes_count' => $likesCount,
+            'likes_count' => $post->likes()->count(),
+            'liked' => $liked
         ]);
     }
 }

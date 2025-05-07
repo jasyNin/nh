@@ -11,17 +11,11 @@
 
         <!-- Основной контент -->
         <div class="col-md-7">
-            <div class="card">
+            <div class="card" style="max-width: 383px;">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <span>Уведомления</span>
                     @if($notifications->isNotEmpty())
-                        <form action="{{ route('notifications.readAll') }}" method="POST" class="d-inline">
-                            @csrf
-                            @method('PUT')
-                            <button type="submit" class="btn btn-sm btn-outline-primary">
-                                Отметить все как прочитанные
-                            </button>
-                        </form>
+                        <button class="btn btn-primary" onclick="markAllAsRead()">Отметить все как прочитанные</button>
                     @endif
                 </div>
                 <div class="card-body">
@@ -38,31 +32,16 @@
                     @else
                         <div class="list-group">
                             @foreach($notifications as $notification)
-                                <div class="list-group-item {{ $notification->read_at ? '' : 'list-group-item-primary' }}">
-                                    <div class="d-flex align-items-start">
-                                        <div class="flex-shrink-0 me-3">
-                                            <x-user-avatar :user="$notification->fromUser" :size="40" />
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div class="list-group-item {{ $notification->viewed ? '' : 'bg-light' }}">
+                                    <div class="d-flex justify-content-between align-items-center">
                                                 <div>
-                                                    <a href="{{ route('users.show', $notification->fromUser->id) }}" class="text-decoration-none text-dark fw-bold">{{ $notification->fromUser->name }}</a>
-                                                    <span class="text-muted ms-2">
-                                                        @if($notification->type === 'like')
-                                                            поставил(а) лайк
-                                                        @elseif($notification->type === 'comment')
-                                                            оставил(а) комментарий
-                                                        @elseif($notification->type === 'rating')
-                                                            оценил(а)
-                                                        @endif
-                                                    </span>
-                                                </div>
-                                                <small class="text-muted">{{ $notification->created_at->diffForHumans() }}</small>
-                                            </div>
-                                            <div class="text-muted">
-                                                <small>К посту: <a href="{{ route('posts.show', $notification->notifiable_id) }}" class="text-decoration-none">{{ $notification->notifiable->title }}</a></small>
-                                            </div>
+                                            <p class="mb-1">{{ $notification->data['message'] }}</p>
                                         </div>
+                                        @if(!$notification->read_at)
+                                            <button class="btn btn-sm btn-outline-primary" onclick="markAsRead({{ $notification->id }})">
+                                                Отметить как прочитанное
+                                            </button>
+                                        @endif
                                     </div>
                                 </div>
                             @endforeach
@@ -109,4 +88,38 @@
         </div>
     </div>
 </div>
+
+<script>
+function markAsRead(notificationId) {
+    fetch(`/notifications/${notificationId}/read`, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        }
+    });
+}
+
+function markAllAsRead() {
+    fetch('/notifications/read-all', {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        }
+    });
+}
+</script>
 @endsection 

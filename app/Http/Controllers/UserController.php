@@ -13,6 +13,7 @@ class UserController extends Controller
     public function show(User $user)
     {
         $posts = $user->posts()
+            ->where('status', 'published')
             ->with(['user', 'tags'])
             ->latest()
             ->paginate(10);
@@ -29,11 +30,12 @@ class UserController extends Controller
 
         // Подсчет статистики с использованием полиморфных отношений
         $stats = [
-            'posts_count' => $user->posts()->count(),
+            'posts_count' => $user->posts()->where('status', 'published')->count(),
             'comments_count' => $user->comments()->count(),
             'likes_received' => \App\Models\Like::where('likeable_type', 'App\\Models\\Post')
-                ->whereIn('likeable_id', $user->posts()->pluck('id'))
+                ->whereIn('likeable_id', $user->posts()->where('status', 'published')->pluck('id'))
                 ->count(),
+            'likes_given' => \App\Models\Like::where('user_id', $user->id)->count(),
             'bookmarks_count' => $user->bookmarks()->count(),
         ];
 

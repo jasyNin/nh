@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Закладки')
+@section('title', 'Мои закладки')
 
 @section('content')
 <div class="container" style="margin-top: 80px;">
@@ -11,64 +11,77 @@
 
         <!-- Основной контент -->
         <div class="col-md-10">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">Закладки</h5>
-                </div>
-                <div class="card-body">
-                    @if($bookmarks->isEmpty())
+            @if($bookmarks->isEmpty())
+                <div class="card border-0">
+                    <div class="card-body">
                         <div class="text-center py-5">
-                            <img src="{{ asset('images/bookmark.svg') }}" class="mb-3" width="48" height="48" alt="Закладки" style="filter: brightness(0);">
+                            <img src="{{ asset('images/bookmark.svg') }}" class="mb-3" width="48" height="48" alt="Закладки">
                             <h5>У вас пока нет закладок</h5>
-                            <p class="text-muted">Добавьте интересные посты в закладки, чтобы вернуться к ним позже</p>
+                            <p class="text-muted">Сохраняйте интересные посты в закладки</p>
                         </div>
-                    @else
-                        <div class="list-group">
+                    </div>
+                </div>
+            @else
+                <div class="card border-0 bg-transparent">
+                    <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">Закладки</h4>
+                        <div class="search-container position-relative" style="width: 300px;">
+                            <input type="text" id="bookmarkSearch" class="form-control" placeholder="Поиск по закладкам..." style="border-radius: 20px; padding: 8px 40px 8px 16px; font-size: 0.9rem; border: 1px solid #e0e0e0; background-color: white;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="position-absolute" style="right: 12px; top: 50%; transform: translateY(-50%); filter: invert(32%) sepia(98%) saturate(1234%) hue-rotate(210deg) brightness(97%) contrast(101%);">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="posts-container">
                             @foreach($bookmarks as $bookmark)
-                                <div class="list-group-item">
-                                    <div class="d-flex align-items-start">
-                                        <div class="flex-shrink-0 me-3">
-                                            <x-user-avatar :user="$bookmark->post->user" :size="40" />
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                                <div>
-                                                    <a href="{{ route('users.show', $bookmark->post->user) }}" class="text-decoration-none text-dark fw-bold">{{ $bookmark->post->user->name }}</a>
-                                                    <small class="text-muted ms-2">{{ $bookmark->post->created_at->diffForHumans() }}</small>
-                                                </div>
-                                                <div class="d-flex align-items-center">
-                                                    <span class="badge bg-{{ $bookmark->post->type === 'post' ? 'primary' : 'success' }} me-2">
-                                                        {{ $bookmark->post->type === 'post' ? 'Запись' : 'Вопрос' }}
-                                                    </span>
-                                                    <span class="text-muted">{{ $bookmark->post->comments_count }} {{ __('comments.comments.' . min($bookmark->post->comments_count, 20)) }}</span>
-                                                </div>
-                                            </div>
-                                            <h5 class="mb-2">
-                                                <a href="{{ route('posts.show', $bookmark->post) }}" class="text-decoration-none">
-                                                    {{ $bookmark->post->title }}
-                                                </a>
-                                            </h5>
-                                            <div class="mb-2">{{ Str::limit(strip_tags($bookmark->post->content), 200) }}</div>
-                                            <div class="d-flex align-items-center">
-                                                @foreach($bookmark->post->tags as $tag)
-                                                    <a href="{{ route('tags.show', $tag) }}" class="badge bg-secondary text-decoration-none me-1">
-                                                        #{{ $tag->name }}
-                                                    </a>
-                                                @endforeach
-                                            </div>
-                                        </div>
-                                    </div>
+                                <div class="post-with-comments">
+                                    <x-post-card :post="$bookmark->post" />
                                 </div>
                             @endforeach
                         </div>
-
-                        <div class="mt-4">
-                            {{ $bookmarks->links() }}
-                        </div>
-                    @endif
+                    </div>
                 </div>
-            </div>
+            @endif
         </div>
     </div>
 </div>
+
+@push('styles')
+<style>
+    .posts-container {
+        margin-top: 1rem;
+    }
+    .post-with-comments {
+        margin-bottom: 24px;
+    }
+    .post-with-comments .post-card {
+        margin-bottom: 0;
+    }
+</style>
+@endpush
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('bookmarkSearch');
+    const postCards = document.querySelectorAll('.post-with-comments');
+
+    searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        
+        postCards.forEach(card => {
+            const postTitle = card.querySelector('h2.h5').textContent.toLowerCase();
+            
+            if (postTitle.includes(searchTerm)) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    });
+});
+</script>
+@endpush
 @endsection 

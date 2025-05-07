@@ -25,17 +25,20 @@ class CommentReply extends Model
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class)->withDefault([
+            'name' => 'Удаленный пользователь',
+            'avatar' => null
+        ]);
     }
 
     public function comment(): BelongsTo
     {
-        return $this->belongsTo(Comment::class);
+        return $this->belongsTo(Comment::class)->withDefault();
     }
 
-    public function likes(): MorphMany
+    public function likes()
     {
-        return $this->morphMany(Like::class, 'likeable');
+        return $this->hasMany(ReplyLike::class, 'reply_id');
     }
     
     public function likedBy(User $user): bool

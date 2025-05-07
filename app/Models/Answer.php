@@ -27,8 +27,13 @@ class Answer extends Model
         return $this->belongsTo(Post::class);
     }
 
+    public function postComments()
+    {
+        return $this->post()->with('comments');
+    }
+
     public function comments()
     {
-        return $this->hasMany(Comment::class);
+        return $this->hasMany(Comment::class, 'answer_id')->with('user')->latest();
     }
 } 

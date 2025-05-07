@@ -12,7 +12,8 @@ class CommentLike extends Model
 
     protected $fillable = [
         'user_id',
-        'comment_id'
+        'comment_id',
+        'post_id'
     ];
 
     protected $casts = [
@@ -28,5 +29,10 @@ class CommentLike extends Model
     public function comment(): BelongsTo
     {
         return $this->belongsTo(Comment::class);
+    }
+
+    public function post(): BelongsTo
+    {
+        return $this->belongsTo(Post::class);
     }
 } 

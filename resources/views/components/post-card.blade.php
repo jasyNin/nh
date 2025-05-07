@@ -7,18 +7,30 @@
             <div class="d-flex align-items-center mb-4">
                 <div class="d-flex align-items-center flex-grow-1">
                     <div class="position-relative" style="margin-right: 12px !important;">
-                        <a href="{{ route('users.show', $post->user) }}" class="text-decoration-none">
-                            <x-user-avatar :user="$post->user" :size="48" class="me-2" />
-                        </a>
-                        <x-rank-icon :user="$post->user" />
+                        @if($post->user && $post->user->id)
+                            <a href="{{ route('users.show', $post->user) }}" class="text-decoration-none">
+                                <x-user-avatar :user="$post->user" :size="40" class="me-2" />
+                            </a>
+                            <x-rank-icon :user="$post->user" />
+                        @else
+                            <div class="text-muted">
+                                <x-user-avatar :user="null" :size="40" class="me-2" />
+                            </div>
+                        @endif
                     </div>
                     <div class="d-flex flex-column">
                         <div class="d-flex align-items-center">
-                            <a href="{{ route('users.show', $post->user) }}" class="text-decoration-none text-dark fw-bold me-2">{{ $post->user->name }}</a>
+                            @if($post->user && $post->user->id)
+                                <a href="{{ route('users.show', $post->user) }}" class="text-decoration-none text-dark fw-bold me-2">{{ $post->user->name }}</a>
+                            @else
+                                <span class="text-muted fw-bold me-2">Удаленный пользователь</span>
+                            @endif
                             <small class="text-muted">{{ $post->created_at->diffForHumans() }}</small>
                         </div>
                         <div class="d-flex align-items-center">
-                            <small class="text-muted me-2">{{ $post->user->rank_name }}</small>
+                            @if($post->user && $post->user->id)
+                                <small class="text-muted me-2">{{ $post->user->rank_name }}</small>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -120,21 +132,36 @@
                     @endauth
 
                     <button class="btn btn-link text-dark p-0 me-4 comment-toggle" data-post-id="{{ $post->id }}">
-                        <img src="{{ asset('images/comment.svg') }}" alt="Комментарии" width="20" height="19">
+                        <div class="icon-wrapper">
+                            <img src="{{ asset('images/comment.svg') }}" alt="Комментарии" width="20" height="19">
+                        </div>
                         <span class="ms-1">{{ $post->comments_count }}</span>
                     </button>
 
-                    <button class="btn btn-link text-dark p-0 me-4 share-button" data-post-url="{{ route('posts.show', $post) }}">
-                        <img src="{{ asset('images/reply.svg') }}" alt="Поделиться" width="20" height="21">
+                    @auth
+                    <button class="btn btn-link text-dark p-0 me-4 share-button {{ $post->repostedBy(auth()->user()) ? 'active' : '' }}" data-post-url="{{ route('posts.show', $post) }}">
+                        <div class="icon-wrapper">
+                            <img src="{{ asset('images/reply.svg') }}" alt="Поделиться" width="20" height="21" class="{{ $post->repostedBy(auth()->user()) ? 'reposted' : '' }}">
+                        </div>
                         <span class="ms-1">{{ $post->reposts_count }}</span>
                     </button>
+                    @else
+                    <a href="{{ route('login') }}" class="btn btn-link text-dark p-0 me-4 share-button">
+                        <div class="icon-wrapper">
+                            <img src="{{ asset('images/reply.svg') }}" alt="Поделиться" width="20" height="21">
+                        </div>
+                        <span class="ms-1">{{ $post->reposts_count }}</span>
+                    </a>
+                    @endauth
                 </div>
 
                 @auth
                 <form action="{{ route('posts.bookmark', $post) }}" method="POST" class="ms-auto">
                     @csrf
                     <button type="submit" class="btn btn-link text-dark p-0 bookmark-button {{ $post->isBookmarkedBy(auth()->user()) ? 'active' : '' }}">
-                        <img src="{{ asset('images/bookmark-mini.svg') }}" alt="Закладка" width="20" height="20" class="{{ $post->isBookmarkedBy(auth()->user()) ? 'bookmarked' : '' }}">
+                        <div class="icon-wrapper">
+                            <img src="{{ asset('images/bookmark-mini.svg') }}" alt="Закладка" width="20" height="20" class="{{ $post->isBookmarkedBy(auth()->user()) ? 'bookmarked' : '' }}">
+                        </div>
                     </button>
                 </form>
                 @else
@@ -160,23 +187,30 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             @auth
-            <form action="{{ route('posts.report', $post) }}" method="POST" class="complaint-form" data-post-id="{{ $post->id }}">
+            <form action="{{ route('moderator.complaints.store') }}" method="POST">
                 @csrf
+                <input type="hidden" name="complaintable_id" value="{{ $post->id }}">
+                <input type="hidden" name="complaintable_type" value="App\Models\Post">
+                <input type="hidden" name="target_type" value="post">
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label">Причина жалобы</label>
+                        <label class="form-label">Тип жалобы</label>
                         <select name="type" class="form-select" required>
                             <option value="">Выберите причину</option>
                             <option value="spam">Спам</option>
                             <option value="insult">Оскорбление</option>
                             <option value="inappropriate">Неприемлемый контент</option>
                             <option value="copyright">Нарушение авторских прав</option>
+                            <option value="violence">Насилие</option>
+                            <option value="hate_speech">Разжигание ненависти</option>
+                            <option value="fake_news">Фейковые новости</option>
                             <option value="other">Другое</option>
                         </select>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Описание</label>
-                        <textarea name="reason" class="form-control" rows="3" required placeholder="Опишите причину жалобы..."></textarea>
+                        <textarea name="reason" class="form-control" rows="3" required minlength="10" placeholder="Опишите причину жалобы..."></textarea>
+                        <div class="form-text">Минимум 10 символов</div>
                     </div>
                 </div>
                 <div class="modal-footer">

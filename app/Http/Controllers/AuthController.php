@@ -24,7 +24,14 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-            return redirect()->intended(route('home'));
+            
+            // Сначала отметим все уведомления как просмотренные
+            if (Auth::user()) {
+                Auth::user()->notifications()->update(['viewed' => true]);
+            }
+            
+            // Затем перенаправим на главную страницу
+            return redirect()->route('home');
         }
 
         return back()->withErrors([

@@ -79,7 +79,6 @@
 
 @push('scripts')
 <script src="{{ asset('js/home.js') }}"></script>
-<script src="{{ asset('js/infinite-scroll.js') }}"></script>
 @endpush
 
 <x-modals :posts="$posts" />

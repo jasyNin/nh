@@ -7,6 +7,7 @@ use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Notifications\DatabaseNotification;
+use Illuminate\Support\Facades\Auth;
 
 class NotificationController extends Controller
 {
@@ -81,18 +82,13 @@ class NotificationController extends Controller
         $this->authorize('update', $notification);
 
         $notification->update(['read' => true]);
-
-        return response()->json($notification);
+        return response()->json(['success' => true]);
     }
 
     public function markAllAsRead()
     {
-        auth()->user()
-            ->notifications()
-            ->where('read', false)
-            ->update(['read' => true]);
-
-        return response()->json(['message' => 'Все уведомления отмечены как прочитанные']);
+        auth()->user()->notifications()->update(['read' => true]);
+        return response()->json(['success' => true]);
     }
 
     public function read(DatabaseNotification $notification)
@@ -109,28 +105,19 @@ class NotificationController extends Controller
 
     public function markAsViewed()
     {
-        $user = auth()->user();
-        $user->last_notification_view = now();
-        $user->save();
-        
+        auth()->user()->notifications()->update(['viewed' => true]);
         return response()->json(['success' => true]);
     }
 
     public function getUnviewedCount()
     {
-        try {
-            if (!auth()->check()) {
-                return response()->json(['has_unviewed' => false]);
-            }
+        $count = auth()->user()->notifications()
+            ->where('viewed', false)
+        ->count();
 
-            $hasUnviewed = auth()->user()->notifications()
-                ->where('viewed', false)
-                ->exists();
-
-            return response()->json(['has_unviewed' => $hasUnviewed]);
-        } catch (\Exception $e) {
-            \Log::error('Ошибка при проверке уведомлений: ' . $e->getMessage());
-            return response()->json(['has_unviewed' => false]);
-        }
+        return response()->json([
+            'has_unviewed' => $count > 0,
+            'count' => $count
+        ]);
     }
 } 

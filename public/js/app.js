@@ -105,14 +105,20 @@ document.addEventListener('DOMContentLoaded', function() {
                         'Accept': 'application/json'
                     }
                 })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        const likesCount = this.querySelector('.likes-count');
-                        if (likesCount) {
-                            likesCount.textContent = data.likes_count;
+                .then(async response => {
+                    const data = await response.json();
+                    // Обновляем все кнопки и счетчики для этого поста
+                    document.querySelectorAll('.like-button[data-post-id="' + postId + '"]').forEach(function(button) {
+                        if (data.liked) {
+                            button.classList.add('active');
+                            const icon = button.querySelector('img');
+                            if (icon) icon.classList.add('active');
+                        } else {
+                            button.classList.remove('active');
+                            const icon = button.querySelector('img');
+                            if (icon) icon.classList.remove('active');
                         }
-                    }
+                    });
                 })
                 .catch(error => console.error('Error:', error));
             }

@@ -21,7 +21,8 @@ class Post extends Model
         'type',
         'user_id',
         'status',
-        'image'
+        'image',
+        'is_hidden',
     ];
 
     protected $casts = [
@@ -36,6 +37,10 @@ class Post extends Model
         'views',
         'likes',
         'reposts'
+    ];
+
+    protected $appends = [
+        'is_question'
     ];
 
     public function user(): BelongsTo
@@ -147,9 +152,14 @@ class Post extends Model
         Cache::forget("post_{$this->id}_views_count");
     }
 
-    public function reposts(): HasMany
+    public function reposts()
     {
-        return $this->hasMany(Repost::class);
+        return $this->hasMany(PostRepost::class);
+    }
+
+    public function repostedBy(User $user)
+    {
+        return $this->reposts()->where('user_id', $user->id)->exists();
     }
 
     public function complaints(): MorphMany
@@ -167,6 +177,11 @@ class Post extends Model
     public function getUrl(): string
     {
         return route('posts.show', $this);
+    }
+
+    public function getIsQuestionAttribute(): bool
+    {
+        return $this->type === 'question';
     }
 
     protected static function boot()

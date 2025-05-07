@@ -17,7 +17,9 @@ class Comment extends Model
         'user_id',
         'post_id',
         'parent_id',
-        'is_bot'
+        'is_bot',
+        'answer_id',
+        'is_hidden',
     ];
 
     protected $casts = [
@@ -28,12 +30,15 @@ class Comment extends Model
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class)->withDefault([
+            'name' => 'Удаленный пользователь',
+            'avatar' => null
+        ]);
     }
 
     public function post(): BelongsTo
     {
-        return $this->belongsTo(Post::class);
+        return $this->belongsTo(Post::class)->withDefault();
     }
 
     public function notifications(): HasMany
@@ -44,12 +49,12 @@ class Comment extends Model
 
     public function likes()
     {
-        return $this->morphMany(Like::class, 'likeable');
+        return $this->hasMany(CommentLike::class);
     }
 
     public function replies(): HasMany
     {
-        return $this->hasMany(CommentReply::class);
+        return $this->hasMany(CommentReply::class)->with('user')->latest();
     }
 
     public function likedBy(User $user): bool
@@ -70,5 +75,10 @@ class Comment extends Model
     public function getUrl()
     {
         return route('posts.show', $this->post) . '#comment-' . $this->id;
+    }
+
+    public function answer(): BelongsTo
+    {
+        return $this->belongsTo(Answer::class, 'answer_id')->withDefault();
     }
 } 

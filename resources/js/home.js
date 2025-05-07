@@ -226,54 +226,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Обработка форм жалоб
-    document.querySelectorAll('.complaint-form').forEach(form => {
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const complaintableId = this.dataset.complaintableId;
-            const complaintableType = this.dataset.complaintableType;
-            const type = this.querySelector('select[name="type"]').value;
-            const reason = this.querySelector('textarea[name="reason"]').value;
-            
-            if (!type || !reason) {
-                showToast('Пожалуйста, заполните все поля', 'error');
-                return;
-            }
-            
-            fetch('/complaints', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({
-                    complaintable_id: complaintableId,
-                    complaintable_type: complaintableType,
-                    type: type,
-                    reason: reason
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                showToast(data.message);
-                
-                // Закрываем модальное окно
-                const modal = this.closest('.modal');
-                const modalInstance = bootstrap.Modal.getInstance(modal);
-                modalInstance.hide();
-                
-                // Очищаем форму
-                this.reset();
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showToast('Произошла ошибка при отправке жалобы', 'error');
-            });
-        });
-    });
-
     // Обработка ответов на комментарии
     document.querySelectorAll('.reply-button').forEach(button => {
         button.addEventListener('click', function() {

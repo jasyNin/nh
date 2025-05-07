@@ -71,7 +71,7 @@
                                 <img src="{{ asset('images/bell.svg') }}" alt="Уведомления" width="24" height="24">
                                 <span class="notification-badge" id="notificationIndicator" style="display: none; position: absolute; width: 8px; height: 8px; top: 8px; right: 12px; background-color: #0d6efd; border-radius: 50%; border: 1px solid white;"></span>
                             </a>
-                            <div class="dropdown-menu dropdown-menu-end notifications-dropdown" style="width: 400px; max-height: 500px; overflow-y: auto;">
+                            <div class="dropdown-menu dropdown-menu-end notifications-dropdown" style="width: 400px; max-width: 400px; max-height: 500px; overflow-y: auto;">
                                 <div class="notifications-list">
                                     @php
                                         $likeNotifications = \App\Models\PostLike::whereHas('post', function($query) {
@@ -80,7 +80,16 @@
                                         ->with(['user', 'post'])
                                         ->latest()
                                         ->take(5)
-                                        ->get();
+                                        ->get()
+                                        ->map(function($like) {
+                                            return (object)[
+                                                'id' => $like->id,
+                                                'type' => 'like',
+                                                'user' => $like->user,
+                                                'post' => $like->post,
+                                                'created_at' => $like->created_at
+                                            ];
+                                        });
 
                                         $commentNotifications = \App\Models\Comment::whereHas('post', function($query) {
                                             $query->where('user_id', auth()->id());
@@ -88,15 +97,38 @@
                                         ->with(['user', 'post'])
                                         ->latest()
                                         ->take(5)
-                                        ->get();
+                                        ->get()
+                                        ->map(function($comment) {
+                                            return (object)[
+                                                'id' => $comment->id,
+                                                'type' => 'comment',
+                                                'user' => $comment->user,
+                                                'post' => $comment->post,
+                                                'content' => $comment->content,
+                                                'created_at' => $comment->created_at
+                                            ];
+                                        });
 
                                         $replyNotifications = \App\Models\CommentReply::whereHas('comment', function($query) {
-                                            $query->where('user_id', auth()->id());
+                                            $query->whereHas('user', function($q) {
+                                                $q->where('id', auth()->id());
+                                            });
                                         })
                                         ->with(['user', 'comment.post'])
                                         ->latest()
                                         ->take(5)
-                                        ->get();
+                                        ->get()
+                                        ->map(function($reply) {
+                                            return (object)[
+                                                'id' => $reply->id,
+                                                'type' => 'reply',
+                                                'user' => $reply->user,
+                                                'post' => $reply->comment->post,
+                                                'content' => $reply->content,
+                                                'parent_comment' => $reply->comment,
+                                                'created_at' => $reply->created_at
+                                            ];
+                                        });
 
                                         $allNotifications = $likeNotifications
                                             ->concat($commentNotifications)
@@ -106,32 +138,50 @@
                                     @endphp
 
                                     @forelse($allNotifications as $notification)
-                                        <div class="dropdown-item" style="cursor: pointer; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='#E9ECEF'" onmouseout="this.style.backgroundColor='transparent'">
+                                        <div class="dropdown-item notification-item" style="cursor: pointer; transition: background-color 0.2s; white-space: normal; word-wrap: break-word;" 
+                                             onmouseover="this.style.backgroundColor='#E9ECEF'" 
+                                             onmouseout="this.style.backgroundColor='transparent'"
+                                             onclick="window.location.href='{{ route('posts.show', $notification->post->id) }}'">
                                             <div class="d-flex align-items-start">
                                                 <div class="flex-shrink-0 me-3 position-relative">
                                                     <x-user-avatar :user="$notification->user" :size="40" />
                                                     <x-rank-icon :user="$notification->user" />
                                                 </div>
-                                                <div class="flex-grow-1">
+                                                <div class="flex-grow-1" style="min-width: 0;">
                                                     <div class="d-flex justify-content-between align-items-center mb-2">
-                                                        <div>
-                                                            <a href="{{ route('users.show', $notification->user->id) }}" class="text-decoration-none text-dark fw-bold">{{ $notification->user->name }}</a>
+                                                        <div style="word-wrap: break-word;">
+                                                            <a href="{{ route('users.show', $notification->user->id) }}" class="text-decoration-none text-dark fw-bold" 
+                                                               onclick="event.stopPropagation();">
+                                                                {{ $notification->user->name }}
+                                                            </a>
                                                             <span class="text-muted ms-2">
-                                                                @if($notification->type === 'like')
-                                                                    поставил(а) лайк
-                                                                @elseif($notification->type === 'comment')
-                                                                    оставил(а) комментарий
-                                                                @endif
+                                                                @switch($notification->type)
+                                                                    @case('like')
+                                                                        поставил(а) лайк на ваш пост
+                                                                        @break
+                                                                    @case('comment')
+                                                                        прокомментировал(а) ваш пост
+                                                                        @break
+                                                                    @case('reply')
+                                                                        ответил(а) на ваш комментарий
+                                                                        @break
+                                                                @endswitch
                                                             </span>
                                                         </div>
                                                     </div>
-                                                    <div class="text-muted">
-                                                        @if($notification->post)
-                                                            <small>К посту: <a href="{{ route('posts.show', $notification->post->id) }}" class="text-decoration-none">{{ $notification->post->title }}</a></small>
-                                                        @endif
+                                                    <div class="text-muted" style="word-wrap: break-word;">
+                                                        <small>
+                                                            @if($notification->post)
+                                                                К посту: <a href="{{ route('posts.show', $notification->post->id) }}" 
+                                                                          class="text-decoration-none"
+                                                                          onclick="event.stopPropagation();">
+                                                                    {{ Str::limit($notification->post->title, 50) }}
+                                                                </a>
+                                                            @endif
+                                                        </small>
                                                         @if(isset($notification->content))
-                                                            <div class="mt-1 small text-muted" style="max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: normal; word-wrap: break-word;">
-                                                                {{ $notification->content }}
+                                                            <div class="mt-1 small text-muted notification-content">
+                                                                {{ Str::limit($notification->content, 100) }}
                                                             </div>
                                                         @endif
                                                     </div>
@@ -140,6 +190,12 @@
                                         </div>
                                     @empty
                                         <div class="dropdown-item text-muted text-center py-3">
+                                            <div class="mb-2">
+                                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                                                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                                                </svg>
+                                            </div>
                                             Нет новых уведомлений
                                         </div>
                                     @endforelse
@@ -223,13 +279,16 @@
     
 
     <!-- Скрипты -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     
     <!-- Основной скрипт приложения -->
-    <script src="{{ asset('js/app.js') }}?v={{ time() }}"></script>
+    <script src="{{ asset('js/app.js') }}"></script>
     <script src="{{ asset('js/comments.js') }}"></script>
     <script src="{{ asset('js/search.js') }}"></script>
+    <script src="{{ asset('js/bookmarks.js') }}"></script>
+    <script src="{{ asset('js/notifications.js') }}"></script>
+    <script src="{{ asset('js/repost.js') }}"></script>
     
     <!-- Скрипт поиска только для авторизованных пользователей -->
     @auth
@@ -287,32 +346,26 @@
     <script>
         function checkUnviewedNotifications() {
             fetch('{{ route("notifications.unviewed-count") }}')
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
+                .then(response => response.json())
                 .then(data => {
-                    const indicator = document.getElementById('notificationIndicator');
+            const indicator = document.getElementById('notificationIndicator');
                     if (indicator) {
-                        indicator.style.display = data.has_unviewed ? 'block' : 'none';
+                        console.log('Unviewed notifications:', data);
+                        indicator.style.display = data.has_unviewed ? 'inline-block' : 'none';
                     }
                 })
                 .catch(error => {
-                    console.error('Ошибка при проверке уведомлений:', error);
-                    const indicator = document.getElementById('notificationIndicator');
-                    if (indicator) {
-                        indicator.style.display = 'none';
-                    }
+                    console.error('Error checking notifications:', error);
                 });
         }
-
-        // Проверяем уведомления каждые 30 секунд
+            
+        // Проверяем каждые 30 секунд
         setInterval(checkUnviewedNotifications, 30000);
-
+        
         // Проверяем сразу при загрузке страницы
-        document.addEventListener('DOMContentLoaded', checkUnviewedNotifications);
+        document.addEventListener('DOMContentLoaded', function() {
+            checkUnviewedNotifications();
+        });
     </script>
 </body>
 </html> 

@@ -11,11 +11,13 @@ use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use App\Traits\HasRank;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\Complaint;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasApiTokens, HasFactory, Notifiable, HasRank;
+    use HasApiTokens, HasFactory, Notifiable, HasRank, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -164,6 +166,35 @@ class User extends Authenticatable
             return asset('images/default-avatar.png');
         }
         return asset('storage/' . $this->avatar);
+    }
+
+    public function complaints()
+    {
+        return $this->hasManyThrough(
+            Complaint::class,
+            Post::class,
+            'user_id', // Внешний ключ в таблице posts
+            'complaintable_id', // Внешний ключ в таблице complaints
+            'id', // Локальный ключ в таблице users
+            'id' // Локальный ключ в таблице posts
+        )->where('complaintable_type', Post::class);
+    }
+
+    public function commentComplaints()
+    {
+        return $this->hasManyThrough(
+            Complaint::class,
+            Comment::class,
+            'user_id', // Внешний ключ в таблице comments
+            'complaintable_id', // Внешний ключ в таблице complaints
+            'id', // Локальный ключ в таблице users
+            'id' // Локальный ключ в таблице comments
+        )->where('complaintable_type', Comment::class);
+    }
+
+    public function getTotalComplaintsCountAttribute()
+    {
+        return $this->complaints()->count() + $this->commentComplaints()->count();
     }
 
     protected static function boot()

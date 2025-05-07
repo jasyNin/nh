@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Cache;
 
 class PostController extends Controller
 {
@@ -21,6 +22,7 @@ class PostController extends Controller
     public function index(Request $request)
     {
         $query = Post::with(['user', 'tags'])
+            ->where('status', 'published')
             ->withCount(['comments', 'views', 'likesCount as likes_count', 'reposts'])
             ->latest();
 
@@ -30,12 +32,16 @@ class PostController extends Controller
 
         $posts = $query->paginate(10);
 
-        $popularTags = Tag::withCount('posts')
+        $popularTags = Tag::withCount(['posts' => function($query) {
+            $query->where('status', 'published');
+        }])
             ->orderBy('posts_count', 'desc')
             ->limit(10)
             ->get();
 
-        $topUsers = User::withCount('posts')
+        $topUsers = User::withCount(['posts' => function($query) {
+            $query->where('status', 'published');
+        }])
             ->orderByDesc('posts_count')
             ->limit(5)
             ->get()
@@ -49,6 +55,9 @@ class PostController extends Controller
         if (auth()->check()) {
             $viewedPosts = auth()->user()->viewedPosts()
                 ->with('post')
+                ->whereHas('post', function($query) {
+                    $query->where('status', 'published');
+                })
                 ->latest('viewed_at')
                 ->take(5)
                 ->get()
@@ -207,9 +216,7 @@ class PostController extends Controller
 
     public function destroy(Post $post)
     {
-        if (!auth()->user()->is_admin) {
-            abort(403);
-        }
+        $this->authorize('delete', $post);
 
         $post->delete();
         return redirect()->route('home')->with('success', 'Пост успешно удален');
@@ -219,10 +226,13 @@ class PostController extends Controller
     {
         $user = Auth::user();
         
-        if ($post->isBookmarkedBy($user)) {
-            Bookmark::where('user_id', $user->id)
-                ->where('post_id', $post->id)
-                ->delete();
+        // Проверяем существование закладки напрямую в базе данных
+        $existingBookmark = Bookmark::where('user_id', $user->id)
+            ->where('post_id', $post->id)
+            ->first();
+        
+        if ($existingBookmark) {
+            $existingBookmark->delete();
             $message = 'Пост удален из закладок';
             $bookmarked = false;
         } else {
@@ -243,6 +253,9 @@ class PostController extends Controller
                 ]);
             }
         }
+        
+        // Очищаем кэш после изменения
+        Cache::forget("post_{$post->id}_bookmarked_by_{$user->id}");
         
         return response()->json([
             'message' => $message,

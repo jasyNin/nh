@@ -5,13 +5,23 @@ namespace App\Http\Controllers;
 use App\Models\Post;
 use App\Models\Comment;
 use App\Models\User;
-use App\Models\Complaint;
+use App\Models\Report;
 use Illuminate\Http\Request;
 use App\Notifications\ContentReported;
 use App\Models\CommentReply;
+use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Foundation\Validation\ValidatesRequests;
 
-class ReportController extends Controller
+class ReportController extends BaseController
 {
+    use AuthorizesRequests, ValidatesRequests;
+
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     public function reportPost(Request $request, Post $post)
     {
         $request->validate([
@@ -20,13 +30,12 @@ class ReportController extends Controller
         ]);
 
         // Создаем жалобу
-        $complaint = Complaint::create([
+        $report = Report::create([
             'user_id' => auth()->id(),
-            'complaintable_id' => $post->id,
-            'complaintable_type' => Post::class,
-            'type' => $request->type,
+            'reportable_id' => $post->id,
+            'reportable_type' => Post::class,
             'reason' => $request->reason,
-            'status' => 'new'
+            'status' => 'pending'
         ]);
 
         // Отправляем уведомление администраторам
@@ -50,13 +59,12 @@ class ReportController extends Controller
         ]);
 
         // Создаем жалобу
-        $complaint = Complaint::create([
+        $report = Report::create([
             'user_id' => auth()->id(),
-            'complaintable_id' => $comment->id,
-            'complaintable_type' => Comment::class,
-            'type' => $request->type,
+            'reportable_id' => $comment->id,
+            'reportable_type' => Comment::class,
             'reason' => $request->reason,
-            'status' => 'new'
+            'status' => 'pending'
         ]);
 
         // Отправляем уведомление администраторам
@@ -80,13 +88,12 @@ class ReportController extends Controller
         ]);
 
         // Создаем жалобу
-        $complaint = Complaint::create([
+        $report = Report::create([
             'user_id' => auth()->id(),
-            'complaintable_id' => $reply->id,
-            'complaintable_type' => CommentReply::class,
-            'type' => $request->type,
+            'reportable_id' => $reply->id,
+            'reportable_type' => CommentReply::class,
             'reason' => $request->reason,
-            'status' => 'new'
+            'status' => 'pending'
         ]);
 
         // Отправляем уведомление администраторам
@@ -100,5 +107,24 @@ class ReportController extends Controller
         }
 
         return back()->with('success', 'Спасибо за ваше сообщение. Мы рассмотрим жалобу в ближайшее время.');
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'reportable_type' => 'required|in:App\Models\Post,App\Models\Comment',
+            'reportable_id' => 'required|integer',
+            'reason' => 'required|string|max:500'
+        ]);
+
+        $report = Report::create([
+            'user_id' => auth()->id(),
+            'reportable_type' => $validated['reportable_type'],
+            'reportable_id' => $validated['reportable_id'],
+            'reason' => $validated['reason'],
+            'status' => 'pending'
+        ]);
+
+        return redirect()->back()->with('success', 'Жалоба успешно отправлена');
     }
 } 

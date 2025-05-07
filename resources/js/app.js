@@ -1,5 +1,7 @@
 import './bootstrap';
 import './comments';
+import './likes';
+import './complaints';
 
 // Импортируем остальные скрипты для домашней страницы
 import './home';

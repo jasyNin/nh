@@ -16,20 +16,27 @@ class SearchController extends Controller
         $posts = collect();
         if ($query) {
             $posts = Post::with(['user', 'tags'])
-                ->where('title', 'like', "%{$query}%")
-                ->orWhere('content', 'like', "%{$query}%")
+                ->where('status', 'published')
+                ->where(function($q) use ($query) {
+                    $q->where('title', 'like', "%{$query}%")
+                      ->orWhere('content', 'like', "%{$query}%");
+                })
                 ->latest()
                 ->paginate(10);
         }
 
         // Получаем популярные теги
-        $popularTags = Tag::withCount('posts')
+        $popularTags = Tag::withCount(['posts' => function($query) {
+            $query->where('status', 'published');
+        }])
             ->orderByDesc('posts_count')
             ->limit(10)
             ->get();
             
         // Получаем топ пользователей
-        $topUsers = User::withCount('posts')
+        $topUsers = User::withCount(['posts' => function($query) {
+            $query->where('status', 'published');
+        }])
             ->orderByDesc('posts_count')
             ->limit(5)
             ->get();
@@ -46,6 +53,7 @@ class SearchController extends Controller
         }
 
         $posts = Post::with(['user', 'tags'])
+            ->where('status', 'published')
             ->where('title', 'like', "%{$query}%")
             ->latest()
             ->take(5)

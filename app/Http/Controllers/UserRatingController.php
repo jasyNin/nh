@@ -25,7 +25,9 @@ class UserRatingController extends Controller
     public function index()
     {
         $users = User::query()
-            ->withCount(['posts', 'comments'])
+            ->withCount(['posts' => function($query) {
+                $query->where('status', 'published');
+            }, 'comments'])
             ->orderByRaw("CASE rank 
                 WHEN 'supermind' THEN 1
                 WHEN 'master' THEN 2
@@ -40,12 +42,16 @@ class UserRatingController extends Controller
             ->orderBy('rating', 'desc')
             ->get();
 
-        $popularTags = Tag::withCount('posts')
+        $popularTags = Tag::withCount(['posts' => function($query) {
+            $query->where('status', 'published');
+        }])
             ->orderBy('posts_count', 'desc')
             ->limit(10)
             ->get();
 
-        $topUsers = User::withCount('posts')
+        $topUsers = User::withCount(['posts' => function($query) {
+            $query->where('status', 'published');
+        }])
             ->orderBy('posts_count', 'desc')
             ->limit(5)
             ->get();

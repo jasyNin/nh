@@ -32,7 +32,7 @@
                         <div class="row g-4">
                             @foreach($posts as $post)
                                 <div class="col-12">
-                                    <div class="card border-0 hover-card">
+                                    <div class="card border-0">
                                         <div class="card-body p-4">
                                             <div class="d-flex justify-content-between align-items-start mb-3">
                                                 <h5 class="card-title mb-0">
@@ -45,7 +45,7 @@
                                                         {{ $post->type === 'post' ? 'Запись' : 'Вопрос' }}
                                                     </span>
                                                     <span class="badge bg-light text-dark rounded-pill px-3 py-1">
-                                                        {{ $post->answers_count }} {{ __('posts.answers.' . min($post->answers_count, 20)) }}
+                                                        {{ $post->answers_count }}
                                                     </span>
                                                 </div>
                                             </div>
@@ -75,16 +75,6 @@
 
 @push('styles')
 <style>
-.hover-card {
-    transition: all 0.3s ease;
-    background-color: white;
-}
-
-.hover-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
-}
-
 .card-title {
     font-size: 1.1rem;
 }

@@ -1,30 +1,70 @@
 .like-button {
-    transition: all 0.2s ease;
-    border-radius: 8px;
-    padding: 6px 10px !important;
-}
-
-.like-button:hover {
-    background-color: rgba(255, 59, 48, 0.1);
-    transform: scale(1.02);
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
 }
 
 .like-icon-wrapper {
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+}
+
+.like-button:hover .like-icon-wrapper {
+    background-color: #FEF1F3;
+}
+
+.like-icon {
+    width: 20px;
+    height: 19px;
+    transition: transform 0.2s;
+}
+
+.like-icon path {
+    fill: none;
+    stroke: #272727;
+    stroke-width: 2;
+    transition: fill 0.2s, stroke 0.2s;
+}
+
+.like-button.active .like-icon path {
+    fill: #E65C77;
+    stroke: #E65C77;
+}
+
+.like-button:not(.active) .like-icon path {
+    fill: none;
+    stroke: #272727;
+}
+
+.like-button:not(.active):hover .like-icon path,
+.like-button.active:hover .like-icon path {
+    fill: none;
+    stroke: #272727;
+}
+
+.like-button:active .like-icon {
+    transform: scale(0.9);
 }
 
 .like-button img {
     transition: transform 0.2s ease;
 }
 
-.like-button img.liked {
+.like-button.active img {
     filter: invert(37%) sepia(97%) saturate(7471%) hue-rotate(356deg) brightness(100%) contrast(135%);
 }
 
-.like-button.liked {
-    background-color: rgba(255, 59, 48, 0.1);
+.like-button.active {
+    background-color: rgba(230, 92, 119, 0.1);
 }
 
 .likes-count {
@@ -35,8 +75,8 @@
     line-height: 1;
 }
 
-.like-button.liked .likes-count {
-    color: #ff3b30;
+.like-button.active .likes-count {
+    color: #E65C77;
 }
 
 .likes-label {

@@ -1,11 +1,13 @@
 @props(['user'])
 
-<img src="{{ asset('images/' . $user->rank_icon) }}" 
-     alt="{{ $user->rank_name }}" 
-     title="{{ $user->rank_name }}" 
-     class="rank-icon"
-     width="20" 
-     height="20">
+@if($user && $user->id)
+    <img src="{{ asset('images/' . $user->rank_icon) }}" 
+         alt="{{ $user->rank_name }}" 
+         title="{{ $user->rank_name }}" 
+         class="rank-icon"
+         width="20" 
+         height="20">
+@endif
 
 <style>
 .rank-icon {

@@ -3,23 +3,23 @@
 namespace App\Observers;
 
 use App\Models\Comment;
-use App\Services\NeuronchikService;
+use Illuminate\Support\Facades\Log;
 
 class CommentObserver
 {
-    protected $neuronchikService;
-
-    public function __construct(NeuronchikService $neuronchikService)
-    {
-        $this->neuronchikService = $neuronchikService;
-    }
-
-    /**
-     * Handle the Comment "created" event.
-     */
     public function created(Comment $comment): void
     {
-        // Отправляем комментарий Нейрончику
-        $this->neuronchikService->handleNewComment($comment);
+        try {
+            Log::info('New comment created', [
+                'comment_id' => $comment->id,
+                'post_id' => $comment->post_id,
+                'user_id' => $comment->user_id
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error processing new comment', [
+                'comment_id' => $comment->id,
+                'error' => $e->getMessage()
+            ]);
+        }
     }
 } 

@@ -31,6 +31,9 @@ use App\Http\Controllers\ComplaintController;
 use App\Http\Controllers\Admin\SettingController as AdminSettingController;
 use App\Http\Controllers\CommentLikeController;
 use App\Http\Controllers\PostLikeController;
+use App\Http\Controllers\PostRepostController;
+use App\Http\Controllers\Admin\BotDebugController;
+use App\Http\Controllers\ModeratorController;
 
 // Главная страница
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -75,6 +78,7 @@ Route::middleware('auth')->group(function () {
     
     // Комментарии
     Route::post('posts/{post}/comments', [CommentController::class, 'store'])->name('posts.comments.store');
+    Route::post('answers/{answer}/comments', [CommentController::class, 'storeAnswerComment'])->name('answers.comments.store');
     Route::put('comments/{comment}', [CommentController::class, 'update'])->name('comments.update');
     Route::delete('comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
     Route::post('/comments/{comment}/like', [CommentLikeController::class, 'toggle'])->name('comments.like')->middleware('auth');
@@ -83,16 +87,19 @@ Route::middleware('auth')->group(function () {
     Route::put('comments/replies/{reply}', [CommentReplyController::class, 'update'])->name('comments.replies.update');
     Route::delete('comments/replies/{reply}', [CommentReplyController::class, 'destroy'])->name('comments.replies.destroy');
     Route::delete('replies/{reply}', [CommentReplyController::class, 'destroy'])->name('replies.destroy');
-    Route::post('replies/{reply}/like', [ReplyLikeController::class, 'toggle'])->name('replies.like');
+    Route::post('/replies/{reply}/like', [ReplyLikeController::class, 'toggle'])->name('replies.like')->middleware('auth');
     Route::post('/replies/{reply}/replies', [ReplyToReplyController::class, 'store'])->name('replies.replies.store');
 
     Route::get('drafts', [DraftController::class, 'index'])->name('drafts.index');
     Route::get('drafts/{post}', [DraftController::class, 'show'])->name('drafts.show');
 
     // Жалобы
-    Route::post('posts/{post}/report', [ReportController::class, 'reportPost'])->name('posts.report');
-    Route::post('comments/{comment}/report', [ReportController::class, 'reportComment'])->name('comments.report');
-    Route::post('replies/{reply}/report', [ReportController::class, 'reportReply'])->name('replies.report');
+    Route::middleware(['auth'])->group(function () {
+        Route::post('posts/{post}/report', [ReportController::class, 'reportPost'])->name('posts.report');
+        Route::post('comments/{comment}/report', [ReportController::class, 'reportComment'])->name('comments.report');
+        Route::post('replies/{reply}/report', [ReportController::class, 'reportReply'])->name('replies.report');
+        Route::post('/reports', [ReportController::class, 'store'])->name('reports.store');
+    });
 
     // Админ панель
     Route::get('admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
@@ -104,11 +111,13 @@ Route::middleware('auth')->group(function () {
     Route::delete('admin/posts/{post}', [AdminPostController::class, 'destroy'])->name('admin.posts.destroy');
     Route::get('admin/tags', [AdminTagController::class, 'index'])->name('admin.tags.index');
     Route::delete('admin/tags/{tag}', [AdminTagController::class, 'destroy'])->name('admin.tags.destroy');
+    Route::get('admin/settings', [AdminSettingController::class, 'index'])->name('admin.settings.index');
+
+    // Маршруты для управления жалобами в админке
     Route::get('admin/complaints', [ComplaintController::class, 'index'])->name('admin.complaints.index');
     Route::get('admin/complaints/{complaint}', [ComplaintController::class, 'show'])->name('admin.complaints.show');
-    Route::put('admin/complaints/{complaint}/status', [ComplaintController::class, 'updateStatus'])->name('admin.complaints.updateStatus');
+    Route::post('admin/complaints/{complaint}', [ComplaintController::class, 'update'])->name('admin.complaints.update');
     Route::delete('admin/complaints/{complaint}', [ComplaintController::class, 'destroy'])->name('admin.complaints.destroy');
-    Route::get('admin/settings', [AdminSettingController::class, 'index'])->name('admin.settings.index');
 });
 
 // Посты
@@ -130,7 +139,7 @@ Route::middleware('auth')->group(function () {
 Route::get('posts/{post}', [PostController::class, 'show'])->name('posts.show');
 Route::post('/posts/{post}/like', [PostLikeController::class, 'toggle'])->middleware('auth')->name('posts.like');
 Route::post('posts/{post}/bookmark', [PostController::class, 'bookmark'])->name('posts.bookmark');
-Route::post('posts/{post}/repost', [PostController::class, 'repost'])->name('posts.repost');
+Route::post('/posts/{post}/repost', [PostRepostController::class, 'toggle'])->name('posts.repost')->middleware('auth');
 
 // Пользователи
 Route::get('users/rating', [UserController::class, 'rating'])->name('users.rating');
@@ -145,11 +154,48 @@ Route::get('search', [SearchController::class, 'index'])->name('search.index');
 Route::get('/search/posts', [SearchController::class, 'searchPosts'])->name('search.posts');
 
 Route::get('/answers', [AnswerController::class, 'index'])->name('answers.index');
-
-Route::post('complaints', [ComplaintController::class, 'store'])->name('complaints.store');
+Route::get('/answers/unread', [AnswerController::class, 'getUnreadCount'])->name('answers.unread');
 
 Route::middleware(['auth'])->group(function () {
-    Route::post('/notifications/mark-as-viewed', [NotificationController::class, 'markAsViewed']);
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
+    Route::post('/notifications/viewed', [NotificationController::class, 'markAsViewed'])->name('notifications.viewed');
+    Route::post('/notifications/unviewed-count', function() {
+        if (!request()->ajax()) {
+            return redirect()->route('home');
+        }
+        
+        $count = auth()->user()->notifications()
+            ->where('viewed', false)
+            ->count();
+            
+        return response()->json(['count' => $count]);
+    })->name('notifications.unviewed-count');
 });
 
-Route::get('/notifications/unviewed-count', [NotificationController::class, 'getUnviewedCount'])->name('notifications.unviewed-count');
+// Маршруты для отладки бота
+Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
+    Route::get('/bot-debug', [BotDebugController::class, 'index'])->name('bot-debug.index');
+    Route::post('/bot-debug/test', [BotDebugController::class, 'test'])->name('bot-debug.test');
+});
+
+// Маршруты для модератора
+Route::middleware(['auth'])->prefix('moderator')->name('moderator.')->group(function () {
+    // Основные маршруты модератора
+    Route::get('/', [ModeratorController::class, 'dashboard'])->name('dashboard');
+    Route::get('/users', [ModeratorController::class, 'users'])->name('users');
+    Route::get('/content', [ModeratorController::class, 'content'])->name('content');
+    
+    // Маршруты для управления контентом
+    Route::post('/posts/{post}/hide', [ModeratorController::class, 'hidePost'])->name('posts.hide');
+    Route::post('/comments/{comment}/hide', [ModeratorController::class, 'hideComment'])->name('comments.hide');
+    Route::post('/users/{user}/restrict', [ModeratorController::class, 'restrictUser'])->name('users.restrict');
+    Route::delete('/users/{user}', [ModeratorController::class, 'deleteUser'])->name('users.delete');
+    
+    // Маршруты для жалоб
+    Route::get('/complaints', [ComplaintController::class, 'index'])->name('complaints.index');
+    Route::get('/complaints/{complaint}', [ComplaintController::class, 'show'])->name('complaints.show');
+    Route::post('/complaints/{complaint}', [ComplaintController::class, 'update'])->name('complaints.update');
+    Route::post('/complaints', [ComplaintController::class, 'store'])->name('complaints.store');
+});

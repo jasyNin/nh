@@ -7,6 +7,8 @@ use App\Models\Post;
 use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Notifications\CommentNotification;
+use App\Models\Answer;
 
 class CommentController extends Controller
 {
@@ -26,13 +28,12 @@ class CommentController extends Controller
         ]);
 
         // Создаем уведомление для автора поста
-        if ($post->user_id !== Auth::id()) {
-            $post->user->notifications()->create([
-                'from_user_id' => Auth::id(),
-                'type' => 'comment',
-                'notifiable_type' => Post::class,
-                'notifiable_id' => $post->id
-            ]);
+        if ($post->user_id !== auth()->id()) {
+            $post->user->notify(new CommentNotification($comment));
+            $post->user->notifications()
+                ->latest()
+                ->first()
+                ->update(['viewed' => false]);
         }
 
         // Если запрос ожидает JSON (AJAX запрос)
@@ -87,21 +88,45 @@ class CommentController extends Controller
         return back()->with('success', 'Комментарий удален!');
     }
 
-    public function like(Comment $comment)
+    public function storeAnswerComment(Request $request, Answer $answer)
     {
-        $user = auth()->user();
-        
-        if ($comment->likedBy($user)) {
-            $comment->likes()->where('user_id', $user->id)->delete();
-            $liked = false;
-        } else {
-            $comment->likes()->create(['user_id' => $user->id]);
-            $liked = true;
+        $validated = $request->validate([
+            'content' => 'required|string|max:1000|regex:/^[\p{L}\p{N}\p{P}\p{Z}\p{Sm}\p{Sc}\p{Sk}\p{So}\s]+$/u'
+        ]);
+
+        // Очищаем контент от потенциально опасных HTML-тегов
+        $content = strip_tags($validated['content']);
+        $content = htmlspecialchars($content, ENT_QUOTES, 'UTF-8');
+
+        $comment = Comment::create([
+            'user_id' => Auth::id(),
+            'content' => $content,
+            'post_id' => $answer->post_id,
+            'answer_id' => $answer->id
+        ]);
+
+        // Создаем уведомление для автора ответа
+        if ($answer->user_id !== auth()->id()) {
+            $answer->user->notify(new CommentNotification($comment));
+            $answer->user->notifications()
+                ->latest()
+                ->first()
+                ->update(['viewed' => false]);
         }
 
-        return response()->json([
-            'likes_count' => $comment->likes_count,
-            'liked' => $liked
-        ]);
+        // Если запрос ожидает JSON (AJAX запрос)
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'answer_id' => $answer->id,
+                'comments_count' => $answer->comments()->count(),
+                'comment_html' => view('components.comment', [
+                    'comment' => $comment,
+                    'post' => $answer->post
+                ])->render()
+            ]);
+        }
+
+        return back()->with('success', 'Комментарий добавлен');
     }
 } 

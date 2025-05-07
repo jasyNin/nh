@@ -27,7 +27,9 @@ class HomeController extends Controller
 
             // Кэшируем топ пользователей на 1 час
             $topUsers = Cache::remember('top_users', 3600, function () {
-                return User::withCount(['posts', 'comments'])
+                return User::withCount(['posts' => function($query) {
+                    $query->where('status', 'published');
+                }, 'comments'])
                     ->orderBy('posts_count', 'desc')
                     ->take(5)
                     ->get();
@@ -36,6 +38,9 @@ class HomeController extends Controller
             // Кэшируем последние комментарии на 5 минут
             $recentAnswers = Cache::remember('recent_answers', 300, function () {
                 return Comment::with(['user', 'post'])
+                    ->whereHas('post', function($query) {
+                        $query->where('status', 'published');
+                    })
                     ->orderBy('created_at', 'desc')
                     ->take(3)
                     ->get();
@@ -43,6 +48,7 @@ class HomeController extends Controller
 
             // Запрос постов с фильтрацией по типу
             $query = Post::with(['user', 'tags', 'likes'])
+                ->where('status', 'published')
                 ->withCount(['comments', 'likes'])
                 ->orderBy('created_at', 'desc');
 
@@ -52,20 +58,23 @@ class HomeController extends Controller
 
             // Для AJAX-запросов возвращаем только посты
             if ($request->ajax()) {
-                $posts = $query->take(10)->skip($request->input('skip', 0))->get();
+                $posts = $query->skip($request->input('skip', 0))->get();
                 return response()->json([
                     'posts' => $posts,
-                    'hasMore' => $posts->count() === 10
+                    'hasMore' => false
                 ]);
             }
 
-            // Для первого запроса загружаем первые 10 постов
-            $posts = $query->take(10)->get();
+            // Для первого запроса загружаем все посты
+            $posts = $query->get();
 
             // Получаем просмотренные посты для авторизованного пользователя
             $viewedPosts = collect();
             if (auth()->check()) {
-                $viewedPosts = auth()->user()->viewedPosts()->take(5)->get();
+                $viewedPosts = auth()->user()->viewedPosts()
+                    ->where('status', 'published')
+                    ->take(5)
+                    ->get();
             }
 
             // Логируем успешный запрос

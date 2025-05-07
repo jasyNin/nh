@@ -93,7 +93,7 @@
         left: 50%;
         width: 0;
         height: 0;
-        background-color: rgba(22, 130, 253, 0.1);
+        
         border-radius: 50%;
         transform: translate(-50%, -50%);
         transition: width 0.3s ease, height 0.3s ease;

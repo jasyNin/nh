@@ -15,17 +15,27 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        // Создаем тестового пользователя
+        User::firstOrCreate(
+            ['email' => 'test@example.com'],
+            [
+                'name' => 'Test User',
+                'password' => bcrypt('password'),
+                'email_verified_at' => now()
+            ]
+        );
+
+        // Сначала создаем базовые сущности
+        $this->call([
+            UserSeeder::class,      // Сначала пользователи
+            TagSeeder::class,       // Потом теги
+            QuestionBotSeeder::class, // Затем бот
         ]);
 
+        // Затем создаем контент
         $this->call([
-            TagSeeder::class,
-            NeuronchikSeeder::class,
-            UserSeeder::class,
-            PostSeeder::class,
-            ModeratorSeeder::class,
+            PostSeeder::class,      // Посты (требуют пользователей и теги)
+            ModeratorSeeder::class, // Модераторы (требуют пользователей)
         ]);
     }
 }

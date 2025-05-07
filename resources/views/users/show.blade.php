@@ -335,7 +335,7 @@
                                 <i class="fas fa-heart text-danger me-2"></i>
                                 <span>Лайков</span>
                             </div>
-                            <span class="text-dark fw-bold">{{ $stats['likes_received'] }}</span>
+                            <span class="text-dark fw-bold">{{ $user->rating }}</span>
                         </div>
                     </div>
                     <div class="list-group-item border-0 py-3">

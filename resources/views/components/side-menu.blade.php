@@ -10,6 +10,15 @@
                         </a>
                     </div>
                 @endif
+                @if(auth()->user()->is_moderator)
+                    <div class="menu-item {{ Route::is('moderator.dashboard') ? 'active' : '' }}">
+                        <a href="{{ route('moderator.dashboard') }}" class="d-flex align-items-center text-decoration-none">
+                            <img src="{{ asset('images/shield.svg') }}" class="me-2" width="24" height="24" alt="Панель модератора">
+                            Панель модератора
+                        </a>
+                    </div>
+                    
+                @endif
             @endauth
             <div class="menu-item {{ Route::is('home') ? 'active' : '' }}">
                 <a href="{{ route('home') }}" class="d-flex align-items-center text-decoration-none">
@@ -30,9 +39,10 @@
                 </a>
             </div>
             <div class="menu-item {{ Route::is('answers.*') ? 'active' : '' }}">
-                <a href="{{ route('answers.index') }}" class="d-flex align-items-center text-decoration-none">
+                <a href="{{ route('answers.index') }}" class="d-flex align-items-center text-decoration-none position-relative">
                     <img src="{{ asset('images/ansvers.svg') }}" class="me-2" width="24" height="24" alt="Ответы">
                     Ответы
+                    <span class="unread-indicator" id="answers-unread-indicator" style="display: none;"></span>
                 </a>
             </div>
             @auth
@@ -72,4 +82,42 @@
             </div>
         </div>
     </div>
-</div> 
+</div>
+
+@push('scripts')
+<script>
+    function checkUnreadAnswers() {
+        fetch('{{ route("answers.unread") }}')
+            .then(response => response.json())
+            .then(data => {
+                const indicator = document.getElementById('answers-unread-indicator');
+                if (data.has_unread) {
+                    indicator.style.display = 'block';
+                } else {
+                    indicator.style.display = 'none';
+                }
+            });
+    }
+
+    // Проверяем при загрузке страницы
+    document.addEventListener('DOMContentLoaded', checkUnreadAnswers);
+
+    // Проверяем каждые 30 секунд
+    setInterval(checkUnreadAnswers, 30000);
+</script>
+@endpush
+
+@push('styles')
+<style>
+    .unread-indicator {
+        position: absolute;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 8px;
+        height: 8px;
+        background-color: #1976d2;
+        border-radius: 50%;
+    }
+</style>
+@endpush 

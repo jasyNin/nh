@@ -899,7 +899,6 @@ main > .container {
     cursor: pointer;
     border: none;
     background: none;
-    padding: 4px 8px;
     border-radius: 4px;
     transition: all 0.2s ease;
     margin-right: 24px;
@@ -920,21 +919,23 @@ main > .container {
     background: #FEF1F3;
 }
 
-.like-icon {
-    width: 15px;
-    height: 15px;
-    transition: all 0.2s ease;
+.like-button.active:hover .like-icon-wrapper {
+    background: #FEF1F3;
 }
 
-.like-icon path {
+.like-button .like-icon {
     stroke: #595959;
     fill: transparent;
-    transition: all 0.2s ease;
+    transition: stroke 0.2s, fill 0.2s, transform 0.2s;
 }
 
-.like-button.active .like-icon path {
-    stroke: #e91e63;
-    fill: #e91e63;
+.like-button.active .like-icon {
+    stroke: #E65C77 !important;
+    fill: #E65C77 !important;
+}
+
+.like-button:active .like-icon {
+    transform: scale(1.2);
 }
 
 .like-button .likes-count {
@@ -942,7 +943,7 @@ main > .container {
 }
 
 .likes-count {
-    font-size: 14px;
+    font-size: 16px;
     color: #595959;
     transition: color 0.2s ease;
 }
@@ -1180,7 +1181,7 @@ main > .container {
 
 /* Стили для форм ответов */
 .reply-form {
-    background-color: var(--hover-bg);
+    background-color: transparent;
     border-radius: 0.5rem;
     padding: 1rem;
     margin-top: 1rem;
@@ -1192,11 +1193,13 @@ main > .container {
     border-radius: 0.25rem;
     resize: vertical;
     font-family: var(--font-family-base);
+    background-color: transparent;
 }
 
 .reply-form textarea:focus {
     border-color: var(--primary-color);
     box-shadow: 0 0 0 0.2rem rgba(22, 130, 253, 0.25);
+    background-color: transparent;
 }
 
 .replies {
@@ -1271,6 +1274,16 @@ main > .container {
     box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
     border: 1px solid rgba(0, 0, 0, 0.1);
     padding: 8px 0;
+}
+
+/* Стили для поворота иконки меню */
+.btn-link[data-bs-toggle="dropdown"] svg {
+    transform: rotate(90deg);
+    transition: transform 0.3s ease;
+}
+
+.btn-link[data-bs-toggle="dropdown"]:hover svg {
+    transform: rotate(90deg) scale(1.1);
 }
 
 .dropdown-item {
@@ -1634,4 +1647,214 @@ main > .container {
 
 .post-card .like-button:not(.active):hover .like-icon-wrapper {
     background: #FEF1F3;
-} 
+}
+
+/* Стили для иконок комментариев, репостов и закладок */
+.comment-toggle,
+.share-button,
+.bookmark-button {
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 0;
+    transition: all 0.3s ease;
+}
+
+.comment-toggle .icon-wrapper,
+.share-button .icon-wrapper,
+.bookmark-button .icon-wrapper {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background 0.3s ease;
+}
+
+.comment-toggle:hover .icon-wrapper,
+.share-button:hover .icon-wrapper,
+.bookmark-button:hover .icon-wrapper {
+    background-color: #E6EFFD;
+}
+
+.comment-toggle:hover img,
+.share-button:hover img,
+.bookmark-button:hover img {
+    filter: brightness(0) saturate(100%) invert(33%) sepia(99%) saturate(2014%) hue-rotate(201deg) brightness(99%) contrast(101%);
+}
+
+.comment-toggle img,
+.share-button img,
+.bookmark-button img {
+    width: 20px;
+    height: 20px;
+    transition: all 0.3s ease;
+}
+
+.comment-toggle span,
+.share-button span,
+.bookmark-button span {
+    margin-left: 4px;
+    font-size: 14px;
+    color: #6c757d;
+    transition: all 0.3s ease;
+}
+
+.comment-toggle:hover span,
+.share-button:hover span,
+.bookmark-button:hover span {
+    color: #1682FD;
+}
+
+/* Стили для кнопки лайка в профиле пользователя */
+.profile-show .like-button {
+    display: flex;
+    align-items: center;
+    padding: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.profile-show .like-button:hover {
+    background: none;
+}
+
+.profile-show .like-button img {
+    width: 20px;
+    height: 19px;
+    transition: all 0.3s ease;
+}
+
+.profile-show .like-button:hover img {
+    filter: brightness(0) saturate(100%) invert(37%) sepia(97%) saturate(7471%) hue-rotate(356deg) brightness(100%) contrast(135%);
+}
+
+.profile-show .like-button .likes-count {
+    margin-left: 4px;
+    font-size: 14px;
+    color: #6c757d;
+    transition: all 0.3s ease;
+}
+
+.profile-show .like-button:hover .likes-count {
+    color: #E65C77;
+}
+
+.bookmark-button {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.bookmark-button .icon-wrapper {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.bookmark-button:hover .icon-wrapper {
+    background-color: #E6EFFD;
+}
+
+.bookmark-button img {
+    transition: all 0.3s ease;
+}
+
+.bookmark-button:hover img {
+    filter: brightness(0) saturate(100%) invert(35%) sepia(95%) saturate(2000%) hue-rotate(200deg) brightness(100%) contrast(100%);
+}
+
+.bookmark-button.active img {
+    filter: brightness(0) saturate(100%) invert(35%) sepia(98%) saturate(1352%) hue-rotate(202deg) brightness(97%) contrast(101%);
+}
+
+.bookmark-button.active:hover .icon-wrapper {
+    background-color: #E6EFFD;
+}
+
+.bookmark-button.active svg {
+    stroke: #1682FD !important;
+    fill: #1682FD !important;
+}
+
+/* Notification Styles */
+.notification-item {
+    transition: all 0.3s ease;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+}
+
+.notification-item:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+.notification-item.unread {
+    background-color: rgba(22, 130, 253, 0.05);
+}
+
+.notification-item.marking-read {
+    opacity: 0.5;
+    transform: translateX(10px);
+}
+
+.notification-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.notification-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.notification-avatar-placeholder {
+    width: 100%;
+    height: 100%;
+    background-color: #f0f0f0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Стили для уведомлений */
+.notification-item {
+    padding: 12px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+.share-button.active img.reposted {
+    filter: brightness(0) saturate(100%) invert(35%) sepia(98%) saturate(1352%) hue-rotate(202deg) brightness(97%) contrast(101%);
+}
+
+.share-button.active span {
+    color: #1682FD;
+}
+
+.comment-toggle.active span {
+    color: #1682FD;
+}
+
+.comment-toggle.active img {
+    filter: brightness(0) saturate(100%) invert(35%) sepia(98%) saturate(1352%) hue-rotate(202deg) brightness(97%) contrast(101%);
+}
+

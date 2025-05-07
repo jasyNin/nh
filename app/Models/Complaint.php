@@ -13,8 +13,17 @@ class Complaint extends Model
         'complaintable_id',
         'complaintable_type',
         'type',
+        'target_type',
         'reason',
-        'status'
+        'status',
+        'moderator_comment',
+        'resolved_at'
+    ];
+
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'resolved_at' => 'datetime'
     ];
 
     /**
@@ -22,7 +31,10 @@ class Complaint extends Model
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class)->withDefault([
+            'name' => 'Удаленный пользователь',
+            'avatar' => null
+        ]);
     }
 
     /**
@@ -30,7 +42,10 @@ class Complaint extends Model
      */
     public function complaintable(): MorphTo
     {
-        return $this->morphTo();
+        return $this->morphTo()->withDefault([
+            'id' => null,
+            'user' => null
+        ]);
     }
 
     /**
@@ -40,10 +55,61 @@ class Complaint extends Model
     {
         return match($this->status) {
             'new' => 'Новая',
-            'open' => 'Открыт спор',
-            'unjustified' => 'Не обоснована',
-            'closed' => 'Закрыта',
+            'in_progress' => 'В работе',
+            'resolved' => 'Решена',
+            'rejected' => 'Отклонена',
             default => 'Неизвестно'
         };
+    }
+
+    /**
+     * Получить тип жалобы на русском языке
+     */
+    public function getTypeTextAttribute(): string
+    {
+        return match($this->type) {
+            'spam' => 'Спам',
+            'insult' => 'Оскорбление',
+            'inappropriate' => 'Неприемлемый контент',
+            'copyright' => 'Нарушение авторских прав',
+            'violence' => 'Насилие',
+            'hate_speech' => 'Разжигание ненависти',
+            'fake_news' => 'Фейковые новости',
+            'other' => 'Другое',
+            default => 'Неизвестно'
+        };
+    }
+
+    /**
+     * Получить тип объекта жалобы на русском языке
+     */
+    public function getTargetTypeTextAttribute(): string
+    {
+        return match($this->target_type) {
+            'post' => 'Пост',
+            'comment' => 'Комментарий',
+            'reply' => 'Ответ',
+            default => 'Неизвестно'
+        };
+    }
+
+    public function scopeNew($query)
+    {
+        return $query->where('status', 'new');
+    }
+
+    public function scopeInProgress($query)
+    {
+        return $query->where('status', 'in_progress');
+    }
+
+    public function scopeResolved($query)
+    {
+        return $query->where('status', 'resolved');
+    }
+
+    public function scopeRejected($query)
+    {
+        return $query->where('status', 'rejected');
     }
 }

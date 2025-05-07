@@ -47,11 +47,13 @@ class TagSeeder extends Seeder
         ];
 
         foreach ($tags as $tag) {
-            Tag::create([
-                'name' => $tag['name'],
-                'description' => $tag['description'],
-                'slug' => Str::slug($tag['name']),
-            ]);
+            Tag::firstOrCreate(
+                ['name' => $tag['name']],
+                [
+                    'description' => $tag['description'],
+                    'slug' => Str::slug($tag['name']),
+                ]
+            );
         }
     }
 } 

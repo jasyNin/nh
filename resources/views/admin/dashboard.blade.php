@@ -64,6 +64,16 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card h-100 border-0">
+                            <div class="card-body">
+                                <h5 class="card-title">Отладка бота</h5>
+                                <p class="card-text">Тестирование и отладка ответов бота на вопросы</p>
+                                <a href="{{ route('admin.bot-debug.index') }}" class="btn btn-primary">Перейти</a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

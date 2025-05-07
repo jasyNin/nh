@@ -3,7 +3,7 @@
 @section('title', $post->title)
 
 @section('content')
-<div class="container" style="margin-top: 80px;">
+<div class="container posts-show" style="margin-top: 80px;">
     <div class="row">
         <!-- Боковое меню -->
         <x-side-menu />
@@ -17,19 +17,30 @@
                     <div class="d-flex align-items-center mb-4">
                         <div class="d-flex align-items-center flex-grow-1">
                             <div class="position-relative" style="margin-right: 12px !important;">
-                                <a href="{{ route('users.show', $post->user) }}" class="text-decoration-none">
-                                    <x-user-avatar :user="$post->user" :size="48" class="me-2" />
-                                </a>
-                                <x-rank-icon :user="$post->user" />
+                                @if($post->user && $post->user->id)
+                                    <a href="{{ route('users.show', $post->user) }}" class="text-decoration-none">
+                                        <x-user-avatar :user="$post->user" :size="48" class="me-2" />
+                                    </a>
+                                    <x-rank-icon :user="$post->user" />
+                                @else
+                                    <div class="text-muted">
+                                        <x-user-avatar :user="null" :size="48" class="me-2" />
+                                    </div>
+                                @endif
                             </div>
                             <div class="d-flex flex-column">
                                 <div class="d-flex align-items-center">
-                                    <a href="{{ route('users.show', $post->user) }}" class="text-decoration-none text-dark fw-bold me-2">{{ $post->user->name }}</a>
+                                    @if($post->user && $post->user->id)
+                                        <a href="{{ route('users.show', $post->user) }}" class="text-decoration-none text-dark fw-bold me-2">{{ $post->user->name }}</a>
+                                    @else
+                                        <span class="text-muted fw-bold me-2">Удаленный пользователь</span>
+                                    @endif
                                     <small class="text-muted">{{ $post->created_at->diffForHumans() }}</small>
                                 </div>
                                 <div class="d-flex align-items-center">
-                                    <small class="text-muted me-2">{{ $post->user->rank_name }}</small>
-                                    
+                                    @if($post->user && $post->user->id)
+                                        <small class="text-muted me-2">{{ $post->user->rank_name }}</small>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -72,6 +83,11 @@
                     </div>
 
                     <!-- Заголовок и контент -->
+                    @if($post->is_hidden)
+                        <div class="alert alert-warning">
+                            Этот пост был скрыт модератором
+                        </div>
+                    @else
                     <h1 class="h3 mb-4">
                         {{ $post->title }}
                     </h1>
@@ -83,6 +99,7 @@
                         @endif
                         {!! $post->content !!}
                     </div>
+                    @endif
 
                     <!-- Теги -->
                     @if($post->tags->isNotEmpty())
@@ -101,31 +118,35 @@
                         <div class="d-flex align-items-center">
                             @auth
                             <button class="like-button {{ $post->likedBy(auth()->user()) ? 'active' : '' }} me-4" data-post-id="{{ $post->id }}">
-                                <span class="like-icon-wrapper">
+                                <div class="icon-wrapper">
                                     <svg class="like-icon" width="20" height="19" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                     </svg>
-                                </span>
+                                </div>
                                 <span class="likes-count">{{ $post->likes_count }}</span>
                             </button>
                             @else
                             <a href="{{ route('login') }}" class="like-button me-4">
-                                <span class="like-icon-wrapper">
+                                <div class="icon-wrapper">
                                     <svg class="like-icon" width="20" height="19" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                     </svg>
-                                </span>
+                                </div>
                                 <span class="likes-count">{{ $post->likes_count }}</span>
                             </a>
                             @endauth
 
                             <button class="btn btn-link text-dark p-0 me-4 comment-toggle" data-post-id="{{ $post->id }}">
-                                <img src="{{ asset('images/comment.svg') }}" alt="Комментарии" width="20" height="19">
+                                <div class="icon-wrapper">
+                                    <img src="{{ asset('images/comment.svg') }}" alt="Комментарии" width="20" height="19">
+                                </div>
                                 <span class="ms-1">{{ $post->comments_count }}</span>
                             </button>
 
-                            <button class="btn btn-link text-dark p-0 me-4 repost-button" id="copy-post-link">
-                                <img src="{{ asset('images/reply.svg') }}" alt="Поделиться" width="20" height="21">
+                            <button class="btn btn-link text-dark p-0 me-4 share-button" id="copy-post-link">
+                                <div class="icon-wrapper">
+                                    <img src="{{ asset('images/reply.svg') }}" alt="Поделиться" width="20" height="21">
+                                </div>
                                 <span class="ms-1">{{ $post->reposts_count }}</span>
                             </button>
                         </div>
@@ -134,12 +155,16 @@
                         <form action="{{ route('posts.bookmark', $post) }}" method="POST" class="ms-auto">
                             @csrf
                             <button type="submit" class="btn btn-link text-dark p-0 bookmark-button {{ $post->isBookmarkedBy(auth()->user()) ? 'active' : '' }}">
-                                <img src="{{ asset('images/bookmark-mini.svg') }}" alt="Закладка" width="20" height="20" class="{{ $post->isBookmarkedBy(auth()->user()) ? 'bookmarked' : '' }}">
+                                <div class="icon-wrapper">
+                                    <img src="{{ asset('images/bookmark-mini.svg') }}" alt="Закладка" width="20" height="20" class="{{ $post->isBookmarkedBy(auth()->user()) ? 'bookmarked' : '' }}">
+                                </div>
                             </button>
                         </form>
                         @else
                         <a href="{{ route('login') }}" class="btn btn-link text-dark p-0 ms-auto">
-                            <img src="{{ asset('images/bookmark-mini.svg') }}" alt="Закладка" width="20" height="20">
+                            <div class="icon-wrapper">
+                                <img src="{{ asset('images/bookmark-mini.svg') }}" alt="Закладка" width="20" height="20">
+                            </div>
                         </a>
                         @endauth
                     </div>
@@ -173,17 +198,32 @@
 
                         <div class="comments-list">
                             @foreach($post->comments as $comment)
+                            @if($comment->is_hidden)
+                                <div class="alert alert-warning">
+                                    Этот комментарий был скрыт модератором
+                                </div>
+                            @else
                             <div class="comment mb-4">
                                 <div class="d-flex">
                                     <div class="flex-shrink-0 me-2">
-                                        <a href="{{ route('users.show', $comment->user) }}">
-                                            <x-user-avatar :user="$comment->user" :size="40" />
-                                        </a>
+                                        @if($comment->user && $comment->user->id)
+                                            <a href="{{ route('users.show', $comment->user) }}">
+                                                <x-user-avatar :user="$comment->user" :size="40" />
+                                            </a>
+                                        @else
+                                            <div class="text-muted">
+                                                <x-user-avatar :user="null" :size="40" />
+                                            </div>
+                                        @endif
                                     </div>
                                     <div class="flex-grow-1">
                                         <div class="d-flex justify-content-between align-items-start mb-1">
                                             <div>
-                                                <a href="{{ route('users.show', $comment->user) }}" class="text-decoration-none text-dark fw-bold">{{ $comment->user->name }}</a>
+                                                @if($comment->user && $comment->user->id)
+                                                    <a href="{{ route('users.show', $comment->user) }}" class="text-decoration-none text-dark fw-bold">{{ $comment->user->name }}</a>
+                                                @else
+                                                    <span class="text-muted fw-bold">Удаленный пользователь</span>
+                                                @endif
                                                 <span class="text-muted ms-2 small">{{ $comment->created_at->diffForHumans() }}</span>
                                             </div>
                                             @auth
@@ -206,6 +246,18 @@
                                                         </form>
                                                     </li>
                                                     @endcan
+                                                        @cannot('update', $comment)
+                                                        <li>
+                                                            <form action="{{ route('reports.store') }}" method="POST" class="d-inline">
+                                                                @csrf
+                                                                <input type="hidden" name="reportable_type" value="App\Models\Comment">
+                                                                <input type="hidden" name="reportable_id" value="{{ $comment->id }}">
+                                                                <button type="submit" class="dropdown-item text-warning">
+                                                                    Пожаловаться
+                                                                </button>
+                                                            </form>
+                                                        </li>
+                                                        @endcannot
                                                 </ul>
                                             </div>
                                             @endauth
@@ -268,17 +320,32 @@
                                         <div class="comment-replies">
                                             <div class="replies-list" id="replies-{{ $comment->id }}" style="display: none;">
                                                 @foreach($comment->replies as $reply)
+                                                            @if($reply->is_hidden)
+                                                                <div class="alert alert-warning">
+                                                                    Этот ответ был скрыт модератором
+                                                                </div>
+                                                            @else
                                                 <div class="reply mb-3">
                                                     <div class="d-flex">
                                                         <div class="flex-shrink-0 me-2">
-                                                            <a href="{{ route('users.show', $reply->user) }}">
-                                                                <x-user-avatar :user="$reply->user" :size="32" />
-                                                            </a>
+                                                            @if($reply->user && $reply->user->id)
+                                                                <a href="{{ route('users.show', $reply->user) }}">
+                                                                    <x-user-avatar :user="$reply->user" :size="32" />
+                                                                </a>
+                                                            @else
+                                                                <div class="text-muted">
+                                                                    <x-user-avatar :user="null" :size="32" />
+                                                                </div>
+                                                            @endif
                                                         </div>
                                                         <div class="flex-grow-1">
                                                             <div class="d-flex justify-content-between align-items-start mb-1">
                                                                 <div>
-                                                                    <a href="{{ route('users.show', $reply->user) }}" class="text-decoration-none text-dark fw-bold">{{ $reply->user->name }}</a>
+                                                                    @if($reply->user && $reply->user->id)
+                                                                        <a href="{{ route('users.show', $reply->user) }}" class="text-decoration-none text-dark fw-bold">{{ $reply->user->name }}</a>
+                                                                    @else
+                                                                        <span class="text-muted fw-bold">Удаленный пользователь</span>
+                                                                    @endif
                                                                     <span class="text-muted ms-2 small">{{ $reply->created_at->diffForHumans() }}</span>
                                                                 </div>
                                                                 <div class="d-flex align-items-center">
@@ -357,6 +424,7 @@
                                                         </div>
                                                     </div>
                                                 </div>
+                                                            @endif
                                                 @endforeach
                                             </div>
                                         </div>
@@ -364,6 +432,9 @@
                                     </div>
                                 </div>
                             </div>
+                                    </div>
+                                </div>
+                            @endif
                             @endforeach
                         </div>
                     </div>
@@ -386,20 +457,9 @@
                 @csrf
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label for="reason" class="form-label">Причина жалобы</label>
-                        <select class="form-select" id="reason" name="reason" required>
-                            <option value="">Выберите причину</option>
-                            <option value="spam">Спам</option>
-                            <option value="violence">Насилие</option>
-                            <option value="hate">Разжигание ненависти</option>
-                            <option value="harassment">Травля</option>
-                            <option value="pornography">Порнография</option>
-                            <option value="other">Другое</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="description" class="form-label">Описание</label>
-                        <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+                        <label class="form-label">Причина жалобы</label>
+                        <textarea name="reason" class="form-control" rows="3" required placeholder="Опишите причину жалобы..." minlength="10" maxlength="1000"></textarea>
+                        <div class="form-text">Минимум 10 символов</div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -417,47 +477,49 @@
 <style>
     .like-button {
         display: flex;
+        flex-direction: row;
         align-items: center;
-        gap: 4px;
-        padding: 4px 8px;
-        border-radius: 8px;
-        transition: all 0.2s ease;
+        gap: 6px;
         cursor: pointer;
-        background: none;
         border: none;
-        color: inherit;
+        background: none;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+        margin-right: 24px;
+        position: relative;
     }
 
     .like-button:hover {
-        background-color: rgba(255, 59, 48, 0.1);
+        background: #FEF1F3;
     }
 
     .like-icon-wrapper {
+        width: 28px;
+        height: 28px;
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 20px;
-        height: 19px;
-        position: relative;
+        border-radius: 50%;
+        transition: background 0.2s;
     }
 
     .like-icon {
         width: 20px;
         height: 19px;
         transition: all 0.2s ease;
+        fill: transparent;
+        transition: stroke 0.2s, fill 0.2s, transform 0.2s;
     }
 
     .like-button.active .like-icon path {
-        stroke: #ff3b30;
-        fill: #ff3b30;
+        stroke: #E65C77 !important;
+        fill: #E65C77 !important;
     }
 
     .likes-count {
-        font-size: 0.9rem;
-        color: #1a1a1a;
-        min-width: 20px;
-        text-align: left;
-        line-height: 1;
+        margin-left: 0;
+        font-size: 16px;
+        color: #595959;
         transition: color 0.2s ease;
     }
 

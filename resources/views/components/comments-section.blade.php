@@ -31,19 +31,30 @@
         <div class="comment mb-4">
             <div class="d-flex">
                 <div class="flex-shrink-0 me-2">
-                    <a href="{{ route('users.show', $comment->user) }}">
+                    @if($comment->user && $comment->user->id)
+                        <a href="{{ route('users.show', $comment->user) }}">
+                            <div class="position-relative">
+                                <x-user-avatar :user="$comment->user" :size="40" />
+                                <x-rank-icon :user="$comment->user" />
+                            </div>
+                        </a>
+                    @else
                         <div class="position-relative">
-                            <x-user-avatar :user="$comment->user" :size="40" />
-                            <x-rank-icon :user="$comment->user" />
+                            <x-user-avatar :user="null" :size="40" />
                         </div>
-                    </a>
+                    @endif
                 </div>
                 <div class="flex-grow-1">
                     <div class="d-flex justify-content-between align-items-start mb-1">
                         <div>
-                            <a href="{{ route('users.show', $comment->user) }}" class="text-decoration-none text-dark fw-bold">{{ $comment->user->name }}</a>
-                            <span class="text-muted ms-2 small">{{ $comment->created_at->diffForHumans() }}</span>
-                            <div class="text-muted small">{{ $comment->user->rank_name }}</div>
+                            @if($comment->user && $comment->user->id)
+                                <a href="{{ route('users.show', $comment->user) }}" class="text-decoration-none text-dark fw-bold">{{ $comment->user->name }}</a>
+                                <span class="text-muted ms-2 small">{{ $comment->created_at->diffForHumans() }}</span>
+                                <div class="text-muted small">{{ $comment->user->rank_name }}</div>
+                            @else
+                                <span class="text-muted fw-bold">Удаленный пользователь</span>
+                                <span class="text-muted ms-2 small">{{ $comment->created_at->diffForHumans() }}</span>
+                            @endif
                         </div>
                         @auth
                         <div class="dropdown">
@@ -75,9 +86,13 @@
                     <div class="comment-actions">
                         <div class="d-flex align-items-center">
                             @auth
-                            <button class="btn btn-link text-muted p-0 me-3 comment-like-button" data-comment-id="{{ $comment->id }}">
-                                <i class="bi bi-heart{{ $comment->likedBy(auth()->user()) ? '-fill text-danger' : '' }} like-icon"></i>
-                                <span class="like-count ms-1">{{ $comment->likes_count }}</span>
+                            <button class="btn btn-link p-0 me-3 comment-like-button" data-comment-id="{{ $comment->id }}" data-post-id="{{ $comment->post_id }}">
+                                <div class="like-wrapper">
+                                    <div class="like-icon-wrapper">
+                                        <img src="{{ asset($comment->likedBy(auth()->user()) ? 'images/like-filled.svg' : 'images/like.svg') }}" alt="Лайк" class="like-icon" width="18" height="16">
+                                    </div>
+                                    <span class="like-count {{ $comment->likedBy(auth()->user()) ? 'liked' : '' }}">{{ $comment->likes_count }}</span>
+                                </div>
                             </button>
                             <button class="btn btn-link text-muted p-0 reply-button" data-comment-id="{{ $comment->id }}">
                                 Ответить
@@ -88,9 +103,13 @@
                             </span>
                             @endif
                             @else
-                            <a href="{{ route('login') }}" class="btn btn-link text-muted p-0 me-3">
-                                <i class="bi bi-heart"></i>
-                                <span class="ms-1">{{ $comment->likes_count }}</span>
+                            <a href="{{ route('login') }}" class="btn btn-link p-0 me-3">
+                                <div class="like-wrapper">
+                                    <div class="like-icon-wrapper">
+                                        <img src="{{ asset('images/like.svg') }}" alt="Лайк" class="like-icon" width="18" height="16">
+                                    </div>
+                                    <span class="like-count">{{ $comment->likes_count }}</span>
+                                </div>
                             </a>
                             <a href="{{ route('login') }}" class="btn btn-link text-muted p-0">
                                 Ответить
@@ -130,19 +149,30 @@
                             <div class="reply mb-3">
                                 <div class="d-flex">
                                     <div class="flex-shrink-0 me-2">
-                                        <a href="{{ route('users.show', $reply->user) }}">
+                                        @if($reply->user && $reply->user->id)
+                                            <a href="{{ route('users.show', $reply->user) }}">
+                                                <div class="position-relative">
+                                                    <x-user-avatar :user="$reply->user" :size="32" />
+                                                    <x-rank-icon :user="$reply->user" />
+                                                </div>
+                                            </a>
+                                        @else
                                             <div class="position-relative">
-                                                <x-user-avatar :user="$reply->user" :size="32" />
-                                                <x-rank-icon :user="$reply->user" />
+                                                <x-user-avatar :user="null" :size="32" />
                                             </div>
-                                        </a>
+                                        @endif
                                     </div>
                                     <div class="flex-grow-1">
                                         <div class="d-flex justify-content-between align-items-start mb-1">
                                             <div>
-                                                <a href="{{ route('users.show', $reply->user) }}" class="text-decoration-none text-dark fw-bold">{{ $reply->user->name }}</a>
-                                                <span class="text-muted ms-2 small">{{ $reply->created_at->diffForHumans() }}</span>
-                                                <div class="text-muted small">{{ $reply->user->rank_name }}</div>
+                                                @if($reply->user && $reply->user->id)
+                                                    <a href="{{ route('users.show', $reply->user) }}" class="text-decoration-none text-dark fw-bold">{{ $reply->user->name }}</a>
+                                                    <span class="text-muted ms-2 small">{{ $reply->created_at->diffForHumans() }}</span>
+                                                    <div class="text-muted small">{{ $reply->user->rank_name }}</div>
+                                                @else
+                                                    <span class="text-muted fw-bold">Удаленный пользователь</span>
+                                                    <span class="text-muted ms-2 small">{{ $reply->created_at->diffForHumans() }}</span>
+                                                @endif
                                             </div>
                                             <div class="d-flex align-items-center">
                                                 @auth
@@ -176,17 +206,25 @@
                                         <div class="comment-actions">
                                             <div class="d-flex align-items-center">
                                                 @auth
-                                                <button class="btn btn-link text-muted p-0 me-3 comment-like-button" data-comment-id="{{ $reply->id }}">
-                                                    <i class="bi bi-heart{{ $reply->likedBy(auth()->user()) ? '-fill text-danger' : '' }} like-icon"></i>
-                                                    <span class="like-count ms-1">{{ $reply->likes_count }}</span>
+                                                <button class="btn btn-link p-0 me-3 reply-like-button" data-reply-id="{{ $reply->id }}" data-post-id="{{ $comment->post_id }}">
+                                                    <div class="like-wrapper">
+                                                        <div class="like-icon-wrapper">
+                                                            <img src="{{ asset($reply->likedBy(auth()->user()) ? 'images/like-filled.svg' : 'images/like.svg') }}" alt="Лайк" class="like-icon" width="18" height="16">
+                                                        </div>
+                                                        <span class="like-count {{ $reply->likedBy(auth()->user()) ? 'liked' : '' }}">{{ $reply->likes_count }}</span>
+                                                    </div>
                                                 </button>
                                                 <button class="btn btn-link text-muted p-0 reply-button" data-comment-id="{{ $reply->id }}">
                                                     Ответить
                                                 </button>
                                                 @else
-                                                <a href="{{ route('login') }}" class="btn btn-link text-muted p-0 me-3">
-                                                    <i class="bi bi-heart"></i>
-                                                    <span class="ms-1">{{ $reply->likes_count }}</span>
+                                                <a href="{{ route('login') }}" class="btn btn-link p-0 me-3">
+                                                    <div class="like-wrapper">
+                                                        <div class="like-icon-wrapper">
+                                                            <img src="{{ asset('images/like.svg') }}" alt="Лайк" class="like-icon" width="18" height="16">
+                                                        </div>
+                                                        <span class="like-count">{{ $reply->likes_count }}</span>
+                                                    </div>
                                                 </a>
                                                 <a href="{{ route('login') }}" class="btn btn-link text-muted p-0">
                                                     Ответить
@@ -229,4 +267,151 @@
         </div>
         @endforeach
     </div>
-</div> 
+</div>
+
+<style>
+.like-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.like-icon-wrapper {
+    padding: 4px;
+    border-radius: 14px;
+    transition: background-color 0.2s;
+}
+
+.like-icon-wrapper:hover {
+    background-color: #FEF1F3;
+}
+
+.like-icon {
+    transition: all 0.2s;
+}
+
+.like-icon.liked {
+    filter: invert(37%) sepia(74%) saturate(1352%) hue-rotate(314deg) brightness(91%) contrast(101%);
+}
+
+.like-icon.liked path {
+    fill: #E65C77;
+}
+
+.like-count {
+    font-size: 14px;
+    color: #595959;
+    transition: color 0.2s;
+}
+
+.like-count.liked {
+    color: #E65C77;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Обработка лайков комментариев
+    const commentLikeButtons = document.querySelectorAll('.comment-like-button');
+    commentLikeButtons.forEach(button => {
+        button.addEventListener('click', async function() {
+            if (this.disabled) return;
+            this.disabled = true;
+            
+            const commentId = this.dataset.commentId;
+            const postId = this.dataset.postId;
+            const likeIcon = this.querySelector('.like-icon');
+            const likeCount = this.querySelector('.like-count');
+            
+            try {
+                const response = await fetch(`/comments/${commentId}/like`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify({ post_id: postId })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Something went wrong');
+                }
+                
+                if (data.liked) {
+                    likeIcon.src = "{{ asset('images/like-filled.svg') }}";
+                    likeCount.classList.add('liked');
+                } else {
+                    likeIcon.src = "{{ asset('images/like.svg') }}";
+                    likeCount.classList.remove('liked');
+                }
+                
+                likeCount.textContent = data.likes_count;
+            } catch (error) {
+                console.error('Error:', error);
+                const currentCount = parseInt(likeCount.textContent);
+                likeCount.textContent = data.liked ? currentCount - 1 : currentCount + 1;
+                likeIcon.src = data.liked ? "{{ asset('images/like.svg') }}" : "{{ asset('images/like-filled.svg') }}";
+                likeCount.classList.toggle('liked');
+            } finally {
+                setTimeout(() => {
+                    this.disabled = false;
+                }, 500);
+            }
+        });
+    });
+
+    // Обработка лайков ответов
+    const replyLikeButtons = document.querySelectorAll('.reply-like-button');
+    replyLikeButtons.forEach(button => {
+        button.addEventListener('click', async function() {
+            if (this.disabled) return;
+            this.disabled = true;
+            
+            const replyId = this.dataset.replyId;
+            const postId = this.dataset.postId;
+            const likeIcon = this.querySelector('.like-icon');
+            const likeCount = this.querySelector('.like-count');
+            
+            try {
+                const response = await fetch(`/replies/${replyId}/like`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify({ post_id: postId })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Something went wrong');
+                }
+                
+                if (data.liked) {
+                    likeIcon.src = "{{ asset('images/like-filled.svg') }}";
+                    likeCount.classList.add('liked');
+                } else {
+                    likeIcon.src = "{{ asset('images/like.svg') }}";
+                    likeCount.classList.remove('liked');
+                }
+                
+                likeCount.textContent = data.likes_count;
+            } catch (error) {
+                console.error('Error:', error);
+                const currentCount = parseInt(likeCount.textContent);
+                likeCount.textContent = data.liked ? currentCount - 1 : currentCount + 1;
+                likeIcon.src = data.liked ? "{{ asset('images/like.svg') }}" : "{{ asset('images/like-filled.svg') }}";
+                likeCount.classList.toggle('liked');
+            } finally {
+                setTimeout(() => {
+                    this.disabled = false;
+                }, 500);
+            }
+        });
+    });
+});
+</script> 

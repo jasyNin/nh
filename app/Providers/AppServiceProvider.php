@@ -4,10 +4,12 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use App\Models\Post;
-use App\Observers\PostObserver;
 use App\Models\Comment;
 use App\Observers\CommentObserver;
-use App\Services\NeuronchikService;
+use App\Observers\QuestionBotObserver;
+use App\Services\QuestionBotService;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -16,8 +18,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->singleton(NeuronchikService::class, function ($app) {
-            return new NeuronchikService();
+        $this->app->singleton(QuestionBotService::class, function ($app) {
+            return new QuestionBotService();
         });
     }
 
@@ -26,8 +28,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Регистрируем наблюдатели
-        Post::observe(PostObserver::class);
+        Schema::defaultStringLength(191);
+        Post::observe(QuestionBotObserver::class);
         Comment::observe(CommentObserver::class);
     }
 }
