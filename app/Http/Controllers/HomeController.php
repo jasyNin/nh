@@ -25,20 +25,15 @@ class HomeController extends Controller
                     ->get();
             });
 
-            // Топ-3 пользователей по рейтингу (как на странице рейтинга)
-            $topUsers = User::query()
-                ->whereNotIn('rank', ['bot', 'moderator', 'admin'])
-                ->orderByRaw("CASE rank 
-                    WHEN 'supermind' THEN 1
-                    WHEN 'master' THEN 2
-                    WHEN 'erudite' THEN 3
-                    WHEN 'expert' THEN 4
-                    WHEN 'student' THEN 5
-                    WHEN 'novice' THEN 6
-                    ELSE 7 END")
-                ->orderBy('rating', 'desc')
-                ->take(3)
-                ->get();
+            // Кэшируем топ пользователей на 1 час
+            $topUsers = Cache::remember('top_users', 3600, function () {
+                return User::withCount(['posts' => function($query) {
+                    $query->where('status', 'published');
+                }, 'comments'])
+                    ->orderBy('posts_count', 'desc')
+                    ->take(5)
+                    ->get();
+            });
 
             // Кэшируем последние комментарии на 5 минут
             $recentAnswers = Cache::remember('recent_answers', 300, function () {
