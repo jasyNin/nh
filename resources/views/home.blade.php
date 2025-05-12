@@ -68,12 +68,6 @@
         </div>
         
         <!-- Правая колонка -->
-        <x-right-sidebar 
-            :popularTags="$popularTags"
-            :viewedPosts="$viewedPosts" 
-            :isHomePage="true"
-            :topUsers="$topUsers"
-        />
         <div class="col-md-3 right-sidebar" style="margin-top: 20px;">
             @if(count($topUsers) > 0)
                 @php
