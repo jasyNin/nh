@@ -28,6 +28,7 @@ class UserRatingController extends Controller
             ->withCount(['posts' => function($query) {
                 $query->where('status', 'published');
             }, 'comments'])
+            ->whereNotIn('rank', ['bot', 'moderator', 'admin'])
             ->orderByRaw("CASE rank 
                 WHEN 'supermind' THEN 1
                 WHEN 'master' THEN 2
@@ -35,9 +36,6 @@ class UserRatingController extends Controller
                 WHEN 'expert' THEN 4
                 WHEN 'student' THEN 5
                 WHEN 'novice' THEN 6
-                WHEN 'admin' THEN 0
-                WHEN 'moderator' THEN 0
-                WHEN 'bot' THEN 0
                 ELSE 7 END")
             ->orderBy('rating', 'desc')
             ->get();
