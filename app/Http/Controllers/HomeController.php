@@ -25,32 +25,8 @@ class HomeController extends Controller
                     ->get();
             });
 
-            // Кэшируем топ пользователей на 1 час
-            $topUsers = Cache::remember('top_users', 3600, function () {
-                return User::withCount(['posts' => function($query) {
-                    $query->where('status', 'published');
-                }, 'comments'])
-                    ->orderBy('posts_count', 'desc')
-                    ->take(5)
-                    ->get();
-            });
-
-            // Кэшируем последние комментарии на 5 минут
-            $recentAnswers = Cache::remember('recent_answers', 300, function () {
-                return Comment::with(['user', 'post'])
-                    ->whereHas('post', function($query) {
-                        $query->where('status', 'published');
-                    })
-                    ->orderBy('created_at', 'desc')
-                    ->take(3)
-                    ->get();
-            });
-
             // Топ-3 пользователей по рейтингу (как на странице рейтинга)
-            $topRatingUsers = User::query()
-                ->withCount(['posts' => function($query) {
-                    $query->where('status', 'published');
-                }, 'comments'])
+            $topUsers = User::query()
                 ->whereNotIn('rank', ['bot', 'moderator', 'admin'])
                 ->orderByRaw("CASE rank 
                     WHEN 'supermind' THEN 1
@@ -63,6 +39,17 @@ class HomeController extends Controller
                 ->orderBy('rating', 'desc')
                 ->take(3)
                 ->get();
+
+            // Кэшируем последние комментарии на 5 минут
+            $recentAnswers = Cache::remember('recent_answers', 300, function () {
+                return Comment::with(['user', 'post'])
+                    ->whereHas('post', function($query) {
+                        $query->where('status', 'published');
+                    })
+                    ->orderBy('created_at', 'desc')
+                    ->take(3)
+                    ->get();
+            });
 
             // Запрос постов с фильтрацией по типу
             $query = Post::with(['user', 'tags', 'likes'])
@@ -106,7 +93,7 @@ class HomeController extends Controller
                 'answers_count' => $recentAnswers->count()
             ]);
 
-            return view('home', compact('posts', 'popularTags', 'topUsers', 'recentAnswers', 'viewedPosts', 'topRatingUsers'));
+            return view('home', compact('posts', 'popularTags', 'topUsers', 'recentAnswers', 'viewedPosts'));
 
         } catch (\Exception $e) {
             // Подробное логирование ошибки
@@ -126,7 +113,6 @@ class HomeController extends Controller
                 'topUsers' => collect([]),
                 'recentAnswers' => collect([]),
                 'viewedPosts' => collect([]),
-                'topRatingUsers' => collect([]),
                 'error' => 'Произошла ошибка при загрузке данных. Пожалуйста, попробуйте позже.'
             ]);
         }
