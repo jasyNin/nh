@@ -46,6 +46,24 @@ class HomeController extends Controller
                     ->get();
             });
 
+            // Топ-3 пользователей по рейтингу (как на странице рейтинга)
+            $topRatingUsers = User::query()
+                ->withCount(['posts' => function($query) {
+                    $query->where('status', 'published');
+                }, 'comments'])
+                ->whereNotIn('rank', ['bot', 'moderator', 'admin'])
+                ->orderByRaw("CASE rank 
+                    WHEN 'supermind' THEN 1
+                    WHEN 'master' THEN 2
+                    WHEN 'erudite' THEN 3
+                    WHEN 'expert' THEN 4
+                    WHEN 'student' THEN 5
+                    WHEN 'novice' THEN 6
+                    ELSE 7 END")
+                ->orderBy('rating', 'desc')
+                ->take(3)
+                ->get();
+
             // Запрос постов с фильтрацией по типу
             $query = Post::with(['user', 'tags', 'likes'])
                 ->where('status', 'published')
@@ -88,7 +106,7 @@ class HomeController extends Controller
                 'answers_count' => $recentAnswers->count()
             ]);
 
-            return view('home', compact('posts', 'popularTags', 'topUsers', 'recentAnswers', 'viewedPosts'));
+            return view('home', compact('posts', 'popularTags', 'topUsers', 'recentAnswers', 'viewedPosts', 'topRatingUsers'));
 
         } catch (\Exception $e) {
             // Подробное логирование ошибки
@@ -108,6 +126,7 @@ class HomeController extends Controller
                 'topUsers' => collect([]),
                 'recentAnswers' => collect([]),
                 'viewedPosts' => collect([]),
+                'topRatingUsers' => collect([]),
                 'error' => 'Произошла ошибка при загрузке данных. Пожалуйста, попробуйте позже.'
             ]);
         }
