@@ -79,6 +79,7 @@ Route::middleware('auth')->group(function () {
     // Комментарии
     Route::post('posts/{post}/comments', [CommentController::class, 'store'])->name('posts.comments.store');
     Route::post('answers/{answer}/comments', [CommentController::class, 'storeAnswerComment'])->name('answers.comments.store');
+    Route::get('comments/{comment}/edit', [CommentController::class, 'edit'])->name('comments.edit');
     Route::put('comments/{comment}', [CommentController::class, 'update'])->name('comments.update');
     Route::delete('comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
     Route::post('/comments/{comment}/like', [CommentLikeController::class, 'toggle'])->name('comments.like')->middleware('auth');
@@ -198,4 +199,6 @@ Route::middleware(['auth'])->prefix('moderator')->name('moderator.')->group(func
     Route::get('/complaints/{complaint}', [ComplaintController::class, 'show'])->name('complaints.show');
     Route::post('/complaints/{complaint}', [ComplaintController::class, 'update'])->name('complaints.update');
     Route::post('/complaints', [ComplaintController::class, 'store'])->name('complaints.store');
+    Route::delete('/posts/{post}', [\App\Http\Controllers\ModeratorController::class, 'deletePost'])->name('posts.delete');
+    Route::delete('/comments/{comment}', [\App\Http\Controllers\ModeratorController::class, 'deleteComment'])->name('comments.delete');
 });

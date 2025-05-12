@@ -24,7 +24,7 @@
             @else
                 <div class="card border-0 bg-transparent">
                     <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center">
-                        <h4 class="mb-0">Закладки</h4>
+                        <h4 class="mb-0" style="font-size: 22px; font-weight: medium; color: #272727;">Закладки</h4>
                         <div class="search-container position-relative" style="width: 300px;">
                             <input type="text" id="bookmarkSearch" class="form-control" placeholder="Поиск по закладкам..." style="border-radius: 20px; padding: 8px 40px 8px 16px; font-size: 0.9rem; border: 1px solid #e0e0e0; background-color: white;">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="position-absolute" style="right: 12px; top: 50%; transform: translateY(-50%); filter: invert(32%) sepia(98%) saturate(1234%) hue-rotate(210deg) brightness(97%) contrast(101%);">

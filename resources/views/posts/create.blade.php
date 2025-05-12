@@ -25,31 +25,48 @@
     
     .btn-secondary {
         border-radius: 12px;
-        background-color: #F3F4F6;
-        color: #808080;
+        background-color: #808080;
+        color: #FFFFFF !important;
         border: none;
         padding: 10px 20px;
         font-size: 14px;
         font-weight: 500;
+        transition: background-color 0.3s ease;
+    }
+    
+    .btn-secondary:hover {
+        background-color: #666666;
+        color: #FFFFFF !important;
     }
     
     .btn-primary {
-        border-radius: 8px;
+        border-radius: 12px;
         background-color: #1682FD;
         border: none;
         padding: 10px 20px;
         font-size: 14px;
         font-weight: 500;
+        transition: background-color 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        background-color: #136FD7;
     }
     
     .btn-outline-primary {
         border-radius: 12px;
         background-color: #EAEAEA;
         border: none;
-        color: #808080;
+        color: #808080 !important;
         padding: 10px 20px;
         font-size: 14px;
         font-weight: 500;
+        transition: background-color 0.3s ease;
+    }
+    
+    .btn-outline-primary:hover {
+        background-color: #D4D4D4;
+        color: #808080 !important;
     }
     
     .form-label {
@@ -101,12 +118,43 @@
         border-radius: 16px;
         padding: 6px 12px;
         font-size: 13px;
+        gap: 8px;
     }
     
     .tag-remove {
-        margin-left: 6px;
         cursor: pointer;
         color: #9CA3AF;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        transition: background-color 0.2s ease;
+        position: relative;
+    }
+    
+    .tag-remove::before,
+    .tag-remove::after {
+        content: '';
+        position: absolute;
+        width: 10px;
+        height: 2px;
+        background-color: currentColor;
+        border-radius: 1px;
+    }
+    
+    .tag-remove::before {
+        transform: rotate(45deg);
+    }
+    
+    .tag-remove::after {
+        transform: rotate(-45deg);
+    }
+    
+    .tag-remove:hover {
+        background-color: #E5E7EB;
+        color: #4B5563;
     }
     
     .page-title {
@@ -119,14 +167,29 @@
         background-color: #FFFFFF;
         border-radius: 12px;
         padding: 24px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     }
     
     .input-section {
         margin-bottom: 24px;
     }
+    
+    .btn-publish {
+        border-radius: 12px;
+        background-color: #1682FD;
+        border: none;
+        padding: 10px 20px;
+        font-size: 14px;
+        font-weight: 500;
+        transition: background-color 0.3s ease;
+        color: #FFFFFF !important;
+    }
+    
+    .btn-publish:hover {
+        background-color: #136FD7;
+        color: #FFFFFF !important;
+    }
 </style>
-<div class="container-fluid" style="margin-top: 80px;">
+<div class="container main-content-container">
     <div class="row">
         <!-- Боковое меню -->
         <x-side-menu />
@@ -134,7 +197,7 @@
 
         <!-- Основной контент -->
         <div class="col-md-7">
-            <h1 class="page-title">Создать пост</h1>
+            <h1 class="page-title" style="font-size: 22px; font-weight: 600; margin-bottom: 24px; margin-top: 20px;">Создать пост</h1>
             
             <form action="{{ route('posts.store') }}" method="POST" enctype="multipart/form-data" id="post-create-form">
                 @csrf
@@ -182,7 +245,7 @@
                         @error('tags')
                             <div class="invalid-feedback d-block">{{ $message }}</div>
                         @enderror
-                        <div class="form-text">Введите теги через запятую</div>
+                        <div class="form-text">Например: php, бизнес, здоровье </div>
                     </div>
 
                     <!-- Изображение -->
@@ -203,7 +266,7 @@
                         <a href="{{ route('home') }}" class="btn btn-secondary">Отмена</a>
                         <div>
                             <button type="button" class="btn btn-outline-primary me-2" id="save-draft">Сохранить как черновик</button>
-                            <button type="submit" class="btn btn-primary">Опубликовать</button>
+                            <button type="submit" class="btn btn-publish">Опубликовать</button>
                         </div>
                     </div>
                 </div>
@@ -245,13 +308,10 @@
         // Сохранение как черновик
         const saveDraftBtn = document.getElementById('save-draft');
         const draftInput = document.getElementById('is-draft');
-        const redirectInput = document.getElementById('redirect-to');
-        const postForm = document.getElementById('post-create-form');
         
         saveDraftBtn.addEventListener('click', function() {
             draftInput.value = '1';
-            redirectInput.value = '/drafts';
-            postForm.submit();
+            document.getElementById('post-create-form').submit();
         });
         
         // Система тегов
@@ -303,7 +363,7 @@
                 tagElement.className = 'selected-tag';
                 tagElement.innerHTML = `
                     <span>${tag}</span>
-                    <i class="fas fa-times tag-remove"></i>
+                    <div class="tag-remove"></div>
                 `;
                 selectedTagsContainer.appendChild(tagElement);
             });

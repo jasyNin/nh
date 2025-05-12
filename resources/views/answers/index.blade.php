@@ -11,7 +11,7 @@
 
         <!-- Основной контент -->
         <div class="col-10">
-            <h5 class="mb-3">Ответы</h5>
+            <h5 class="mb-3" style="font-size: 22px; font-weight: medium; color: #272727;">Ответы</h5>
             @if($answers->isEmpty() && $commentsToUser->isEmpty() && $repliesToUser->isEmpty())
                 <div class="card border-0">
                     <div class="card-body">

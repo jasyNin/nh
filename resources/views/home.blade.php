@@ -3,7 +3,7 @@
 @section('title', 'Главная')
 
 @section('content')
-<div class="container" style="margin-top: 60px;">
+<div class="container main-content-container">
     @if(isset($error))
         <div class="alert alert-danger">
             {{ $error }}

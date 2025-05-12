@@ -9,9 +9,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Notifications\CommentNotification;
 use App\Models\Answer;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class CommentController extends Controller
 {
+    use AuthorizesRequests;
+
     public function store(Request $request, Post $post)
     {
         $validated = $request->validate([

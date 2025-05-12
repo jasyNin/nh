@@ -49,6 +49,7 @@ class HomeController extends Controller
             // Запрос постов с фильтрацией по типу
             $query = Post::with(['user', 'tags', 'likes'])
                 ->where('status', 'published')
+                ->where('is_hidden', false)
                 ->withCount(['comments', 'likes'])
                 ->orderBy('created_at', 'desc');
 

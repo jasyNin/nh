@@ -27,7 +27,7 @@
     @endauth
 
     <div class="comments-list">
-        @foreach($post->comments as $comment)
+        @foreach($post->comments->where('is_hidden', false) as $comment)
         <div class="comment mb-4">
             <div class="d-flex">
                 <div class="flex-shrink-0 me-2">
@@ -63,25 +63,35 @@
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">
                                 @can('update', $comment)
-                                <li><a class="dropdown-item" href="#" onclick="editComment({{ $comment->id }})">Редактировать</a></li>
+                                    <li>
+                                        <x-comment-edit-button :commentId="$comment->id" />
+                                    </li>
                                 @endcan
                                 @can('delete', $comment)
-                                <li>
-                                    <form action="{{ route('comments.destroy', $comment) }}" method="POST" class="d-inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="dropdown-item text-danger" onclick="return confirm('Вы уверены?')">
-                                            Удалить
-                                        </button>
-                                    </form>
-                                </li>
+                                    <li>
+                                        <x-comment-delete-button :commentId="$comment->id" />
+                                    </li>
                                 @endcan
+                                @if(auth()->check() && auth()->id() !== $comment->user_id)
+                                    <li>
+                                        <x-comment-report-button :commentId="$comment->id" />
+                                    </li>
+                                @endif
                             </ul>
                         </div>
                         @endauth
                     </div>
-                    <div class="comment-content mb-2">
+                    <div class="comment-content mb-2" id="comment-content-{{ $comment->id }}">
                         {{ $comment->content }}
+                    </div>
+                    <div class="edit-comment-form mb-2" id="edit-comment-form-{{ $comment->id }}" style="display: none;">
+                        <form data-comment-id="{{ $comment->id }}" class="inline-edit-comment-form">
+                            <textarea class="form-control mb-2" name="content" rows="2">{{ $comment->content }}</textarea>
+                            <div>
+                                <button type="submit" class="btn btn-primary btn-sm">Сохранить</button>
+                                <button type="button" class="btn btn-secondary btn-sm cancel-edit-comment" data-comment-id="{{ $comment->id }}">Отмена</button>
+                            </div>
+                        </form>
                     </div>
                     <div class="comment-actions">
                         <div class="d-flex align-items-center">
@@ -97,9 +107,9 @@
                             <button class="btn btn-link text-muted p-0 reply-button" data-comment-id="{{ $comment->id }}">
                                 Ответить
                             </button>
-                            @if($comment->replies->count() > 0)
+                            @if($comment->replies->where('is_hidden', false)->count() > 0)
                             <span class="replies-count" data-comment-id="{{ $comment->id }}">
-                                {{ $comment->replies->count() }} ответов
+                                {{ $comment->replies->where('is_hidden', false)->count() }} ответов
                             </span>
                             @endif
                             @else
@@ -142,10 +152,10 @@
                     @endauth
 
                     <!-- Ответы на комментарий -->
-                    @if($comment->replies->count() > 0)
+                    @if($comment->replies->where('is_hidden', false)->count() > 0)
                     <div class="comment-replies">
                         <div class="replies-list" id="replies-{{ $comment->id }}" style="display: none;">
-                            @foreach($comment->replies as $reply)
+                            @foreach($comment->replies->where('is_hidden', false) as $reply)
                             <div class="reply mb-3">
                                 <div class="d-flex">
                                     <div class="flex-shrink-0 me-2">
@@ -181,27 +191,34 @@
                                                         <i class="bi bi-three-dots"></i>
                                                     </button>
                                                     <ul class="dropdown-menu dropdown-menu-end">
-                                                        @can('update', $reply)
-                                                        <li><a class="dropdown-item" href="#" onclick="editComment({{ $reply->id }})">Редактировать</a></li>
-                                                        @endcan
-                                                        @can('delete', $reply)
-                                                        <li>
-                                                            <form action="{{ route('comments.destroy', $reply) }}" method="POST" class="d-inline">
-                                                                @csrf
-                                                                @method('DELETE')
-                                                                <button type="submit" class="dropdown-item text-danger" onclick="return confirm('Вы уверены?')">
-                                                                    Удалить
-                                                                </button>
-                                                            </form>
-                                                        </li>
-                                                        @endcan
+                                                        @if(auth()->check() && auth()->id() === $reply->user_id)
+                                                            <li>
+                                                                <x-reply-edit-button :replyId="$reply->id" />
+                                                            </li>
+                                                            <li>
+                                                                <x-reply-delete-button :replyId="$reply->id" />
+                                                            </li>
+                                                        @elseif(auth()->check() && auth()->id() !== $reply->user_id)
+                                                            <li>
+                                                                <x-reply-report-button :replyId="$reply->id" />
+                                                            </li>
+                                                        @endif
                                                     </ul>
                                                 </div>
                                                 @endauth
                                             </div>
                                         </div>
-                                        <div class="reply-content">
+                                        <div class="reply-content" id="reply-content-{{ $reply->id }}">
                                             {{ $reply->content }}
+                                        </div>
+                                        <div class="edit-reply-form mb-2" id="edit-reply-form-{{ $reply->id }}" style="display: none;">
+                                            <form data-reply-id="{{ $reply->id }}" class="inline-edit-reply-form">
+                                                <textarea class="form-control mb-2" name="content" rows="2">{{ $reply->content }}</textarea>
+                                                <div>
+                                                    <button type="submit" class="btn btn-primary btn-sm">Сохранить</button>
+                                                    <button type="button" class="btn btn-secondary btn-sm cancel-edit-reply" data-reply-id="{{ $reply->id }}">Отмена</button>
+                                                </div>
+                                            </form>
                                         </div>
                                         <div class="comment-actions">
                                             <div class="d-flex align-items-center">

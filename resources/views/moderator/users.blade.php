@@ -34,6 +34,7 @@
                                         <th>Email</th>
                                         <th>Дата регистрации</th>
                                         <th>Статус</th>
+                                        <th>Жалобы</th>
                                         <th>Действия</th>
                                     </tr>
                                 </thead>
@@ -52,20 +53,38 @@
                                                 @endif
                                             </td>
                                             <td>
-                                                <a href="{{ route('users.show', $user) }}" class="btn btn-sm btn-info">Профиль</a>
-                                                
-                                                @if(!$user->is_restricted)
-                                                    <form action="{{ route('moderator.users.restrict', $user) }}" method="POST" class="d-inline">
-                                                        @csrf
-                                                        <button type="submit" class="btn btn-sm btn-warning">Ограничить</button>
-                                                    </form>
+                                                @php
+                                                    $totalComplaints = $user->complaints_count + $user->comment_complaints_count;
+                                                @endphp
+                                                @if($totalComplaints > 0)
+                                                    @if($totalComplaints >= 1 && $totalComplaints <= 9)
+                                                        <span class="badge bg-success">{{ $totalComplaints }}</span>
+                                                    @elseif($totalComplaints >= 10 && $totalComplaints <= 15)
+                                                        <span class="badge bg-warning">{{ $totalComplaints }}</span>
+                                                    @elseif($totalComplaints >= 16 && $totalComplaints <= 20)
+                                                        <span class="badge bg-danger">{{ $totalComplaints }}</span>
+                                                    @else
+                                                        <span class="badge bg-danger">{{ $totalComplaints }}</span>
+                                                    @endif
+                                                @else
+                                                    <span class="badge bg-secondary">0</span>
                                                 @endif
-                                                
-                                                <form action="{{ route('moderator.users.delete', $user) }}" method="POST" class="d-inline">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Вы уверены?')">Удалить</button>
-                                                </form>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex flex-wrap gap-2">
+                                                    <a href="{{ route('users.show', $user) }}" class="btn btn-sm btn-action">Профиль</a>
+                                                    @if(!$user->is_restricted)
+                                                        <form action="{{ route('moderator.users.restrict', $user) }}" method="POST" class="d-inline">
+                                                            @csrf
+                                                            <button type="submit" class="btn btn-sm btn-action">Ограничить</button>
+                                                        </form>
+                                                    @endif
+                                                    <form action="{{ route('moderator.users.delete', $user) }}" method="POST" class="d-inline">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn btn-sm btn-action" onclick="return confirm('Вы уверены?')">Удалить</button>
+                                                    </form>
+                                                </div>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -126,6 +145,30 @@
     .btn-sm {
         padding: 0.4rem 0.8rem;
         font-size: 0.875rem;
+    }
+    
+    .btn-action {
+        background: #1682FD !important;
+        color: #fff !important;
+        border: none !important;
+        border-radius: 6px !important;
+        font-weight: 500;
+        transition: background 0.15s;
+        box-shadow: 0 1px 2px rgba(22,130,253,0.07);
+    }
+    
+    .btn-action:hover, .btn-action:focus {
+        background: #1266c7 !important;
+        color: #fff !important;
+    }
+    
+    .d-flex.gap-2 > * {
+        margin-right: 8px;
+        margin-bottom: 4px;
+    }
+    
+    .d-flex.gap-2 > *:last-child {
+        margin-right: 0;
     }
 </style>
 @endpush

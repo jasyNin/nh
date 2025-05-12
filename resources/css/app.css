@@ -29,3 +29,32 @@
     margin-left: 0.25rem;
     font-size: 0.875rem;
 }
+
+/* Report Button Styles */
+.report-button {
+    display: inline-flex;
+    align-items: center;
+    width: 184px;
+    height: 40px;
+    padding: 8px 16px;
+    border: none;
+    background: none;
+    color: #272727;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.report-button:hover {
+    background-color: #F9F9F9;
+    color: #272727;
+}
+
+.report-button svg {
+    color: #272727;
+    margin-right: 0.5rem;
+}
+
+.report-button span {
+    font-size: 14px;
+    line-height: 24px;
+}

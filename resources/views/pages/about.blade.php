@@ -3,14 +3,14 @@
 @section('title', 'О проекте')
 
 @section('content')
-<div class="container" style="margin-top: 80px;">
+<div class="container main-content-container">
     <div class="row">
         <!-- Боковое меню -->
         <x-side-menu />
         @include('components.side-menu-styles')
 
         <!-- Основной контент -->
-        <div class="col-md-10">
+        <div class="col-md-10" style="margin-bottom: 40px;">
             <!-- Главный баннер -->
             <div class="text-center mb-5">
                 <img src="{{ asset('images/logo.svg') }}" alt="Логотип" class="mb-4" width="100" height="100">

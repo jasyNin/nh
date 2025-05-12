@@ -3,7 +3,7 @@
 @section('title', 'Уведомления')
 
 @section('content')
-<div class="container" style="margin-top: 80px;">
+<div class="container main-content-container">
     <div class="row">
         <!-- Боковое меню -->
         <x-side-menu />

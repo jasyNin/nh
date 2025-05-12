@@ -141,4 +141,18 @@ class ModeratorController extends Controller
         $report->update(['status' => 'resolved']);
         return back()->with('success', 'Жалоба обработана');
     }
+
+    public function deletePost(Post $post)
+    {
+        $this->checkModerator();
+        $post->delete();
+        return back()->with('success', 'Пост успешно удалён.');
+    }
+
+    public function deleteComment(Comment $comment)
+    {
+        $this->checkModerator();
+        $comment->delete();
+        return back()->with('success', 'Комментарий успешно удалён.');
+    }
 } 

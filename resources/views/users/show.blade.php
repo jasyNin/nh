@@ -8,6 +8,26 @@
     .post-card {
         margin-bottom: 20px;
     }
+    .post-card .card {
+        margin-bottom: 0;
+    }
+    .post-card .card-body {
+        padding-bottom: 16px;
+        transition: padding-bottom 0.2s;
+    }
+    .post-card .card-body.p-4 {
+        padding: 16px !important;
+    }
+    .post-card .comments-section {
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+        padding-bottom: 0 !important;
+    }
+    /* Если секция комментариев видима (display не none), убираем отступ */
+    .post-card .comments-section:not([style*="display: none"]) ~ .card-body,
+    .post-card .comments-section:not([hidden]) ~ .card-body {
+        padding-bottom: 0 !important;
+    }
     .hover-card {
         background-color: transparent;
     }
@@ -79,37 +99,11 @@
     }
     
     /* Стили для кнопок взаимодействия */
-    .like-button, .comment-button, .repost-button, .bookmark-button {
-        cursor: pointer;
-        position: relative;
-        overflow: hidden;
-    }
     
-    .like-button::after, .comment-button::after, .repost-button::after, .bookmark-button::after {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        width: 0;
-        height: 0;
-        background-color: rgba(22, 130, 253, 0.1);
-        border-radius: 50%;
-        transform: translate(-50%, -50%);
-        transition: width 0.3s ease, height 0.3s ease;
-    }
     
-    .like-button:hover::after, .comment-button:hover::after, .repost-button:hover::after, .bookmark-button:hover::after {
-        width: 100%;
-        height: 100%;
-    }
     
-    .liked {
-        filter: invert(31%) sepia(98%) saturate(1234%) hue-rotate(212deg) brightness(98%) contrast(101%);
-    }
     
-    .bookmarked {
-        filter: invert(31%) sepia(98%) saturate(1234%) hue-rotate(212deg) brightness(98%) contrast(101%);
-    }
+
 </style>
 <div class="container">
     <div class="row">
@@ -174,41 +168,18 @@
                     @else
                         <div class="posts-container">
                             @foreach($posts as $post)
-                                <div class="post-with-comments">
+                                <div class="post-card">
                                     <div class="card border-0">
-                                        <div class="card-body p-4 pb-0">
+                                        <div class="card-body p-4">
                                             <x-post-card :post="$post" />
                                         </div>
-                                        <div class="comments-wrapper">
-                                            <x-comments-section :post="$post" />
-                                        </div>
+                                        <x-comments-section :post="$post" />
                                     </div>
                                 </div>
                             @endforeach
                         </div>
                     @endif
                 </div>
-
-                <style>
-                    .post-with-comments {
-                        margin-bottom: 24px;
-                    }
-                    .post-with-comments .post-card {
-                        margin-bottom: 0;
-                    }
-                    .post-with-comments .post-card .card {
-                        border-bottom-left-radius: 0;
-                        border-bottom-right-radius: 0;
-                    }
-                    .post-with-comments .comments-wrapper {
-                        background: white;
-                        border-bottom-left-radius: 12px;
-                        border-bottom-right-radius: 12px;
-                    }
-                    .post-with-comments .card-body {
-                        padding-bottom: 0 !important;
-                    }
-                </style>
 
                 <div class="tab-pane fade" id="comments">
                     @if($comments->isEmpty())
@@ -349,8 +320,6 @@
                     </div>
                 </div>
             </div>
-
-            
         </div>
     </div>
 </div>

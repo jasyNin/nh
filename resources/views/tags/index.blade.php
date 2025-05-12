@@ -15,7 +15,7 @@
                 <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center">
                     <div class="d-flex align-items-center">
                         
-                        <h5 class="mb-0">Все теги</h5>
+                        <h5 class="mb-0" style="font-size: 22px; font-weight: medium; color: #272727;">Все теги</h5>
                     </div>
                     <div class="search-container position-relative" style="width: 300px;">
                         <input type="text" id="tagSearch" class="form-control" placeholder="Поиск тега..." style="border-radius: 20px; padding: 8px 40px 8px 16px; font-size: 0.9rem; border: 1px solid #e0e0e0; background-color: white;">

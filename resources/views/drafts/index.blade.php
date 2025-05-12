@@ -22,7 +22,7 @@
                     </div>
                         </div>
                     @else
-                <h4 class="mb-4">Мои черновики</h4>
+                <h4 class="mb-4" style="font-size: 22px; font-weight: medium; color: #272727;">Мои черновики</h4>
                 <div class="posts-container">
                             @foreach($drafts as $draft)
                         <div class="card border-0  mb-3">

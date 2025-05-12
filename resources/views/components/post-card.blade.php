@@ -1,7 +1,12 @@
-@props(['post'])
+@props(['post', 'hideType' => false, 'isShowPage' => false])
 
-<div class="post-card">
-    <div class="card border-0">
+<div class="post-card position-relative">
+    @if($post->is_hidden)
+        <div class="post-hidden-overlay d-flex align-items-center justify-content-center">
+            <span class="fw-bold">Пост скрыт модератором</span>
+        </div>
+    @endif
+    <div class="card border-0 @if($post->is_hidden) post-hidden-blur @endif">
         <div class="card-body p-4">
             <!-- Информация о пользователе -->
             <div class="d-flex align-items-center mb-4">
@@ -35,9 +40,11 @@
                     </div>
                 </div>
                 <div class="d-flex align-items-center">
+                    @if(!$hideType)
                     <span class="badge bg-{{ $post->type === 'post' ? 'primary' : 'success' }} rounded-pill px-3 py-1 me-2">
                         {{ $post->type === 'post' ? 'Запись' : 'Вопрос' }}
                     </span>
+                    @endif
                     <div class="dropdown">
                         <button class="btn btn-link text-dark p-0" type="button" data-bs-toggle="dropdown">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -47,45 +54,39 @@
                             </svg>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">
-                            @can('update', $post)
+                            @if(auth()->check() && auth()->id() === $post->user_id)
                                 <li>
-                                    <a class="dropdown-item" href="{{ route('posts.edit', $post) }}">
-                                        Редактировать
-                                    </a>
+                                    <x-edit-button :targetId="$post->id" />
                                 </li>
-                            @endcan
-                            @can('delete', $post)
                                 <li>
-                                    <form action="{{ route('posts.destroy', $post) }}" method="POST" class="d-inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="dropdown-item text-danger" onclick="return confirm('Вы уверены?')">
-                                            Удалить
-                                        </button>
-                                    </form>
+                                    <x-delete-button :targetId="$post->id" />
                                 </li>
-                            @endcan
-                            @cannot('update', $post)
+                            @elseif(auth()->check() && auth()->id() !== $post->user_id)
                                 <li>
-                                    <a class="dropdown-item text-danger" href="#" data-bs-toggle="modal" data-bs-target="#reportModal{{ $post->id }}">
-                                        Пожаловаться
-                                    </a>
+                                    <x-report-button :targetId="$post->id" targetType="Post" />
                                 </li>
-                            @endcannot
+                            @endif
                         </ul>
                     </div>
                 </div>
             </div>
 
             <!-- Заголовок и контент -->
-            <h2 class="h5 mb-3">
-                <a href="{{ route('posts.show', $post) }}" class="text-decoration-none text-dark">
-                    {{ $post->title }}
-                </a>
-            </h2>
-            <div class="post-content mb-3">
-                {!! Str::limit($post->content, 200) !!}
-            </div>
+            @if($isShowPage)
+                <h1 class="h3 mb-4">{{ $post->title }}</h1>
+                <div class="post-content mb-4">
+                    {!! $post->content !!}
+                </div>
+            @else
+                <h2 class="h5 mb-3">
+                    <a href="{{ route('posts.show', $post) }}" class="text-decoration-none text-dark">
+                        {{ $post->title }}
+                    </a>
+                </h2>
+                <div class="post-content mb-3">
+                    {!! Str::limit($post->content, 200) !!}
+                </div>
+            @endif
 
             <!-- Изображение -->
             @if($post->image)
@@ -174,9 +175,15 @@
     </div>
 </div>
 
-<div style="margin-top: -24px;">
-    <x-comments-section :post="$post" />
-</div>
+@if($isShowPage)
+    <div class="mt-4">
+        <x-comments-section :post="$post" />
+    </div>
+@else
+    <div style="margin-top: -24px;">
+        <x-comments-section :post="$post" />
+    </div>
+@endif
 
 <!-- Модальное окно для жалобы на пост -->
 <div class="modal fade" id="reportModal{{ $post->id }}" tabindex="-1">
@@ -225,4 +232,38 @@
             @endauth
         </div>
     </div>
-</div> 
+</div>
+
+@once
+    @push('styles')
+    <style>
+        .post-hidden-overlay {
+            position: absolute;
+            inset: 0;
+            z-index: 10;
+            background: rgba(255,255,255,0.96);
+            color: #1682FD;
+            font-size: 1.2rem;
+            border-radius: 12px;
+            text-align: center;
+        }
+        .post-hidden-blur {
+            filter: blur(1.5px) grayscale(0.2) brightness(0.97);
+            pointer-events: none;
+            user-select: none;
+        }
+        .dropdown-menu {
+            padding: 11px 12px;
+        }
+        .dropdown-menu li:not(:last-child) {
+            margin-bottom: 12px;
+        }
+        .dropdown-menu li {
+            padding: 0;
+        }
+        .dropdown-menu li .dropdown-item {
+            padding: 0;
+        }
+    </style>
+    @endpush
+@endonce 

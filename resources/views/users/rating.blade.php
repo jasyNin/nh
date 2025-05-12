@@ -11,7 +11,7 @@
 
         <!-- Основной контент -->
         <div class="col-md-7">
-            <h5 class="mb-4">Рейтинг пользователей</h5>
+            <h5 class="mb-4" style="font-size: 22px; font-weight: medium; color: #272727;">Рейтинг пользователей</h5>
             
             <div class="card border-0" style="border-radius: 8px;">
                 <div class="card-body p-0">

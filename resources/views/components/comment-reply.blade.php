@@ -20,31 +20,18 @@
                         </svg>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">
-                        @can('update', $reply)
+                        @if(auth()->check() && auth()->id() === $reply->user_id)
                             <li>
-                                <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#editReplyModal{{ $reply->id }}">
-                                    Редактировать
-                                </a>
+                                <x-reply-edit-button :replyId="$reply->id" />
                             </li>
-                        @endcan
-                        @can('delete', $reply)
                             <li>
-                                <form action="{{ route('replies.destroy', $reply) }}" method="POST" class="d-inline">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="dropdown-item text-danger" onclick="return confirm('Вы уверены?')">
-                                        Удалить
-                                    </button>
-                                </form>
+                                <x-reply-delete-button :replyId="$reply->id" />
                             </li>
-                        @endcan
-                        @cannot('update', $reply)
+                        @elseif(auth()->check() && auth()->id() !== $reply->user_id)
                             <li>
-                                <a class="dropdown-item text-danger" href="#" data-bs-toggle="modal" data-bs-target="#reportReplyModal{{ $reply->id }}">
-                                    Пожаловаться
-                                </a>
+                                <x-reply-report-button :replyId="$reply->id" />
                             </li>
-                        @endcannot
+                        @endif
                     </ul>
                 </div>
             </div>
@@ -58,23 +45,37 @@
 <!-- Модальное окно для жалобы на ответ -->
 <div class="modal fade" id="reportReplyModal{{ $reply->id }}" tabindex="-1">
     <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Пожаловаться на ответ</h5>
+        <div class="modal-content" style="border-radius: 12px;">
+            <div class="modal-header" style="border-bottom: none;">
+                <h5 class="modal-title" style="font-size: 22px; font-weight: 500;">Пожаловаться на ответ</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form action="{{ route('replies.report', $reply) }}" method="POST">
                 @csrf
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label">Причина жалобы</label>
-                        <textarea name="reason" class="form-control" rows="3" required placeholder="Опишите причину жалобы..." minlength="10" maxlength="1000"></textarea>
+                        <label class="form-label" style="font-size: 17px; font-weight: 400;">Тип жалобы</label>
+                        <select name="type" class="form-select" required style="background-color: #F5F5F5; height: 48px; border-radius: 12px;">
+                            <option value="" style="color: #808080;">Выберите причину</option>
+                            <option value="spam" style="color: #272727;">Спам</option>
+                            <option value="insult" style="color: #272727;">Оскорбление</option>
+                            <option value="inappropriate" style="color: #272727;">Неприемлемый контент</option>
+                            <option value="copyright" style="color: #272727;">Нарушение авторских прав</option>
+                            <option value="violence" style="color: #272727;">Насилие</option>
+                            <option value="hate_speech" style="color: #272727;">Разжигание ненависти</option>
+                            <option value="fake_news" style="color: #272727;">Фейковые новости</option>
+                            <option value="other" style="color: #272727;">Другое</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" style="font-size: 17px; font-weight: 400;">Описание</label>
+                        <textarea name="reason" class="form-control" rows="3" required minlength="10" placeholder="Опишите подробнее причину жалобы..." style="background-color: #F5F5F5; height: 88px; border-radius: 12px; color: #272727;"></textarea>
                         <div class="form-text">Минимум 10 символов</div>
                     </div>
                 </div>
-                <div class="modal-footer">
+                <div class="modal-footer" style="border-top: none; display: flex; justify-content: space-between;">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-                    <button type="submit" class="btn btn-danger">Отправить жалобу</button>
+                    <button type="submit" class="btn" style="background-color: #1682FD; color: white;">Отправить жалобу</button>
                 </div>
             </form>
         </div>

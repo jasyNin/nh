@@ -64,14 +64,20 @@
                                                         @endif
                                                     </td>
                                                     <td>
-                                                        <a href="{{ route('posts.show', $post) }}" class="btn btn-sm btn-info">Просмотр</a>
-                                                        
-                                                        @if(!$post->is_hidden)
-                                                            <form action="{{ route('moderator.posts.hide', $post) }}" method="POST" class="d-inline">
+                                                        <div class="d-flex flex-column gap-2">
+                                                            <a href="{{ route('posts.show', $post) }}" class="btn btn-sm btn-action">Просмотр</a>
+                                                            @if(!$post->is_hidden)
+                                                                <form action="{{ route('moderator.posts.hide', $post) }}" method="POST" class="d-inline">
+                                                                    @csrf
+                                                                    <button type="submit" class="btn btn-sm btn-action">Скрыть</button>
+                                                                </form>
+                                                            @endif
+                                                            <form action="{{ route('moderator.posts.delete', $post) }}" method="POST" class="d-inline">
                                                                 @csrf
-                                                                <button type="submit" class="btn btn-sm btn-warning">Скрыть</button>
+                                                                @method('DELETE')
+                                                                <button type="submit" class="btn btn-sm btn-action-danger" onclick="return confirm('Удалить пост?')">Удалить</button>
                                                             </form>
-                                                        @endif
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             @endforeach
@@ -115,14 +121,20 @@
                                                         @endif
                                                     </td>
                                                     <td>
-                                                        <a href="{{ route('posts.show', $comment->post) }}" class="btn btn-sm btn-info">К посту</a>
-                                                        
-                                                        @if(!$comment->is_hidden)
-                                                            <form action="{{ route('moderator.comments.hide', $comment) }}" method="POST" class="d-inline">
+                                                        <div class="d-flex flex-column gap-2">
+                                                            <a href="{{ route('posts.show', $comment->post) }}" class="btn btn-sm btn-action">К посту</a>
+                                                            @if(!$comment->is_hidden)
+                                                                <form action="{{ route('moderator.comments.hide', $comment) }}" method="POST" class="d-inline">
+                                                                    @csrf
+                                                                    <button type="submit" class="btn btn-sm btn-action">Скрыть</button>
+                                                                </form>
+                                                            @endif
+                                                            <form action="{{ route('moderator.comments.delete', $comment) }}" method="POST" class="d-inline">
                                                                 @csrf
-                                                                <button type="submit" class="btn btn-sm btn-warning">Скрыть</button>
+                                                                @method('DELETE')
+                                                                <button type="submit" class="btn btn-sm btn-action-danger" onclick="return confirm('Удалить комментарий?')">Удалить</button>
                                                             </form>
-                                                        @endif
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             @endforeach
@@ -197,6 +209,45 @@
     .nav-pills .nav-link.active {
         background: #1682FD;
         color: white;
+    }
+    
+    .btn-action {
+        background: #1682FD !important;
+        color: #fff !important;
+        border: none !important;
+        border-radius: 6px !important;
+        font-weight: 500;
+        transition: background 0.15s;
+        box-shadow: 0 1px 2px rgba(22,130,253,0.07);
+    }
+    
+    .btn-action:hover, .btn-action:focus {
+        background: #1266c7 !important;
+        color: #fff !important;
+    }
+    
+    .btn-action-danger {
+        background: #dc3545 !important;
+        color: #fff !important;
+        border: none !important;
+        border-radius: 6px !important;
+        font-weight: 500;
+        transition: background 0.15s;
+        box-shadow: 0 1px 2px rgba(220,53,69,0.07);
+    }
+    
+    .btn-action-danger:hover, .btn-action-danger:focus {
+        background: #b52a37 !important;
+        color: #fff !important;
+    }
+    
+    .d-flex.gap-2 > * {
+        margin-right: 8px;
+        margin-bottom: 4px;
+    }
+    
+    .d-flex.gap-2 > *:last-child {
+        margin-right: 0;
     }
 </style>
 @endpush

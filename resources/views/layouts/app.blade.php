@@ -220,7 +220,7 @@
                                     Мой профиль
                                 </div>
                                 <a href="{{ route('users.show', Auth::user()) }}" class="text-decoration-none dropdown-item">
-                                    <div class="px-3 py-2 d-flex align-items-center" style="background: transparent;">
+                                    <div class="px-3 py-2 d-flex align-items-center" style="background: transparent; ">
                                         <div class="position-relative">
                                             <x-user-avatar :user="Auth::user()" :size="40" />
                                             <x-rank-icon :user="Auth::user()" />

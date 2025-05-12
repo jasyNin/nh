@@ -5,9 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Comment;
 use App\Models\CommentReply;
 use Illuminate\Http\Request;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class CommentReplyController extends Controller
 {
+    use AuthorizesRequests;
+
     public function store(Request $request, Comment $comment)
     {
         $request->validate([

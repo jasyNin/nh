@@ -285,8 +285,8 @@ class QuestionBot extends Model
             return self::TYPE_GENERAL;
         }
         
-        // Проверяем на математические вопросы
-        if (preg_match('/(\d+\s*[\+\-\*\/]\s*\d+)|(уравнение|решить|вычислить|посчитать|интеграл|производная|квадрат|корень)/i', $question)) {
+        // Проверяем на математические вопросы (расширенный паттерн)
+        if (preg_match('/(\d+\s*[\+\-\*\/]\s*\d+)|(\d+\s*%\s*от\s*\d+)|(найти\s*\d+\s*%\s*от\s*\d+)|(уравнение|решить|вычислить|посчитать|интеграл|производная|квадрат|корень|процент|скидк)/i', $question)) {
             return self::TYPE_MATH;
         }
         
@@ -296,8 +296,13 @@ class QuestionBot extends Model
         }
         
         // Проверяем на логические задачи
-        if (preg_match('/(сколько|почему|как|загадка|головоломка|логика|решить|разделить|перевезти|измерить|определить|переправить)/i', $question)) {
+        if (preg_match('/(загадка|головоломка|логика|разделить|перевезти|измерить|определить|переправить)/i', $question)) {
             return self::TYPE_LOGICAL;
+        }
+        
+        // Если есть числа, считаем это математической задачей
+        if (preg_match('/\d+/', $question)) {
+            return self::TYPE_MATH;
         }
         
         // Если не определили тип, используем ML классификатор
@@ -345,34 +350,258 @@ class QuestionBot extends Model
 
     private function generateMathAnswer(string $question): string
     {
-        // Извлекаем числа и операторы из вопроса
-        preg_match_all('/\d+/', $question, $numbers);
-        preg_match_all('/[\+\-\*\/]/', $question, $operators);
-
-        if (!empty($numbers[0]) && !empty($operators[0])) {
-            $num1 = (int)$numbers[0][0];
-            $num2 = (int)$numbers[0][1];
-            $operator = $operators[0][0];
-
-            $result = match($operator) {
-                '+' => $num1 + $num2,
-                '-' => $num1 - $num2,
-                '*' => $num1 * $num2,
-                '/' => $num2 != 0 ? $num1 / $num2 : 'деление на ноль невозможно',
-                default => 'неизвестная операция'
-            };
-
-            return "Давайте решим эту задачу пошагово:\n\n" .
-                   "1. У нас есть числа: {$num1} и {$num2}\n" .
-                   "2. Операция: {$operator}\n" .
-                   "3. Решение: {$num1} {$operator} {$num2} = {$result}\n\n" .
-                   "Если у вас есть дополнительные вопросы или нужны пояснения, я готов помочь! " .
-                   "Может быть, хотите решить еще одну задачу?";
+        $question = trim(strtolower($question));
+        
+        // Handle percentage problems first
+        if (preg_match('/(найти|посчитать|вычислить|сколько)?\s*(\d+)\s*%\s*(от)?\s*(\d+)/i', $question, $matches)) {
+            $percentage = floatval($matches[2]);
+            $base = floatval($matches[4]);
+            $result = ($base * $percentage) / 100;
+            
+            return "Находим процент от числа:\n\n" .
+                   "1. Исходное число: {$base}\n" .
+                   "2. Нужно найти: {$percentage}%\n" .
+                   "3. Вычисляем: {$base} × {$percentage}% = {$result}\n\n" .
+                   "Ответ: {$result}";
+        }
+        
+        // Handle discount problems
+        if (preg_match('/(скидк|процент|%)/i', $question)) {
+            return $this->solvePercentageProblem($question);
+        }
+        
+        // Handle arithmetic expressions with multiple operations
+        if (preg_match('/[\d\s\+\-\*\/\(\)]+/', $question, $matches)) {
+            $expression = $matches[0];
+            try {
+                // Remove any unsafe characters and evaluate
+                $expression = preg_replace('/[^0-9\+\-\*\/\(\)\s\.]/', '', $expression);
+                $steps = $this->solveArithmeticExpression($expression);
+                return $steps;
+            } catch (\Exception $e) {
+                return "Извините, не могу вычислить это выражение. Пожалуйста, проверьте правильность записи.";
+            }
         }
 
-        return "Я вижу, что это математический вопрос. К сожалению, я не могу распознать конкретные числа или операции в вашем вопросе. " .
-               "Пожалуйста, уточните задачу, указав конкретные числа и операции, которые нужно выполнить. " .
-               "Например: 'Сколько будет 5 + 3?'";
+        // Handle divisibility problems
+        if (preg_match('/(делит|кратн)/i', $question)) {
+            return $this->solveDivisibilityProblem($question);
+        }
+
+        // Handle word problems
+        if (strlen($question) > 50 && preg_match('/(задач|решить|найти)/i', $question)) {
+            return $this->solveWordProblem($question);
+        }
+
+        return "Я вижу, что это математический вопрос. Пожалуйста, уточните задачу. Я могу помочь с:\n\n" .
+               "1. Арифметическими вычислениями (например: 2 + 4 * 3)\n" .
+               "2. Задачами на проценты (например: найти 15% от 200)\n" .
+               "3. Задачами на делимость чисел\n" .
+               "4. Текстовыми задачами\n\n" .
+               "Просто сформулируйте вашу задачу более конкретно.";
+    }
+
+    private function solveArithmeticExpression(string $expression): string
+    {
+        // Remove extra spaces
+        $expression = preg_replace('/\s+/', '', $expression);
+        
+        // Parse and solve the expression
+        $steps = [];
+        $steps[] = "Исходное выражение: " . $expression;
+
+        // Handle parentheses first
+        while (strpos($expression, '(') !== false) {
+            preg_match('/\(([^()]+)\)/', $expression, $matches);
+            $subExpr = $matches[1];
+            $subResult = $this->evaluateSimpleExpression($subExpr);
+            $expression = str_replace("({$subExpr})", $subResult, $expression);
+            $steps[] = "Вычисляем выражение в скобках: ({$subExpr}) = {$subResult}";
+            $steps[] = "Получаем: " . $expression;
+        }
+
+        // Evaluate the final expression
+        $result = $this->evaluateSimpleExpression($expression);
+        $steps[] = "Окончательный результат: " . $result;
+
+        return implode("\n", $steps);
+    }
+
+    private function evaluateSimpleExpression(string $expr): float
+    {
+        // Handle multiplication and division first
+        while (preg_match('/(-?\d+\.?\d*[\*\/]-?\d+\.?\d*)/', $expr, $matches)) {
+            $subExpr = $matches[1];
+            if (strpos($subExpr, '*') !== false) {
+                $nums = explode('*', $subExpr);
+                $result = floatval($nums[0]) * floatval($nums[1]);
+            } else {
+                $nums = explode('/', $subExpr);
+                if (floatval($nums[1]) == 0) {
+                    throw new \Exception("Division by zero");
+                }
+                $result = floatval($nums[0]) / floatval($nums[1]);
+            }
+            $expr = str_replace($subExpr, $result, $expr);
+        }
+
+        // Handle addition and subtraction
+        while (preg_match('/(-?\d+\.?\d*[\+\-]-?\d+\.?\d*)/', $expr, $matches)) {
+            $subExpr = $matches[1];
+            if (strpos($subExpr, '+') !== false) {
+                $nums = explode('+', $subExpr);
+                $result = floatval($nums[0]) + floatval($nums[1]);
+            } else {
+                $nums = explode('-', $subExpr);
+                $result = floatval($nums[0]) - floatval($nums[1]);
+            }
+            $expr = str_replace($subExpr, $result, $expr);
+        }
+
+        return floatval($expr);
+    }
+
+    private function solvePercentageProblem(string $question): string
+    {
+        // Extract numbers from the question
+        preg_match_all('/\d+(?:\.\d+)?/', $question, $matches);
+        $numbers = $matches[0];
+
+        if (count($numbers) >= 2) {
+            $base = floatval($numbers[0]);
+            $percentage = floatval($numbers[1]);
+
+            // Determine if we're finding the percentage of a number or finding what percentage one number is of another
+            if (strpos(strtolower($question), 'скидк') !== false) {
+                $discountAmount = ($base * $percentage) / 100;
+                $finalPrice = $base - $discountAmount;
+                
+                return "Решаем задачу со скидкой:\n\n" .
+                       "1. Исходная цена: {$base}\n" .
+                       "2. Процент скидки: {$percentage}%\n" .
+                       "3. Вычисляем сумму скидки: {$base} × {$percentage}% = {$discountAmount}\n" .
+                       "4. Вычисляем конечную цену: {$base} - {$discountAmount} = {$finalPrice}\n\n" .
+                       "Ответ: {$finalPrice}";
+            } else {
+                $result = ($base * $percentage) / 100;
+                
+                return "Находим процент от числа:\n\n" .
+                       "1. Исходное число: {$base}\n" .
+                       "2. Нужно найти: {$percentage}%\n" .
+                       "3. Вычисляем: {$base} × {$percentage}% = {$result}\n\n" .
+                       "Ответ: {$result}";
+            }
+        }
+
+        return "Для решения задачи на проценты мне нужны два числа:\n" .
+               "1. Исходное число\n" .
+               "2. Процент, который нужно найти\n\n" .
+               "Например: 'Найти 15% от 200' или 'Какова цена товара за 1000 рублей со скидкой 20%?'";
+    }
+
+    private function solveDivisibilityProblem(string $question): string
+    {
+        // Extract numbers from the question
+        preg_match_all('/\d+/', $question, $matches);
+        $numbers = $matches[0];
+
+        if (count($numbers) >= 2) {
+            $num1 = intval($numbers[0]);
+            $num2 = intval($numbers[1]);
+
+            $isDivisible = $num1 % $num2 === 0;
+            $quotient = intval($num1 / $num2);
+            $remainder = $num1 % $num2;
+
+            $steps = "Проверяем делимость чисел:\n\n" .
+                    "1. Первое число: {$num1}\n" .
+                    "2. Второе число: {$num2}\n" .
+                    "3. Делим {$num1} на {$num2}:\n" .
+                    "   - Частное: {$quotient}\n" .
+                    "   - Остаток: {$remainder}\n\n";
+
+            if ($isDivisible) {
+                $steps .= "Вывод: {$num1} делится на {$num2} без остатка.";
+            } else {
+                $steps .= "Вывод: {$num1} не делится на {$num2} без остатка. Остаток от деления: {$remainder}";
+            }
+
+            return $steps;
+        }
+
+        return "Для проверки делимости мне нужны два числа. Например:\n" .
+               "'Делится ли 15 на 3?' или 'Проверить кратность 100 и 25'";
+    }
+
+    private function solveWordProblem(string $question): string
+    {
+        // Extract numbers and keywords from the question
+        preg_match_all('/\d+/', $question, $matches);
+        $numbers = $matches[0];
+        
+        $keywords = [
+            'сложить' => '+',
+            'прибавить' => '+',
+            'добавить' => '+',
+            'плюс' => '+',
+            'вычесть' => '-',
+            'отнять' => '-',
+            'минус' => '-',
+            'умножить' => '*',
+            'помножить' => '*',
+            'разделить' => '/',
+            'поделить' => '/'
+        ];
+
+        $steps = "Разбираем текстовую задачу:\n\n" .
+                 "1. Анализ условия:\n" .
+                 "   - Дано: " . implode(', ', $numbers) . "\n";
+
+        // Try to identify the operation
+        $operation = null;
+        foreach ($keywords as $word => $op) {
+            if (strpos($question, $word) !== false) {
+                $operation = $op;
+                break;
+            }
+        }
+
+        if ($operation && count($numbers) >= 2) {
+            $num1 = floatval($numbers[0]);
+            $num2 = floatval($numbers[1]);
+            
+            $steps .= "2. Определяем операцию: " . $operation . "\n";
+            
+            switch ($operation) {
+                case '+':
+                    $result = $num1 + $num2;
+                    $steps .= "3. Складываем числа: {$num1} + {$num2} = {$result}";
+                    break;
+                case '-':
+                    $result = $num1 - $num2;
+                    $steps .= "3. Вычитаем числа: {$num1} - {$num2} = {$result}";
+                    break;
+                case '*':
+                    $result = $num1 * $num2;
+                    $steps .= "3. Умножаем числа: {$num1} × {$num2} = {$result}";
+                    break;
+                case '/':
+                    if ($num2 != 0) {
+                        $result = $num1 / $num2;
+                        $steps .= "3. Делим числа: {$num1} ÷ {$num2} = {$result}";
+                    } else {
+                        return "В задаче обнаружено деление на ноль, что невозможно.";
+                    }
+                    break;
+            }
+
+            return $steps . "\n\nОтвет: " . $result;
+        }
+
+        return "Я пока не могу решить эту текстовую задачу. Пожалуйста, убедитесь, что:\n" .
+               "1. В задаче есть все необходимые числа\n" .
+               "2. Четко указано, какую операцию нужно выполнить\n" .
+               "3. Задача сформулирована ясно и однозначно";
     }
 
     private function generateProgrammingAnswer(string $question): string

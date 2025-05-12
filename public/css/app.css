@@ -376,12 +376,12 @@ select:focus,
 /* БОКОВОЕ МЕНЮ */
 .side-menu {
     position: sticky;
-    top: 0;
+    top: 80px; /* Фиксированное расстояние от верха */
     display: flex;
     flex-direction: column;
-    height: calc(100vh - 40px);
+    height: calc(100vh - 100px); /* Фиксированная высота */
     padding-left: 0;
-    margin-top: 20px;
+    margin-top: 0; /* Убираем отступ сверху */
 }
 
 .menu-section {
@@ -427,6 +427,39 @@ select:focus,
     margin-top: auto;
     padding-top: 12px;
     border-top: 1px solid var(--border-color);
+}
+
+/* Контейнер для основного контента */
+.main-content-container {
+    margin-top: 80px; /* Единый отступ сверху для всех страниц */
+    padding-bottom: 40px;
+}
+
+/* Медиа-запрос для мобильных устройств */
+@media (max-width: 768px) {
+    .side-menu {
+        position: relative;
+        top: 0;
+        height: auto;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+    
+    .menu-section {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+    
+    .menu-section:last-child {
+        margin-top: 0;
+        border-top: none;
+    }
+    
+    .main-content-container {
+        margin-top: 20px;
+    }
 }
 
 /* ПРАВАЯ БОКОВАЯ ПАНЕЛЬ */
