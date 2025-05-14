@@ -1,4 +1,4 @@
-@props(['popularTags' => [], 'topUsers' => [], 'recentAnswers' => [], 'isTagsPage' => false, 'isHomePage' => false, 'userStats' => null, 'viewedPosts' => []])
+@props(['popularTags' => [], 'topUsers' => [], 'recentAnswers' => [], 'isTagsPage' => false, 'isHomePage' => false, 'userStats' => null, 'viewedPosts' => [], 'users' => []])
 
 <div class="col-md-3 right-sidebar" style="margin-top: 20px;">
     @if($isTagsPage)
@@ -123,13 +123,34 @@
             </div>
         @endif
 
-        @if(count($topUsers) > 0)
+        @if(isset($users) && count($users) > 0)
+            @php
+                $regularUsers = $users->filter(function($user) {
+                    return !in_array($user->rank, ['bot', 'moderator', 'admin']);
+                })->sortBy(function($user) {
+                    $rankOrder = [
+                        'supermind' => 1,
+                        'master' => 2,
+                        'erudite' => 3,
+                        'expert' => 4,
+                        'student' => 5,
+                        'novice' => 6
+                    ];
+                    return [$rankOrder[$user->rank] ?? 999, -$user->rating];
+                });
+
+                $specialUsers = $users->filter(function($user) {
+                    return in_array($user->rank, ['bot', 'moderator', 'admin']);
+                })->sortByDesc('rating');
+
+                $sortedUsers = $regularUsers->concat($specialUsers);
+            @endphp
             <div class="card mb-4 border-0">
                 <div class="card-header bg-transparent border-0 py-3">
                     <h6 class="card-title">Топ пользователей</h6>
                 </div>
                 <div class="list-group list-group-flush">
-                    @foreach($topUsers as $user)
+                    @foreach($sortedUsers->take(3) as $user)
                         <a href="{{ route('users.show', $user) }}" class="list-group-item list-group-item-action border-0 py-3">
                             <div class="d-flex align-items-center">
                                 <div class="position-relative">
