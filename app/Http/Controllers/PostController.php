@@ -39,28 +39,25 @@ class PostController extends Controller
             ->limit(10)
             ->get();
 
-        $topUsers = User::query()
+        // Получаем всех пользователей для рейтинга (как на странице рейтингов)
+        $users = User::query()
+            ->withCount(['posts' => function($query) {
+                $query->where('status', 'published');
+            }, 'comments'])
             ->whereNotIn('rank', ['bot', 'moderator', 'admin'])
+            ->orderByRaw("CASE rank 
+                WHEN 'supermind' THEN 1
+                WHEN 'master' THEN 2
+                WHEN 'erudite' THEN 3
+                WHEN 'expert' THEN 4
+                WHEN 'student' THEN 5
+                WHEN 'novice' THEN 6
+                ELSE 7 END")
             ->orderBy('rating', 'desc')
-            ->limit(3);
+            ->get();
 
-        \Log::info('Top users query:', [
-            'sql' => $topUsers->toSql(),
-            'bindings' => $topUsers->getBindings()
-        ]);
-
-        $topUsers = $topUsers->get();
-
-        \Log::info('Top users result:', [
-            'users' => $topUsers->map(function($user) {
-                return [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'rating' => $user->rating,
-                    'rank' => $user->rank
-                ];
-            })->toArray()
-        ]);
+        // Берём только первых трёх
+        $topUsers = $users->take(3);
 
         // Получаем историю просмотров для авторизованного пользователя
         $viewedPosts = collect();
