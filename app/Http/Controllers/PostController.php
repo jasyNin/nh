@@ -39,6 +39,7 @@ class PostController extends Controller
             ->limit(10)
             ->get();
 
+        // Получаем топ пользователей по рейтингу
         $topUsers = User::query()
             ->whereNotIn('rank', ['bot', 'moderator', 'admin'])
             ->orderBy('rating', 'desc')
