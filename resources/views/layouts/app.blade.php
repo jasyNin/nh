@@ -8,7 +8,8 @@
     <title>@yield('title', config('app.name'))</title>
 
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+    <link rel="icon" type="image/png" href="{{ asset('favicon1.png') }}">
+    <link rel="shortcut icon" href="{{ asset('favicon1.png') }}">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
