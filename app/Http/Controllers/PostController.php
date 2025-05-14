@@ -42,8 +42,25 @@ class PostController extends Controller
         $topUsers = User::query()
             ->whereNotIn('rank', ['bot', 'moderator', 'admin'])
             ->orderBy('rating', 'desc')
-            ->limit(3)
-            ->get();
+            ->limit(3);
+
+        \Log::info('Top users query:', [
+            'sql' => $topUsers->toSql(),
+            'bindings' => $topUsers->getBindings()
+        ]);
+
+        $topUsers = $topUsers->get();
+
+        \Log::info('Top users result:', [
+            'users' => $topUsers->map(function($user) {
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'rating' => $user->rating,
+                    'rank' => $user->rank
+                ];
+            })->toArray()
+        ]);
 
         // Получаем историю просмотров для авторизованного пользователя
         $viewedPosts = collect();
