@@ -105,26 +105,28 @@
                     </div>
                 @endif
             @endauth
-            @if(count($topUsers) > 0)
-                @php
-                    $regularUsers = $topUsers->filter(function($user) {
-                        return !in_array($user->rank, ['bot', 'moderator', 'admin']);
-                    })->sortBy(function($user) {
-                        $rankOrder = [
-                            'supermind' => 1,
-                            'master' => 2,
-                            'erudite' => 3,
-                            'expert' => 4,
-                            'student' => 5,
-                            'novice' => 6
-                        ];
-                        return [$rankOrder[$user->rank] ?? 999, -$user->rating];
-                    });
-                    $specialUsers = $topUsers->filter(function($user) {
-                        return in_array($user->rank, ['bot', 'moderator', 'admin']);
-                    })->sortByDesc('rating');
-                    $sortedUsers = $regularUsers->concat($specialUsers);
-                @endphp
+            @php
+                $regularUsers = $users->filter(function($user) {
+                    return !in_array($user->rank, ['bot', 'moderator', 'admin']);
+                })->sortBy(function($user) {
+                    $rankOrder = [
+                        'supermind' => 1,
+                        'master' => 2,
+                        'erudite' => 3,
+                        'expert' => 4,
+                        'student' => 5,
+                        'novice' => 6
+                    ];
+                    return [$rankOrder[$user->rank] ?? 999, -$user->rating];
+                });
+
+                $specialUsers = $users->filter(function($user) {
+                    return in_array($user->rank, ['bot', 'moderator', 'admin']);
+                })->sortByDesc('rating');
+
+                $sortedUsers = $regularUsers->concat($specialUsers);
+            @endphp
+            @if(count($users) > 0)
                 <div class="card mb-4 border-0" style="border-radius: 8px;">
                     <div class="card-header bg-transparent border-0 py-3">
                         <h6 class="card-title">Топ пользователей</h6>
