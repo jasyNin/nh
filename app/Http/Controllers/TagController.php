@@ -12,7 +12,7 @@ class TagController extends Controller
     {
         $tags = Tag::withCount('posts')
             ->orderBy('posts_count', 'desc')
-            ->paginate(20);
+            ->get();
 
         $popularTags = Tag::withCount('posts')
             ->orderBy('posts_count', 'desc')

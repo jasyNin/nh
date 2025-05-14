@@ -40,6 +40,9 @@ class PostController extends Controller
             ->get();
 
         $topUsers = User::query()
+            ->withCount(['posts' => function($query) {
+                $query->where('status', 'published');
+            }, 'comments'])
             ->whereNotIn('rank', ['bot', 'moderator', 'admin'])
             ->orderByRaw("CASE rank 
                 WHEN 'supermind' THEN 1
