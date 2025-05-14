@@ -25,15 +25,8 @@ class HomeController extends Controller
                     ->get();
             });
 
-            // Кэшируем топ пользователей на 1 час
-            $topUsers = Cache::remember('top_users', 3600, function () {
-                return User::withCount(['posts' => function($query) {
-                    $query->where('status', 'published');
-                }, 'comments'])
-                    ->orderBy('posts_count', 'desc')
-                    ->take(5)
-                    ->get();
-            });
+            // Загружаем всех пользователей для рейтинга
+            $users = User::all(); // Или более сложная логика, если нужна фильтрация/пагинация
 
             // Кэшируем последние комментарии на 5 минут
             $recentAnswers = Cache::remember('recent_answers', 300, function () {
@@ -84,11 +77,11 @@ class HomeController extends Controller
                 'is_guest' => auth()->guest(),
                 'posts_count' => $posts->count(),
                 'tags_count' => $popularTags->count(),
-                'users_count' => $topUsers->count(),
+                'users_count' => $users->count(),
                 'answers_count' => $recentAnswers->count()
             ]);
 
-            return view('home', compact('posts', 'popularTags', 'topUsers', 'recentAnswers', 'viewedPosts'));
+            return view('home', compact('posts', 'popularTags', 'users', 'recentAnswers', 'viewedPosts'));
 
         } catch (\Exception $e) {
             // Подробное логирование ошибки
@@ -105,7 +98,7 @@ class HomeController extends Controller
             return view('home', [
                 'posts' => collect([]),
                 'popularTags' => collect([]),
-                'topUsers' => collect([]),
+                'users' => collect([]),
                 'recentAnswers' => collect([]),
                 'viewedPosts' => collect([]),
                 'error' => 'Произошла ошибка при загрузке данных. Пожалуйста, попробуйте позже.'
