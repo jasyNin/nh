@@ -10,7 +10,7 @@
         @include('components.side-menu-styles')
 
         <!-- Основной контент -->
-        <div class="col-md-10">
+        <div class="col-md-10" style="margin-bottom: 60px;">
             <!-- Главный баннер -->
             <div class="text-center mb-5">
                 <img src="{{ asset('images/rules.svg') }}" alt="Правила" class="mb-3" style="width: 64px; height: 64px; filter: invert(31%) sepia(98%) saturate(1234%) hue-rotate(212deg) brightness(98%) contrast(101%);">
