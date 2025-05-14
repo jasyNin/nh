@@ -129,17 +129,13 @@
                     <h6 class="card-title">Топ пользователей</h6>
                 </div>
                 <div class="list-group list-group-flush">
-                    @php
-                        $regularTopUsers = App\Models\User::query()
-                            ->whereNotIn('rank', ['bot', 'moderator', 'admin'])
-                            ->orderBy('rating', 'desc')
-                            ->take(3)
-                            ->get();
-                    @endphp
-                    @foreach($regularTopUsers as $user)
+                    @foreach($topUsers as $user)
                         <a href="{{ route('users.show', $user) }}" class="list-group-item list-group-item-action border-0 py-3">
                             <div class="d-flex align-items-center">
-                                <x-user-avatar :user="$user" :size="40" class="me-3" style="margin-right: 12px !important;" />
+                                <div class="position-relative">
+                                    <x-user-avatar :user="$user" :size="40" class="me-3" style="margin-right: 12px !important;" />
+                                    <x-rank-icon :user="$user" />
+                                </div>
                                 <div style="margin-left: 12px;">
                                     <div class="user-name fw-bold">{{ $user->name }}</div>
                                     <small class="text-muted">{{ $user->rank_name }}</small>

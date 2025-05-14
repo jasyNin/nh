@@ -51,8 +51,7 @@
                             <x-user-avatar :user="$user" :size="40" class="me-3" style="margin-right: 12px !important;" />
                             <div style="margin-left: 12px;">
                                 <div class="user-name fw-bold">{{ $user->name }}</div>
-                                <small class="text-muted">{{ $user->rank_name }}</small>
-                                <small class="text-muted d-block">{{ $user->rating }} баллов</small>
+                                <small class="text-muted">{{ $user->rating ?? $user->posts_count }} {{ isset($user->rating) ? __('rating.points') : pluralize($user->posts_count, 'пост', 'поста', 'постов') }}</small>
                             </div>
                         </div>
                     </a>

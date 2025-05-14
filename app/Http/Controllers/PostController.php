@@ -39,12 +39,18 @@ class PostController extends Controller
             ->limit(10)
             ->get();
 
-        $topUsers = User::withCount(['posts' => function($query) {
-            $query->where('status', 'published');
-        }])
+        $topUsers = User::query()
             ->whereNotIn('rank', ['bot', 'moderator', 'admin'])
+            ->orderByRaw("CASE rank 
+                WHEN 'supermind' THEN 1
+                WHEN 'master' THEN 2
+                WHEN 'erudite' THEN 3
+                WHEN 'expert' THEN 4
+                WHEN 'student' THEN 5
+                WHEN 'novice' THEN 6
+                ELSE 7 END")
             ->orderBy('rating', 'desc')
-            ->limit(5)
+            ->limit(3)
             ->get();
 
         // Получаем историю просмотров для авторизованного пользователя
@@ -120,23 +126,33 @@ class PostController extends Controller
                 // Если тег - строка, создаем новый тег
                 if (is_string($tag)) {
                     $tagName = trim($tag);
-                    // Проверяем, существует ли тег с таким именем
+                    if (empty($tagName)) return null;
+                    
+                    // Проверяем существование тега
                     $existingTag = Tag::where('name', $tagName)->first();
                     if ($existingTag) {
                         return $existingTag->id;
                     }
+                    
                     // Создаем новый тег
-                    $newTag = Tag::create([
-                        'name' => $tagName,
-                        'slug' => \Str::slug($tagName)
-                    ]);
-                    return $newTag->id;
+                    try {
+                        $newTag = Tag::create([
+                            'name' => $tagName,
+                            'slug' => Str::slug($tagName)
+                        ]);
+                        return $newTag->id;
+                    } catch (\Exception $e) {
+                        \Log::error('Error creating tag: ' . $e->getMessage());
+                        return null;
+                    }
                 }
                 // Если тег - число, используем его как есть
                 return is_numeric($tag) ? (int)$tag : null;
             })->filter()->values()->toArray();
             
-            $post->tags()->sync($tagIds);
+            if (!empty($tagIds)) {
+                $post->tags()->sync($tagIds);
+            }
         }
 
         if ($request->is_draft) {
@@ -205,23 +221,33 @@ class PostController extends Controller
                 // Если тег - строка, создаем новый тег
                 if (is_string($tag)) {
                     $tagName = trim($tag);
-                    // Проверяем, существует ли тег с таким именем
+                    if (empty($tagName)) return null;
+                    
+                    // Проверяем существование тега
                     $existingTag = Tag::where('name', $tagName)->first();
                     if ($existingTag) {
                         return $existingTag->id;
                     }
+                    
                     // Создаем новый тег
-                    $newTag = Tag::create([
-                        'name' => $tagName,
-                        'slug' => \Str::slug($tagName)
-                    ]);
-                    return $newTag->id;
+                    try {
+                        $newTag = Tag::create([
+                            'name' => $tagName,
+                            'slug' => Str::slug($tagName)
+                        ]);
+                        return $newTag->id;
+                    } catch (\Exception $e) {
+                        \Log::error('Error creating tag: ' . $e->getMessage());
+                        return null;
+                    }
                 }
                 // Если тег - число, используем его как есть
                 return is_numeric($tag) ? (int)$tag : null;
             })->filter()->values()->toArray();
             
-            $post->tags()->sync($tagIds);
+            if (!empty($tagIds)) {
+                $post->tags()->sync($tagIds);
+            }
         }
 
         if ($request->is_draft) {
