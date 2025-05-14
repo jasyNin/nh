@@ -122,32 +122,28 @@ class PostController extends Controller
 
         // Синхронизируем теги
         if ($request->has('tags')) {
-            $tagIds = collect($request->tags)->map(function ($tag) {
-                // Если тег - строка, создаем новый тег
-                if (is_string($tag)) {
-                    $tagName = trim($tag);
-                    if (empty($tagName)) return null;
-                    
-                    // Проверяем существование тега
-                    $existingTag = Tag::where('name', $tagName)->first();
-                    if ($existingTag) {
-                        return $existingTag->id;
-                    }
-                    
-                    // Создаем новый тег
-                    try {
-                        $newTag = Tag::create([
-                            'name' => $tagName,
-                            'slug' => Str::slug($tagName)
-                        ]);
-                        return $newTag->id;
-                    } catch (\Exception $e) {
-                        \Log::error('Error creating tag: ' . $e->getMessage());
-                        return null;
-                    }
+            $tagNames = is_array($request->tags) ? $request->tags : explode(',', $request->tags);
+            $tagIds = collect($tagNames)->map(function ($tag) {
+                $tagName = trim($tag);
+                if (empty($tagName)) return null;
+                
+                // Проверяем существование тега
+                $existingTag = Tag::where('name', $tagName)->first();
+                if ($existingTag) {
+                    return $existingTag->id;
                 }
-                // Если тег - число, используем его как есть
-                return is_numeric($tag) ? (int)$tag : null;
+                
+                // Создаем новый тег
+                try {
+                    $newTag = Tag::create([
+                        'name' => $tagName,
+                        'slug' => Str::slug($tagName)
+                    ]);
+                    return $newTag->id;
+                } catch (\Exception $e) {
+                    \Log::error('Error creating tag: ' . $e->getMessage());
+                    return null;
+                }
             })->filter()->values()->toArray();
             
             if (!empty($tagIds)) {
@@ -217,32 +213,28 @@ class PostController extends Controller
 
         // Синхронизируем теги
         if ($request->has('tags')) {
-            $tagIds = collect($request->tags)->map(function ($tag) {
-                // Если тег - строка, создаем новый тег
-                if (is_string($tag)) {
-                    $tagName = trim($tag);
-                    if (empty($tagName)) return null;
-                    
-                    // Проверяем существование тега
-                    $existingTag = Tag::where('name', $tagName)->first();
-                    if ($existingTag) {
-                        return $existingTag->id;
-                    }
-                    
-                    // Создаем новый тег
-                    try {
-                        $newTag = Tag::create([
-                            'name' => $tagName,
-                            'slug' => Str::slug($tagName)
-                        ]);
-                        return $newTag->id;
-                    } catch (\Exception $e) {
-                        \Log::error('Error creating tag: ' . $e->getMessage());
-                        return null;
-                    }
+            $tagNames = is_array($request->tags) ? $request->tags : explode(',', $request->tags);
+            $tagIds = collect($tagNames)->map(function ($tag) {
+                $tagName = trim($tag);
+                if (empty($tagName)) return null;
+                
+                // Проверяем существование тега
+                $existingTag = Tag::where('name', $tagName)->first();
+                if ($existingTag) {
+                    return $existingTag->id;
                 }
-                // Если тег - число, используем его как есть
-                return is_numeric($tag) ? (int)$tag : null;
+                
+                // Создаем новый тег
+                try {
+                    $newTag = Tag::create([
+                        'name' => $tagName,
+                        'slug' => Str::slug($tagName)
+                    ]);
+                    return $newTag->id;
+                } catch (\Exception $e) {
+                    \Log::error('Error creating tag: ' . $e->getMessage());
+                    return null;
+                }
             })->filter()->values()->toArray();
             
             if (!empty($tagIds)) {
@@ -331,9 +323,13 @@ class PostController extends Controller
         
         if ($post->likedBy(auth()->user())) {
             $post->likes()->where('user_id', auth()->id())->delete();
+            // Уменьшаем рейтинг автора поста
+            $post->user->decrement('rating');
         } else {
             $post->likes()->create(['user_id' => auth()->id()]);
             $liked = true;
+            // Увеличиваем рейтинг автора поста
+            $post->user->increment('rating');
         }
 
         return response()->json([

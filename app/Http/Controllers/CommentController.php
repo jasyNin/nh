@@ -30,6 +30,9 @@ class CommentController extends Controller
             'content' => $content
         ]);
 
+        // Увеличиваем рейтинг автора комментария
+        auth()->user()->increment('rating');
+
         // Создаем уведомление для автора поста
         if ($post->user_id !== auth()->id()) {
             $post->user->notify(new CommentNotification($comment));
