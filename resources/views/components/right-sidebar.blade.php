@@ -132,14 +132,6 @@
                     @php
                         $regularTopUsers = App\Models\User::query()
                             ->whereNotIn('rank', ['bot', 'moderator', 'admin'])
-                            ->orderByRaw("CASE rank 
-                                WHEN 'supermind' THEN 1
-                                WHEN 'master' THEN 2
-                                WHEN 'erudite' THEN 3
-                                WHEN 'expert' THEN 4
-                                WHEN 'student' THEN 5
-                                WHEN 'novice' THEN 6
-                                ELSE 7 END")
                             ->orderBy('rating', 'desc')
                             ->take(3)
                             ->get();
@@ -147,10 +139,7 @@
                     @foreach($regularTopUsers as $user)
                         <a href="{{ route('users.show', $user) }}" class="list-group-item list-group-item-action border-0 py-3">
                             <div class="d-flex align-items-center">
-                                <div class="position-relative">
-                                    <x-user-avatar :user="$user" :size="40" class="me-3" style="margin-right: 12px !important;" />
-                                    <x-rank-icon :user="$user" />
-                                </div>
+                                <x-user-avatar :user="$user" :size="40" class="me-3" style="margin-right: 12px !important;" />
                                 <div style="margin-left: 12px;">
                                     <div class="user-name fw-bold">{{ $user->name }}</div>
                                     <small class="text-muted">{{ $user->rank_name }}</small>

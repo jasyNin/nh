@@ -42,13 +42,10 @@ class PostController extends Controller
         $topUsers = User::withCount(['posts' => function($query) {
             $query->where('status', 'published');
         }])
-            ->orderByDesc('posts_count')
+            ->whereNotIn('rank', ['bot', 'moderator', 'admin'])
+            ->orderBy('rating', 'desc')
             ->limit(5)
-            ->get()
-            ->map(function ($user) {
-                $user->posts_count = (int)$user->posts_count;
-                return $user;
-            });
+            ->get();
 
         // Получаем историю просмотров для авторизованного пользователя
         $viewedPosts = collect();
@@ -122,7 +119,18 @@ class PostController extends Controller
             $tagIds = collect($request->tags)->map(function ($tag) {
                 // Если тег - строка, создаем новый тег
                 if (is_string($tag)) {
-                    return Tag::firstOrCreate(['name' => trim($tag)])->id;
+                    $tagName = trim($tag);
+                    // Проверяем, существует ли тег с таким именем
+                    $existingTag = Tag::where('name', $tagName)->first();
+                    if ($existingTag) {
+                        return $existingTag->id;
+                    }
+                    // Создаем новый тег
+                    $newTag = Tag::create([
+                        'name' => $tagName,
+                        'slug' => \Str::slug($tagName)
+                    ]);
+                    return $newTag->id;
                 }
                 // Если тег - число, используем его как есть
                 return is_numeric($tag) ? (int)$tag : null;
@@ -196,7 +204,18 @@ class PostController extends Controller
             $tagIds = collect($request->tags)->map(function ($tag) {
                 // Если тег - строка, создаем новый тег
                 if (is_string($tag)) {
-                    return Tag::firstOrCreate(['name' => trim($tag)])->id;
+                    $tagName = trim($tag);
+                    // Проверяем, существует ли тег с таким именем
+                    $existingTag = Tag::where('name', $tagName)->first();
+                    if ($existingTag) {
+                        return $existingTag->id;
+                    }
+                    // Создаем новый тег
+                    $newTag = Tag::create([
+                        'name' => $tagName,
+                        'slug' => \Str::slug($tagName)
+                    ]);
+                    return $newTag->id;
                 }
                 // Если тег - число, используем его как есть
                 return is_numeric($tag) ? (int)$tag : null;
