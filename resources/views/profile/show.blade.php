@@ -298,17 +298,21 @@
                                                         
                                                         <div class="comments-container" id="comments-container-{{ $post->id }}">
                                                             @auth
-                                                                <div class="comment-form-container mt-4">
-                                                                    <form action="{{ route('posts.comments.store', $post) }}" method="POST" class="comment-form">
-                                                                        @csrf
-                                                                        <div class="input-group">
-                                                                            <textarea name="content" class="form-control comment-textarea" rows="1" placeholder="Комментарий..."></textarea>
-                                                                            <button type="submit" class="btn btn-primary comment-submit-btn">
-                                                                                Отправить
-                                                                            </button>
-                                                                        </div>
-                                                                    </form>
-                                                                </div>
+                                                                @if(auth()->user()->isRestricted())
+                                                                    <div class="alert alert-warning text-center mb-3">Вы временно ограничены в действиях и не можете оставлять комментарии.</div>
+                                                                @else
+                                                                    <div class="comment-form-container mt-4">
+                                                                        <form action="{{ route('posts.comments.store', $post) }}" method="POST" class="comment-form">
+                                                                            @csrf
+                                                                            <div class="input-group">
+                                                                                <textarea name="content" class="form-control comment-textarea" rows="1" placeholder="Комментарий..."></textarea>
+                                                                                <button type="submit" class="btn btn-primary comment-submit-btn">
+                                                                                    Отправить
+                                                                                </button>
+                                                                            </div>
+                                                                        </form>
+                                                                    </div>
+                                                                @endif
                                                             @else
                                                                 <div class="text-center py-3 mt-3">
                                                                     <p class="mb-0">Чтобы оставить комментарий, <a href="{{ route('login') }}">войдите</a> или <a href="{{ route('register') }}">зарегистрируйтесь</a></p>
@@ -346,17 +350,21 @@
                                                                                 </div>
                                                                                 
                                                                                 <!-- Форма ответа на комментарий -->
-                                                                                <div class="reply-form-container" id="reply-form-{{ $comment->id }}">
-                                                                                    <form action="{{ route('comments.replies.store', $comment) }}" method="POST" class="reply-form">
-                                                                                        @csrf
-                                                                                        <div class="input-group">
-                                                                                            <textarea name="content" class="form-control reply-textarea" rows="1" placeholder="Ответить..."></textarea>
-                                                                                            <button type="submit" class="btn btn-primary reply-submit-btn">
-                                                                                                Отправить
-                                                                                            </button>
-                                                                                        </div>
-                                                                                    </form>
-                                                                                </div>
+                                                                                @if(auth()->check() && auth()->user()->isRestricted())
+                                                                                    <div class="alert alert-warning text-center mb-2">Вы временно ограничены в действиях и не можете отвечать на комментарии.</div>
+                                                                                @else
+                                                                                    <div class="reply-form-container" id="reply-form-{{ $comment->id }}">
+                                                                                        <form action="{{ route('comments.replies.store', $comment) }}" method="POST" class="reply-form">
+                                                                                            @csrf
+                                                                                            <div class="input-group">
+                                                                                                <textarea name="content" class="form-control reply-textarea" rows="1" placeholder="Ответить..."></textarea>
+                                                                                                <button type="submit" class="btn btn-primary reply-submit-btn">
+                                                                                                    Отправить
+                                                                                                </button>
+                                                                                            </div>
+                                                                                        </form>
+                                                                                    </div>
+                                                                                @endif
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -517,17 +525,21 @@
                                                         
                                                         <div class="comments-container" id="comments-container-{{ $post->id }}">
                                                             @auth
-                                                                <div class="comment-form-container mt-4">
-                                                                    <form action="{{ route('posts.comments.store', $post) }}" method="POST" class="comment-form">
-                                                                        @csrf
-                                                                        <div class="input-group">
-                                                                            <textarea name="content" class="form-control comment-textarea" rows="1" placeholder="Комментарий..."></textarea>
-                                                                            <button type="submit" class="btn btn-primary comment-submit-btn">
-                                                                                Отправить
-                                                                            </button>
-                                                                        </div>
-                                                                    </form>
-                                                                </div>
+                                                                @if(auth()->user()->isRestricted())
+                                                                    <div class="alert alert-warning text-center mb-3">Вы временно ограничены в действиях и не можете оставлять комментарии.</div>
+                                                                @else
+                                                                    <div class="comment-form-container mt-4">
+                                                                        <form action="{{ route('posts.comments.store', $post) }}" method="POST" class="comment-form">
+                                                                            @csrf
+                                                                            <div class="input-group">
+                                                                                <textarea name="content" class="form-control comment-textarea" rows="1" placeholder="Комментарий..."></textarea>
+                                                                                <button type="submit" class="btn btn-primary comment-submit-btn">
+                                                                                    Отправить
+                                                                                </button>
+                                                                            </div>
+                                                                        </form>
+                                                                    </div>
+                                                                @endif
                                                             @else
                                                                 <div class="text-center py-3 mt-3">
                                                                     <p class="mb-0">Чтобы оставить комментарий, <a href="{{ route('login') }}">войдите</a> или <a href="{{ route('register') }}">зарегистрируйтесь</a></p>
@@ -565,17 +577,21 @@
                                                                                 </div>
                                                                                 
                                                                                 <!-- Форма ответа на комментарий -->
-                                                                                <div class="reply-form-container" id="reply-form-{{ $comment->id }}">
-                                                                                    <form action="{{ route('comments.replies.store', $comment) }}" method="POST" class="reply-form">
-                                                                                        @csrf
-                                                                                        <div class="input-group">
-                                                                                            <textarea name="content" class="form-control reply-textarea" rows="1" placeholder="Ответить..."></textarea>
-                                                                                            <button type="submit" class="btn btn-primary reply-submit-btn">
-                                                                                                Отправить
-                                                                                            </button>
-                                                                                        </div>
-                                                                                    </form>
-                                                                                </div>
+                                                                                @if(auth()->check() && auth()->user()->isRestricted())
+                                                                                    <div class="alert alert-warning text-center mb-2">Вы временно ограничены в действиях и не можете отвечать на комментарии.</div>
+                                                                                @else
+                                                                                    <div class="reply-form-container" id="reply-form-{{ $comment->id }}">
+                                                                                        <form action="{{ route('comments.replies.store', $comment) }}" method="POST" class="reply-form">
+                                                                                            @csrf
+                                                                                            <div class="input-group">
+                                                                                                <textarea name="content" class="form-control reply-textarea" rows="1" placeholder="Ответить..."></textarea>
+                                                                                                <button type="submit" class="btn btn-primary reply-submit-btn">
+                                                                                                    Отправить
+                                                                                                </button>
+                                                                                            </div>
+                                                                                        </form>
+                                                                                    </div>
+                                                                                @endif
                                                                             </div>
                                                                         </div>
                                                                     </div>

@@ -95,6 +95,10 @@ class PostController extends Controller
 
     public function store(Request $request)
     {
+        if (auth()->check() && auth()->user()->isRestricted()) {
+            abort(403, 'Вы временно ограничены в действиях до ' . auth()->user()->restricted_until->format('d.m.Y H:i'));
+        }
+
         $validated = $request->validate([
             'title' => 'required|string|max:255|regex:/^[\p{L}\p{N}\p{P}\p{Z}\p{Sm}\p{Sc}\p{Sk}\p{So}\s]+$/u',
             'content' => 'required|string|regex:/^[\p{L}\p{N}\p{P}\p{Z}\p{Sm}\p{Sc}\p{Sk}\p{So}\s]+$/u',

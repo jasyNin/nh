@@ -55,6 +55,16 @@
                             </div>
                         </div>
                     </div>
+                    
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card h-100 border-0">
+                            <div class="card-body">
+                                <h5 class="card-title">Логи системы</h5>
+                                <p class="card-text">Просмотр последних системных логов</p>
+                                <a href="{{ route('admin.logs.index') }}" class="btn btn-primary">Перейти</a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

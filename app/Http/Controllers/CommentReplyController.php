@@ -13,6 +13,10 @@ class CommentReplyController extends Controller
 
     public function store(Request $request, Comment $comment)
     {
+        if (auth()->check() && auth()->user()->isRestricted()) {
+            abort(403, 'Вы временно ограничены в действиях до ' . auth()->user()->restricted_until->format('d.m.Y H:i'));
+        }
+
         $request->validate([
             'content' => 'required|string|min:1|max:1000|regex:/^[\p{L}\p{N}\p{P}\p{Z}\p{Sm}\p{Sc}\p{Sk}\p{So}\s]+$/u'
         ]);

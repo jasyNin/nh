@@ -33,6 +33,7 @@ class User extends Authenticatable
         'rating',
         'rank',
         'last_notification_view',
+        'restricted_until',
     ];
 
     /**
@@ -57,6 +58,7 @@ class User extends Authenticatable
             'password' => 'hashed',
             'rating' => 'integer',
             'last_notification_view' => 'datetime',
+            'restricted_until' => 'datetime',
         ];
     }
 
@@ -195,6 +197,11 @@ class User extends Authenticatable
     public function getTotalComplaintsCountAttribute()
     {
         return $this->complaints()->count() + $this->commentComplaints()->count();
+    }
+
+    public function isRestricted(): bool
+    {
+        return $this->restricted_until && $this->restricted_until->isFuture();
     }
 
     protected static function boot()

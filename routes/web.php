@@ -34,6 +34,7 @@ use App\Http\Controllers\PostLikeController;
 use App\Http\Controllers\PostRepostController;
 use App\Http\Controllers\Admin\BotDebugController;
 use App\Http\Controllers\ModeratorController;
+use App\Http\Controllers\Admin\LogController;
 
 // Главная страница
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -121,6 +122,9 @@ Route::middleware('auth')->group(function () {
     Route::get('admin/complaints/{complaint}', [ComplaintController::class, 'show'])->name('admin.complaints.show');
     Route::post('admin/complaints/{complaint}', [ComplaintController::class, 'update'])->name('admin.complaints.update');
     Route::delete('admin/complaints/{complaint}', [ComplaintController::class, 'destroy'])->name('admin.complaints.destroy');
+
+    // Маршруты для просмотра логов системы в админке
+    Route::get('admin/logs', [LogController::class, 'index'])->name('admin.logs.index');
 });
 
 // Посты
@@ -193,7 +197,7 @@ Route::middleware(['auth'])->prefix('moderator')->name('moderator.')->group(func
     // Маршруты для управления контентом
     Route::post('/posts/{post}/hide', [ModeratorController::class, 'hidePost'])->name('posts.hide');
     Route::post('/comments/{comment}/hide', [ModeratorController::class, 'hideComment'])->name('comments.hide');
-    Route::post('/users/{user}/restrict', [ModeratorController::class, 'restrictUser'])->name('users.restrict');
+    Route::post('users/{user}/restrict', [ModeratorController::class, 'restrictUser'])->name('users.restrict');
     Route::delete('/users/{user}', [ModeratorController::class, 'deleteUser'])->name('users.delete');
     
     // Маршруты для жалоб

@@ -121,10 +121,19 @@ class ModeratorController extends Controller
         return back()->with('success', 'Комментарий скрыт');
     }
 
-    public function restrictUser(User $user)
+    public function restrictUser(Request $request, User $user)
     {
         $this->checkModerator();
-        $user->update(['is_restricted' => true]);
+        $duration = $request->input('duration');
+        $user->restricted_until = null;
+        $user->save();
+        if ($duration === 'forever') {
+            $restrictedUntil = now()->addYears(100);
+        } else {
+            $restrictedUntil = now()->addDays((int)$duration);
+        }
+        $user->update(['restricted_until' => $restrictedUntil]);
+        $user->refresh();
         return back()->with('success', 'Пользователь ограничен');
     }
 

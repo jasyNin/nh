@@ -46,7 +46,7 @@
                                             <td>{{ $user->email }}</td>
                                             <td>{{ $user->created_at->format('d.m.Y') }}</td>
                                             <td>
-                                                @if($user->is_restricted)
+                                                @if($user->isRestricted())
                                                     <span class="badge bg-danger">Ограничен</span>
                                                 @else
                                                     <span class="badge bg-success">Активен</span>
@@ -73,11 +73,8 @@
                                             <td>
                                                 <div class="d-flex flex-wrap gap-2">
                                                     <a href="{{ route('users.show', $user) }}" class="btn btn-sm btn-action">Профиль</a>
-                                                    @if(!$user->is_restricted)
-                                                        <form action="{{ route('moderator.users.restrict', $user) }}" method="POST" class="d-inline">
-                                                            @csrf
-                                                            <button type="submit" class="btn btn-sm btn-action">Ограничить</button>
-                                                        </form>
+                                                    @if(!$user->isRestricted())
+                                                        <button type="button" class="btn btn-sm btn-action restrict-btn" data-user-id="{{ $user->id }}" data-user-name="{{ $user->name }}">Ограничить</button>
                                                     @endif
                                                     <form action="{{ route('moderator.users.delete', $user) }}" method="POST" class="d-inline">
                                                         @csrf
@@ -98,6 +95,39 @@
     </div>
 </div>
 
+<!-- Модальное окно ограничения пользователя -->
+<div class="modal fade" id="restrictModal" tabindex="-1" aria-labelledby="restrictModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form id="restrictForm" method="POST" action="">
+      @csrf
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="restrictModalLabel">Ограничить пользователя</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Пользователь:</label>
+            <span id="restrictUserName" class="fw-bold"></span>
+          </div>
+          <div class="mb-3">
+            <label for="restrictDuration" class="form-label">На какой срок ограничить?</label>
+            <select name="duration" id="restrictDuration" class="form-select" required>
+              <option value="1">1 день</option>
+              <option value="3">3 дня</option>
+              <option value="7">1 неделя</option>
+              <option value="30">1 месяц</option>
+              <option value="forever">Навсегда</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-warning">Ограничить</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
 @push('styles')
 <style>
     .container {
@@ -171,5 +201,55 @@
         margin-right: 0;
     }
 </style>
+@endpush
+@push('scripts')
+<script>
+document.querySelectorAll('.restrict-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    const userId = this.dataset.userId;
+    const userName = this.dataset.userName;
+    document.getElementById('restrictForm').action = '/moderator/users/' + userId + '/restrict';
+    document.getElementById('restrictUserName').textContent = userName;
+    new bootstrap.Modal(document.getElementById('restrictModal')).show();
+  });
+});
+
+// AJAX ограничение пользователя и обновление таблицы
+const restrictForm = document.getElementById('restrictForm');
+if (restrictForm) {
+    restrictForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        const action = this.action;
+        fetch(action, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: formData
+        })
+        .then(response => {
+            if (response.redirected) {
+                window.location.href = response.url;
+                return;
+            }
+            return response.text();
+        })
+        .then(() => {
+            // После успешного ограничения — обновить таблицу пользователей через AJAX
+            fetch(window.location.href, {headers: {'X-Requested-With': 'XMLHttpRequest'}})
+                .then(r => r.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const newTable = doc.querySelector('.table-responsive');
+                    document.querySelector('.table-responsive').innerHTML = newTable.innerHTML;
+                });
+            // Закрыть модалку
+            bootstrap.Modal.getInstance(document.getElementById('restrictModal')).hide();
+        });
+    });
+}
+</script>
 @endpush
 @endsection 

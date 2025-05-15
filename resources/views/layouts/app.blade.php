@@ -28,6 +28,36 @@
     @stack('styles')
 </head>
 <body>
+    @auth
+        @if(auth()->user()->isRestricted())
+            <div id="restriction-alert" class="alert alert-danger text-center restriction-fixed-alert" style="font-size: 1.2em; z-index: 1050;">
+                <b id="restriction-msg">Вы ограничены в действиях до <span id="restriction-until">{{ auth()->user()->restricted_until->format('d.m.Y H:i') }}</span>.</b>
+            </div>
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    let restrictionEnded = false;
+                    const untilDate = new Date("{{ auth()->user()->restricted_until->format('Y-m-d H:i:s') }}".replace(/-/g, '/').replace(' ', 'T'));
+                    function checkRestrictionEnd() {
+                        const now = new Date();
+                        if (now >= untilDate && !restrictionEnded) {
+                            restrictionEnded = true;
+                            var alertElem = document.getElementById('restriction-alert');
+                            var msgElem = document.getElementById('restriction-msg');
+                            if (alertElem) {
+                                alertElem.classList.remove('alert-danger');
+                                alertElem.classList.add('alert-success');
+                            }
+                            if (msgElem) msgElem.textContent = 'Ограничение снято!';
+                        } else if (!restrictionEnded) {
+                            setTimeout(checkRestrictionEnd, 1000);
+                        }
+                    }
+                    checkRestrictionEnd();
+                });
+            </script>
+        @endif
+    @endauth
+
     <!-- Навигация -->
     <nav class="navbar navbar-expand-lg navbar-light fixed-top">
         <div class="container">
@@ -341,7 +371,18 @@
     .user-dropdown .dropdown-item.settings-btn {
         margin-bottom: 4px;
     }
-    
+    .restriction-fixed-alert {
+        position: fixed;
+        top: 56px; /* высота navbar */
+        left: 0;
+        right: 0;
+        margin: 0;
+        border-radius: 0;
+        z-index: 1050;
+    }
+    @media (max-width: 991px) {
+        .restriction-fixed-alert { top: 56px; }
+    }
     </style>
 
     <script>

@@ -18,6 +18,10 @@ class ReplyToReplyController extends Controller
      */
     public function store(Request $request, Reply $reply)
     {
+        if (auth()->check() && auth()->user()->isRestricted()) {
+            abort(403, 'Вы временно ограничены в действиях до ' . auth()->user()->restricted_until->format('d.m.Y H:i'));
+        }
+
         $request->validate([
             'content' => 'required|string|max:1000',
         ]);
