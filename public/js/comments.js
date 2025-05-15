@@ -141,7 +141,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const commentId = this.dataset.commentId;
             const content = this.querySelector('textarea').value;
             fetch(`/comments/${commentId}`, {
-                method: 'PATCH',
+                method: 'PUT',
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                     'Content-Type': 'application/json',
@@ -179,8 +179,8 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             const replyId = this.dataset.replyId;
             const content = this.querySelector('textarea').value;
-            fetch(`/replies/${replyId}`, {
-                method: 'PATCH',
+            fetch(`/comments/replies/${replyId}`, {
+                method: 'PUT',
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                     'Content-Type': 'application/json',
