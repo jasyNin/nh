@@ -44,15 +44,7 @@
                         </div>
                     </div>
                     
-                    <div class="col-md-6 col-lg-4">
-                        <div class="card h-100 border-0">
-                            <div class="card-body">
-                                <h5 class="card-title">Настройки</h5>
-                                <p class="card-text">Настройка параметров сайта и системных опций</p>
-                                <a href="{{ route('admin.settings.index') }}" class="btn btn-primary">Перейти</a>
-                            </div>
-                        </div>
-                    </div>
+                    
 
                     <div class="col-md-6 col-lg-4">
                         <div class="card h-100 border-0">
