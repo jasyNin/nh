@@ -90,6 +90,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('replies/{reply}', [CommentReplyController::class, 'destroy'])->name('replies.destroy');
     Route::post('/replies/{reply}/like', [ReplyLikeController::class, 'toggle'])->name('replies.like')->middleware('auth');
     Route::post('/replies/{reply}/replies', [ReplyToReplyController::class, 'store'])->name('replies.replies.store');
+    Route::patch('comments/{comment}', [CommentController::class, 'update'])->name('comments.update.patch');
+    Route::patch('comments/replies/{reply}', [CommentReplyController::class, 'update'])->name('comments.replies.update.patch');
 
     Route::get('drafts', [DraftController::class, 'index'])->name('drafts.index');
     Route::get('drafts/{post}', [DraftController::class, 'show'])->name('drafts.show');
