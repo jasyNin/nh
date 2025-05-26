@@ -7,8 +7,12 @@ document.addEventListener('DOMContentLoaded', function() {
             const postId = this.closest('.post-card').querySelector('.like-button').dataset.postId;
             
             try {
-                // Копируем URL в буфер обмена
-                await navigator.clipboard.writeText(postUrl);
+                // Пытаемся скопировать URL в буфер обмена
+                try {
+                    await navigator.clipboard.writeText(postUrl);
+                } catch (clipboardError) {
+                    console.log('Копирование в буфер обмена не поддерживается');
+                }
                 
                 // Отправляем запрос на сервер для обновления счетчика репостов
                 const response = await fetch(`/posts/${postId}/repost`, {
