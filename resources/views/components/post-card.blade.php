@@ -140,7 +140,9 @@
                     </button>
 
                     @auth
-                    <button class="btn btn-link text-dark p-0 me-4 share-button {{ $post->repostedBy(auth()->user()) ? 'active' : '' }}" data-post-url="{{ route('posts.show', $post) }}">
+                    <button class="btn btn-link text-dark p-0 me-4 share-button {{ $post->repostedBy(auth()->user()) ? 'active' : '' }}" 
+                            data-post-id="{{ $post->id }}"
+                            data-post-url="{{ url('/posts/' . $post->id) }}">
                         <div class="icon-wrapper">
                             <img src="{{ asset('images/reply.svg') }}" alt="Поделиться" width="20" height="21" class="{{ $post->repostedBy(auth()->user()) ? 'reposted' : '' }}">
                         </div>
