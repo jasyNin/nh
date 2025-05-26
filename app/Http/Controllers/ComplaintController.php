@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Complaint;
+use App\Models\Comment;
+use App\Models\CommentReply;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -107,6 +109,15 @@ class ComplaintController extends Controller
         try {
             // Проверяем существование объекта жалобы
             $complaintableClass = $validated['complaintable_type'];
+            if (!class_exists($complaintableClass)) {
+                return redirect()->back()->with('error', 'Неверный тип объекта жалобы');
+            }
+            
+            // Проверяем, что тип объекта соответствует ожидаемому
+            if (!in_array($complaintableClass, [Comment::class, CommentReply::class])) {
+                return redirect()->back()->with('error', 'Неподдерживаемый тип объекта жалобы');
+            }
+            
             $complaintable = $complaintableClass::find($validated['complaintable_id']);
             
             if (!$complaintable) {

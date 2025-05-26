@@ -60,7 +60,7 @@
                 <form action="{{ route('moderator.complaints.store') }}" method="POST">
                     @csrf
                     <input type="hidden" name="complaintable_id" value="{{ $comment->id }}">
-                    <input type="hidden" name="complaintable_type" value="App\\Models\\Comment">
+                    <input type="hidden" name="complaintable_type" value="App\Models\Comment">
                     <div class="modal-body">
                         <input type="hidden" name="target_type" value="comment">
                         <div class="mb-3">
@@ -108,7 +108,7 @@
                     <form action="{{ route('moderator.complaints.store') }}" method="POST">
                         @csrf
                         <input type="hidden" name="complaintable_id" value="{{ $reply->id }}">
-                        <input type="hidden" name="complaintable_type" value="App\\Models\\Reply">
+                        <input type="hidden" name="complaintable_type" value="App\Models\CommentReply">
                         <div class="modal-body">
                             <input type="hidden" name="target_type" value="reply">
                             <div class="mb-3">
